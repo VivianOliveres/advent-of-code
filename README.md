@@ -3,4 +3,4 @@
 
 # Advent of Code solutions in Scala
 
-[Scala](https://adventofcode.com)
+[Advent Of Code](https://adventofcode.com)
