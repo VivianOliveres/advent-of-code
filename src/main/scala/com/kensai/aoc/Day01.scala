@@ -3,7 +3,7 @@ package com.kensai.aoc
 object Day01 {
 
   /**
-   * Compute the multiplication of the two first numbers from {@code candidates}
+   * Compute the multiplication of the two numbers from {@code candidates}
    * that the sum is equal to {@code expectedSum}.
    *
    * Return {@code None} if the expected sum cannot be found.
@@ -21,10 +21,19 @@ object Day01 {
         if (sum > expectedSum) lastIndex = lastIndex - 1
         else  firstIndex = firstIndex + 1
       }
-
     }
-
     None
-
   }
+
+  /**
+   * Compute the multiplication of the three numbers from {@code candidates}
+   * that the sum is equal to {@code expectedSum}.
+   *
+   * Return {@code None} if the expected sum cannot be found.
+   */
+  def compute3(expectedSum: Long, candidates: List[Long]): Option[Long] =
+    candidates.map(number => compute(expectedSum - number, candidates).map(_ * number))
+      .find(_.isDefined)
+      .flatten
+
 }
