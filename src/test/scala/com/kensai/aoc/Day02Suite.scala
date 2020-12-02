@@ -71,23 +71,56 @@ class Day02Suite extends AnyFlatSpec {
     result should be (None)
   }
 
-  "validPasswordCount for rows from specs" should "return 2" in {
+  "isPasswordValidPart1 for Row1" should "return True" in {
+    // GIVEN: specs
+    val inputs = Row1
+
+    // WHEN: isPasswordValidPart1
+    val result = isPasswordValidPart1(inputs)
+
+    // THEN: result is True
+    result should be (true)
+  }
+
+  "isPasswordValidPart1 for Row2" should "return False" in {
+    // GIVEN: specs
+    val inputs = Row2
+
+    // WHEN: isPasswordValidPart1
+    val result = isPasswordValidPart1(inputs)
+
+    // THEN: result is False
+    result should be (false)
+  }
+
+  "isPasswordValidPart1 for Row3" should "return True" in {
+    // GIVEN: specs
+    val inputs = Row3
+
+    // WHEN: isPasswordValidPart1
+    val result = isPasswordValidPart1(inputs)
+
+    // THEN: result is True
+    result should be (true)
+  }
+
+  "validPasswordCount for rows from specs" should "return 2 for Part1" in {
     // GIVEN: specs
     val inputs = List(Row1, Row2, Row3)
 
     // WHEN: validPasswordCount
-    val result = validPasswordCount(inputs)
+    val result = validPasswordCount(inputs)(isPasswordValidPart1)
 
     // THEN: result is 2
     result should be (2)
   }
 
-  "validPasswordCount" should "return solution" in {
+  "validPasswordCount" should "return solution for Part1" in {
     // GIVEN: inputs
     val inputs = readInputFile("src/test/resources/Day02.input")
 
     // WHEN: validPasswordCount
-    val result = validPasswordCount(inputs)
+    val result = validPasswordCount(inputs)(isPasswordValidPart1)
 
     // THEN: print solution
     println(s"Solution is $result")
@@ -101,5 +134,62 @@ class Day02Suite extends AnyFlatSpec {
       .filterNot(_.isEmpty)
       .flatMap(parse)
       .toList
+
+
+  "isPasswordValidPart2 for Row1" should "return True" in {
+    // GIVEN: specs
+    val inputs = Row1
+
+    // WHEN: isPasswordValidPart1
+    val result = isPasswordValidPart2(inputs)
+
+    // THEN: result is True
+    result should be (true)
+  }
+
+  "isPasswordValidPart2 for Row2" should "return False" in {
+    // GIVEN: specs
+    val inputs = Row2
+
+    // WHEN: isPasswordValidPart1
+    val result = isPasswordValidPart2(inputs)
+
+    // THEN: result is False
+    result should be (false)
+  }
+
+  "isPasswordValidPart2 for Row3" should "return False" in {
+    // GIVEN: specs
+    val inputs = Row3
+
+    // WHEN: isPasswordValidPart1
+    val result = isPasswordValidPart2(inputs)
+
+    // THEN: result is False
+    result should be (false)
+  }
+
+  "validPasswordCount for rows from specs" should "return 1 for Part2" in {
+    // GIVEN: specs
+    val inputs = List(Row1, Row2, Row3)
+
+    // WHEN: validPasswordCount
+    val result = validPasswordCount(inputs)(isPasswordValidPart2)
+
+    // THEN: result is 1
+    result should be (1)
+  }
+
+  "validPasswordCount" should "return solution for Part2" in {
+    // GIVEN: inputs
+    val inputs = readInputFile("src/test/resources/Day02.input")
+
+    // WHEN: validPasswordCount
+    val result = validPasswordCount(inputs)(isPasswordValidPart2)
+
+    // THEN: print solution
+    println(s"Solution is $result")
+    result should (be > 0)
+  }
 
 }
