@@ -2,7 +2,7 @@ package com.kensai.aoc
 
 object Day02 {
 
-  case class PasswordRow(lowestValue: Int, higherValue: Int, value: Char, password: String)
+  case class PasswordRow(firstIndex: Int, lastIndex: Int, expectedChar: Char, password: String)
 
   /**
    * Parse the {@code input} string into a {@code PasswordRow}.<br>
@@ -26,16 +26,28 @@ object Day02 {
   }
 
   /**
-   * Check that input is a valid {@code PasswordRow}.
+   * Check that input is a valid {@code PasswordRow}.<br>
+   * It checks that {@code PasswordRow.expectedChar} is present between
+   * {@code PasswordRow.firstIndex} and {@code PasswordRow.lastIndex} times into
+   * {@code PasswordRow.password}.
    */
-  def isPasswordValid(candidate: PasswordRow): Boolean = {
-    val count = candidate.password.count(p => p == candidate.value)
-    candidate.lowestValue <= count && count <= candidate.higherValue
+  def isPasswordValidPart1(candidate: PasswordRow): Boolean = {
+    val count = candidate.password.count(p => p == candidate.expectedChar)
+    candidate.firstIndex <= count && count <= candidate.lastIndex
   }
+
+  /**
+   * Check that input is a valid {@code PasswordRow}.<br>
+   * It checks that {@code PasswordRow.expectedChar} is present at
+   * {@code PasswordRow.firstIndex} or {@code PasswordRow.lastIndex} into
+   * {@code PasswordRow.password} but not at both positions.
+   */
+  def isPasswordValidPart2(candidate: PasswordRow): Boolean =
+    candidate.password(candidate.firstIndex - 1) == candidate.expectedChar ^ candidate.password(candidate.lastIndex - 1) == candidate.expectedChar
 
   /**
    * Count the number of valid {@code PasswordRow} from {@code candidates}.
    */
-  def validPasswordCount(candidates: List[PasswordRow]): Int =
-    candidates.count(isPasswordValid)
+  def validPasswordCount(candidates: List[PasswordRow])(validator: PasswordRow => Boolean): Int =
+    candidates.count(validator)
 }
