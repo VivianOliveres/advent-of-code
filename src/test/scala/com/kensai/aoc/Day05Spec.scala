@@ -2,30 +2,65 @@ package com.kensai.aoc
 
 import com.kensai.aoc.Day05._
 import org.junit.runner.RunWith
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.prop.TableDrivenPropertyChecks
-import org.scalatest.propspec.AnyPropSpec
+import org.scalatest.GivenWhenThen
+import org.scalatest.flatspec._
+import org.scalatest.matchers.should.Matchers._
 import org.scalatestplus.junit.JUnitRunner
 
+import scala.io.Source
+
 @RunWith(classOf[JUnitRunner])
-class Day05Spec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers {
+class Day05Spec extends AnyFlatSpec with GivenWhenThen with Day05Fixtures {
 
-  case class TestInputs(input: String, expectedRow: Long, expectedColumn: Long, expectedSeatId: Long)
+  private val InputPath = "src/test/resources/Day05.input"
 
-  val inputs = Table(
-    "values",
-    TestInputs("FBFBBFFRLR", 44L, 5L, 357L),
-    TestInputs("BFFFBBFRRR", 70L, 7L, 567L),
-    TestInputs("FFFBBBFRRR", 14L, 7L, 119L),
-    TestInputs("BBFFBBFRLL", 102L, 4L, 820L)
-  )
+  "computeHighestSeatId for (Row1, Row2, Row3, Row4))" should "return 820" in {
+    val inputs = List(Row1, Row2, Row3, Row4)
+    Given(s"Input is $inputs")
 
-  property("computeRow and computeColumn and computeSeatId should be valid for spec inputs") {
-    forAll (inputs) { values: TestInputs =>
-      computeRow(values.input) shouldBe values.expectedRow
-      computeColumn(values.input) shouldBe values.expectedColumn
-      computeSeatId(values.input) shouldBe values.expectedSeatId
-    }
+    When(s"computeHighestSeatId($inputs)")
+    val result = computeHighestSeatId(inputs)
+
+    Then(s"Result is 820")
+    result should be(820)
   }
+
+  "computeHighestSeatId" should "find solution" in {
+    Given("Puzzle input")
+    val inputs = readInputFile(InputPath)
+
+    When(s"computeHighestSeatId(inputs)")
+    val result = computeHighestSeatId(inputs)
+
+    Then(s"Result is 818")
+    result should be(818)
+  }
+
+  "findSeatId" should "find solution" in {
+    Given("Puzzle input")
+    val inputs = readInputFile(InputPath)
+
+    When(s"findSeatId(inputs)")
+    val result = findSeatId(inputs)
+
+    Then(s"Result is 559")
+    result should be(559)
+  }
+
+  "findSeatIdAlternative" should "find solution" in {
+    Given("Puzzle input")
+    val inputs = readInputFile(InputPath)
+
+    When(s"findSeatIdAlternative(inputs)")
+    val result = findSeatIdAlternative(inputs)
+
+    Then(s"Result is 559")
+    result should be(559)
+  }
+
+  private def readInputFile(path: String): List[String] =
+    Source.fromFile(path)
+      .getLines
+      .toList
 
 }
