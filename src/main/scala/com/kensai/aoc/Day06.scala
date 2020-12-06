@@ -25,14 +25,14 @@ object Day06 {
       .map(_.split("\n").toList.map(_.toSet))
 
   /**
-   * Copute the number of answers given by evey body in a group, and sum them over the group.
+   * Compute the number of answers given by every body in a group, and sum them over the group.
    */
   def sumEveryoneAnswers(input: String): Long =
     parseAnswersPerPerson(input)
       .map(s => countInGroup(s))
       .sum
 
-  private def countInGroup(answersForGroup: List[Set[Char]]): Long =
-    answersForGroup.foldLeft(answersForGroup.head)(_.intersect(_))
+  private def countInGroup(personAnswers: List[Set[Char]]): Long =
+    personAnswers.foldLeft(personAnswers.head)(_.intersect(_))
       .size
 }
