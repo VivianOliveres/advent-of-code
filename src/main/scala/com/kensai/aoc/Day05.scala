@@ -63,4 +63,20 @@ object Day05 {
     val row = cellsByRowIndex._1
     doComputeSeatId(row, missingColumn)
   }
+
+  /**
+   * Return the missing SeatId from all the given boarding passes.
+   */
+  def findSeatIdAlternative(inputs: List[String]): Long = {
+    // Compute all seatIds from input
+    val seatIds = inputs.map(computeSeatId).toSet
+
+    // Take the min
+    val minSeatId = seatIds.min
+
+    // Find missing seatIds
+    (minSeatId to 120L * 8 + 7)     //generate all possibilities
+      .filterNot(seatIds.contains)  // take missing values
+      .min                          // keep the first missing (to avoid the missing rows from max values)
+  }
 }

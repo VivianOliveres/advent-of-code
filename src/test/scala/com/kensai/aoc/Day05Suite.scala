@@ -51,6 +51,17 @@ class Day05Suite extends AnyFlatSpec {
     result should be(559)
   }
 
+  "findSeatIdAlternative" should "find solution" in {
+    // GIVEN: input from specs
+    val inputs = readInputFile(InputPath)
+
+    // WHEN: findSeatIdAlternative
+    val result = findSeatIdAlternative(inputs)
+
+    // THEN: ID is 559
+    result should be(559)
+  }
+
   private def readInputFile(path: String): List[String] =
     Source.fromFile(path)
       .getLines
