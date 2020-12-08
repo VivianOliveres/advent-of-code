@@ -2,20 +2,24 @@ package com.kensai.aoc
 
 object Day07 {
 
+  //shiny gold bags contain XYZ
+  private val headColorRegex = """([a-z ]+) bags contain (.*)\.""".r
+
+  //3 faded blue bags
+  //3 faded blue bag
+  private val countColorsRegex = """(\d+) ([a-z ]+) bags?""".r
+
   def parseColorContainedBy(input: String): Map[String, String] = {
-    val values = input.split("[ \\.]")
-      .toList
-      .map(_.trim)
-    val colors = values.zipWithIndex
-      .filter(_._1.startsWith("bag"))
-      .map { case (_, index) => values(index - 2) + " " + values(index - 1) }
-    colors.tail.toSet.filterNot(_ == "no other").map(_ -> colors.head).toMap
+    val (headColor, colorCount) = doParseColorContaining(input)
+    colorCount
+      .keySet
+      .map(containedColor => containedColor -> headColor)
+      .toMap
   }
 
-  def parseColorContainedBy(inputs: List[String]): Map[String, Set[String]] = {
+  def parseColorContainedBy(inputs: List[String]): Map[String, Set[String]] =
     inputs.map(parseColorContainedBy)
       .foldLeft(Map.empty[String, Set[String]]) { case (l, r) => combine(l, r) }
-  }
 
   private def combine(acc: Map[String, Set[String]], other: Map[String, String]): Map[String, Set[String]] = {
     val keys = acc.keySet ++ other.keySet
@@ -44,28 +48,18 @@ object Day07 {
       .map(doParseColorContaining)
       .toMap
 
-  private def doParseColorContaining(input: String): (String, Map[String, Int]) = {
-    val firstSplit = input.split(" ").toList
-    val head = firstSplit.head + " " + firstSplit(1)
+  private def parseColors(input: String): Map[String, Int] =
+    input
+      .split(", ")
+      .filterNot(_ == "no other bags")
+      .map {
+        case countColorsRegex(count, color) => color -> count.toInt
+      }.toMap
 
-    val secondSplit = input.split("contain")
-      .toList
-      .tail // Second part of the "contain"
-      .head
-      .replaceAll("bags", "")
-      .replaceAll("bag", "")
-      .replaceAll("\\.", "")
-      .split(",")
-      .toList
-      .map(_.trim)
-      .filterNot(_ == "no other")
-      .map(s => {
-        val s2 = s.split(" ").toList
-        s2(1) + " " + s2(2) -> s2.head.toInt
-      }).toMap
-
-    (head, secondSplit)
-  }
+  private def doParseColorContaining(input: String): (String, Map[String, Int]) =
+    input match {
+      case headColorRegex(headColor, other) => (headColor, parseColors(other))
+    }
 
   private def doComputeBagContainingOtherBAgs(color: String, rules: Map[String, Map[String, Int]]): Long =
     rules

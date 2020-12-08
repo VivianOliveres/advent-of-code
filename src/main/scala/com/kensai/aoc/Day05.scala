@@ -51,7 +51,8 @@ object Day05 {
    * Return the missing SeatId from all the given boarding passes.
    */
   def findSeatId(inputs: List[String]): Long = {
-    val cellsByRowIndex = inputs.map(i => (computeRow(i), computeColumn(i), computeSeatId(i)))
+    val cellsByRowIndex = inputs
+      .map(i => (computeRow(i), computeColumn(i), computeSeatId(i)))
       .groupBy(_._1)
       .filter(_._2.size != 8)
       .map { case (row, other) => (row, other.groupBy(_._2)) }

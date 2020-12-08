@@ -71,18 +71,16 @@ object Day04 {
   case object PassportFieldHeightValidator extends PassportFieldValidator {
     override def name(): String = KeyHeight
 
+    private val cmRegex = """(\d+)cm""".r
+    private val inRegex = """(\d+)in""".r
+    private val numberRegex = """(\d+)""".r
+
     override def apply(passport: Passport): Boolean = {
       passport.get(name())
-        .exists(hgt => {
-          if (hgt.endsWith("cm")) {
-            val h = hgt.replaceAll("cm", "").toInt
-            if (h < 150 || h > 193) false else true
-          } else if (hgt.endsWith("in")) {
-            val h = hgt.replaceAll("in", "").toInt
-            if (h < 59 || h > 76) false else true
-          } else {
-            false
-          }
+        .exists(hgt => hgt match {
+          case cmRegex(h) => !(h.toInt < 150 || h.toInt > 193)
+          case inRegex(h) => !(h.toInt < 59 || h.toInt > 76)
+          case numberRegex(_) => false
         })
     }
   }
