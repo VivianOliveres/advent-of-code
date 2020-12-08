@@ -19,7 +19,8 @@ object Day06 {
    * Parse the input to return the list of different answers per person.
    */
   private def parseAnswersPerPerson(input: String): List[List[Set[Char]]] =
-    input.split("\n\n")
+    input
+      .split("\n\n")
       .toList
       .map(_.trim)
       .map(_.split("\n").toList.map(_.toSet))

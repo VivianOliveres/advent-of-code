@@ -4,26 +4,17 @@ object Day02 {
 
   case class PasswordRow(firstIndex: Int, lastIndex: Int, expectedChar: Char, password: String)
 
+  private val rowRegex = """(\d+)-(\d+) ([a-z]): ([a-z]+)""".r
+
   /**
    * Parse the {@code input} string into a {@code PasswordRow}.<br>
    * Return {@code None} if the string has an invalid format.
    */
-  def parse(input: String): Option[PasswordRow] = {
-    try {
-      val split = input.split("[- :]").toList.filterNot(_.isEmpty)
-      val lowestValue = split(0).toInt
-      val higherValue = split(1).toInt
-      val value = split(2).head
-      val password = split(3)
-      Some(PasswordRow(lowestValue, higherValue, value, password))
-
-    } catch {
-      case _: RuntimeException => {
-        System.err.println(s"Day02 - parse - Invalid format for input[$input]")
-        None
-      }
+  def parse(input: String): Option[PasswordRow] =
+    input match {
+      case rowRegex(lowestValue, higherValue, value, password) => Some(PasswordRow(lowestValue.toInt, higherValue.toInt, value.head, password))
+      case _ => None
     }
-  }
 
   /**
    * Check that input is a valid {@code PasswordRow}.<br>
