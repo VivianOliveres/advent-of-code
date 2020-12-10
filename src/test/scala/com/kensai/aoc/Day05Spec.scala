@@ -7,8 +7,6 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers._
 import org.scalatestplus.junit.JUnitRunner
 
-import scala.io.Source
-
 @RunWith(classOf[JUnitRunner])
 class Day05Spec extends AnyFlatSpec with GivenWhenThen with Day05Fixtures {
 
@@ -27,7 +25,7 @@ class Day05Spec extends AnyFlatSpec with GivenWhenThen with Day05Fixtures {
 
   "computeHighestSeatId" should "find solution" in {
     Given("Puzzle input")
-    val inputs = readInputFile(InputPath)
+    val inputs = readInputLines(InputPath)
 
     When(s"computeHighestSeatId(inputs)")
     val result = computeHighestSeatId(inputs)
@@ -38,7 +36,7 @@ class Day05Spec extends AnyFlatSpec with GivenWhenThen with Day05Fixtures {
 
   "findSeatId" should "find solution" in {
     Given("Puzzle input")
-    val inputs = readInputFile(InputPath)
+    val inputs = readInputLines(InputPath)
 
     When(s"findSeatId(inputs)")
     val result = findSeatId(inputs)
@@ -49,7 +47,7 @@ class Day05Spec extends AnyFlatSpec with GivenWhenThen with Day05Fixtures {
 
   "findSeatIdAlternative" should "find solution" in {
     Given("Puzzle input")
-    val inputs = readInputFile(InputPath)
+    val inputs = readInputLines(InputPath)
 
     When(s"findSeatIdAlternative(inputs)")
     val result = findSeatIdAlternative(inputs)
@@ -57,10 +55,5 @@ class Day05Spec extends AnyFlatSpec with GivenWhenThen with Day05Fixtures {
     Then(s"Result is 559")
     result should be(559)
   }
-
-  private def readInputFile(path: String): List[String] =
-    Source.fromFile(path)
-      .getLines
-      .toList
 
 }

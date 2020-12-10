@@ -7,8 +7,6 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers._
 import org.scalatestplus.junit.JUnitRunner
 
-import scala.io.Source
-
 @RunWith(classOf[JUnitRunner])
 class Day09Spec extends AnyFlatSpec with GivenWhenThen {
 
@@ -17,7 +15,7 @@ class Day09Spec extends AnyFlatSpec with GivenWhenThen {
 
   "firstInvalidNumber for spec" should "return 127" in {
     Given(s"Input is spec")
-    val inputs = readInputFile(InputSpecPath)
+    val inputs = readInputLines(InputSpecPath)
 
     When(s"firstInvalidNumber(input)")
     val result = firstInvalidNumber(5, inputs)
@@ -28,7 +26,7 @@ class Day09Spec extends AnyFlatSpec with GivenWhenThen {
 
   "firstInvalidNumber for puzzle" should "return solution" in {
     Given(s"Puzzle input")
-    val inputs = readInputFile(InputPath)
+    val inputs = readInputLines(InputPath)
 
     When(s"firstInvalidNumber(input)")
     val result = firstInvalidNumber(25, inputs)
@@ -39,7 +37,7 @@ class Day09Spec extends AnyFlatSpec with GivenWhenThen {
 
   "findContiguousSet for spec" should "return 62" in {
     Given(s"Input is spec")
-    val inputs = readInputFile(InputSpecPath)
+    val inputs = readInputLines(InputSpecPath)
 
     When(s"findContiguousSet(input)")
     val result = findContiguousSet(5, inputs)
@@ -50,7 +48,7 @@ class Day09Spec extends AnyFlatSpec with GivenWhenThen {
 
   "findContiguousSet for spec" should "return solution" in {
     Given(s"Input is spec")
-    val inputs = readInputFile(InputPath)
+    val inputs = readInputLines(InputPath)
 
     When(s"findContiguousSet(input)")
     val result = findContiguousSet(25, inputs)
@@ -58,10 +56,5 @@ class Day09Spec extends AnyFlatSpec with GivenWhenThen {
     Then(s"Result is 76688505")
     result shouldBe 76688505L
   }
-
-  private def readInputFile(path: String): List[String] =
-    Source.fromFile(path)
-      .getLines
-      .toList
 
 }

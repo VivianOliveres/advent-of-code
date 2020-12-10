@@ -7,8 +7,6 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers._
 import org.scalatestplus.junit.JUnitRunner
 
-import scala.io.Source
-
 @RunWith(classOf[JUnitRunner])
 class Day06Spec extends AnyFlatSpec with GivenWhenThen {
 
@@ -59,11 +57,5 @@ class Day06Spec extends AnyFlatSpec with GivenWhenThen {
     Then(s"Result is 3232")
     result shouldBe 3232
   }
-
-  private def readInputFile(path: String): String =
-    Source.fromFile(path)
-      .getLines
-      .toList
-      .mkString("\n")
 
 }
