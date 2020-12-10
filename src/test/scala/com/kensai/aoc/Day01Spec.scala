@@ -12,12 +12,13 @@ class Day01Spec extends AnyFlatSpec with GivenWhenThen {
 
   val ExpectedSum = 2020
 
+  private lazy val puzzleInput = readLongInputLines("src/test/resources/Day01.input")
+
   "compute" should "find result from input" in {
     Given("Puzzle input")
-    val input = readLongInputLines("src/test/resources/Day01.input")
 
     When("compute(2020, input)")
-    val result = compute(ExpectedSum, input)
+    val result = compute(ExpectedSum, puzzleInput)
 
     Then("Result is Some(1007104)")
     result shouldBe Some(1007104)
@@ -26,10 +27,9 @@ class Day01Spec extends AnyFlatSpec with GivenWhenThen {
   "compute3" should "find result from input" in {
     // GIVEN: input from specs
     Given("")
-    val input = readLongInputLines("src/test/resources/Day01.input")
 
     When("compute3(2020, input)")
-    val result = compute3(ExpectedSum, input)
+    val result = compute3(ExpectedSum, puzzleInput)
 
     Then("Result is Some(18847752)")
     result shouldBe Some(18847752)

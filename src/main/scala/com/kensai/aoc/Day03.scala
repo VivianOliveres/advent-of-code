@@ -23,6 +23,15 @@ object Day03 {
     }
   }
 
+  def parse(inputs: List[String]): Map[Int, TobogganRow] =
+    inputs
+      .filterNot(_.isEmpty)
+      .zipWithIndex
+      .map {case (row, y) => (row.trim, y)}
+      .map{case (row, y) => parse(row, y)}
+      .map(row => row.x -> row)
+      .toMap
+
   /**
    * Count the number of trees found when starting from (0, 0) position and incrementing current position by ({@code xSlope}, {@code ySlope}).
    */
