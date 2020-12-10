@@ -10,16 +10,16 @@ import org.scalatestplus.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class Day07Spec extends AnyFlatSpec with GivenWhenThen {
 
-  private val InputPath = "src/test/resources/Day07.input"
-  private val InputSpec1Path = "src/test/resources/Day07Spec1.input"
-  private val InputSpec2Path = "src/test/resources/Day07Spec2.input"
+  private lazy val puzzleInputs = readInputLines("src/test/resources/Day07.input")
+  private lazy val specInputs1 = readInputLines("src/test/resources/Day07Spec1.input")
+  private lazy val specInputs2 = readInputLines("src/test/resources/Day07Spec2.input")
+
 
   "parseColorContainedBy for spec" should "return a map of 7" in {
     Given(s"Input is spec")
-    val inputs = readInputLines(InputSpec1Path)
 
     When(s"parseColorContainedBy(input)")
-    val result = parseColorContainedBy(inputs)
+    val result = parseColorContainedBy(specInputs1)
 
     Then(s"Result is a map of 7")
     result("bright white") shouldBe Set("light red", "dark orange")
@@ -34,10 +34,9 @@ class Day07Spec extends AnyFlatSpec with GivenWhenThen {
 
   "bagsContaining(shiny gold) for specs" should "return 4" in {
     Given(s"Input is spec")
-    val inputs = readInputLines(InputSpec1Path)
 
     When(s"bagsContaining(shiny gold, input)")
-    val result = bagsContaining("shiny gold", inputs)
+    val result = bagsContaining("shiny gold", specInputs1)
 
     Then(s"Result is 4")
     result shouldBe 4
@@ -45,10 +44,9 @@ class Day07Spec extends AnyFlatSpec with GivenWhenThen {
 
   "bagsContaining(shiny gold) for inputs" should "find solution" in {
     Given(s"Puzzle input")
-    val inputs = readInputLines(InputPath)
 
     When(s"bagsContaining(shiny gold, input)")
-    val result = bagsContaining("shiny gold", inputs)
+    val result = bagsContaining("shiny gold", puzzleInputs)
 
     Then(s"Result is 142")
     result shouldBe 142L
@@ -56,10 +54,9 @@ class Day07Spec extends AnyFlatSpec with GivenWhenThen {
 
   "parseColorContaining for spec" should "return a map of 9" in {
     Given(s"Input is spec")
-    val inputs = readInputLines(InputSpec1Path)
 
     When(s"parseColorContaining()")
-    val result = parseColorContaining(inputs)
+    val result = parseColorContaining(specInputs1)
 
     Then(s"Result is empty")
     result should have size 9
@@ -76,10 +73,9 @@ class Day07Spec extends AnyFlatSpec with GivenWhenThen {
 
   "computeBagContainingOtherBags(shiny gold) for specs" should "return 32" in {
     Given(s"Input is spec")
-    val inputs = readInputLines(InputSpec1Path)
 
     When(s"computeBagContainingOtherBags(shiny gold, input)")
-    val result = computeBagContainingOtherBags("shiny gold", inputs)
+    val result = computeBagContainingOtherBags("shiny gold", specInputs1)
 
     Then(s"Result is 32")
     result shouldBe 32
@@ -87,10 +83,9 @@ class Day07Spec extends AnyFlatSpec with GivenWhenThen {
 
   "computeBagContainingOtherBAgs(shiny gold) for specs2" should "return 126" in {
     Given(s"Input is spec2")
-    val inputs = readInputLines(InputSpec2Path)
 
     When(s"computeBagContainingOtherBags(shiny gold, input)")
-    val result = computeBagContainingOtherBags("shiny gold", inputs)
+    val result = computeBagContainingOtherBags("shiny gold", specInputs2)
 
     Then(s"Result is 126")
     result shouldBe 126
@@ -98,10 +93,9 @@ class Day07Spec extends AnyFlatSpec with GivenWhenThen {
 
   "compute2 (shiny gold) for inputs" should "find solution" in {
     Given(s"Puzzle input")
-    val inputs = readInputLines(InputPath)
 
     When(s"computeBagContainingOtherBags(shiny gold, input)")
-    val result = computeBagContainingOtherBags("shiny gold", inputs)
+    val result = computeBagContainingOtherBags("shiny gold", puzzleInputs)
 
     Then(s"Result is 10219")
     result shouldBe 10219L

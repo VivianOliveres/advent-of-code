@@ -10,6 +10,8 @@ import org.scalatestplus.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class Day02Spec extends AnyFlatSpec with GivenWhenThen with Day02Fixtures {
 
+  private lazy val puzzleInputs = readInputLines("src/test/resources/Day02.input")
+
   "validPasswordCount for rows from specs" should "return 2 for Part1" in {
     Given(s"Input is List(Row1, Row2, Row3)")
     val inputs = List(Row1, Row2, Row3)
@@ -23,7 +25,7 @@ class Day02Spec extends AnyFlatSpec with GivenWhenThen with Day02Fixtures {
 
   "validPasswordCount" should "return solution for Part1" in {
     Given(s"Puzzle input")
-    val inputs = readInputFile("src/test/resources/Day02.input")
+    val inputs = parse(puzzleInputs)
 
     When("validPasswordCount(inputs)(isPasswordValidPart1)")
     val result = validPasswordCount(inputs)(isPasswordValidPart1)
@@ -45,7 +47,7 @@ class Day02Spec extends AnyFlatSpec with GivenWhenThen with Day02Fixtures {
 
   "validPasswordCount" should "return solution for Part2" in {
     Given(s"Puzzle input")
-    val inputs = readInputFile("src/test/resources/Day02.input")
+    val inputs = parse(puzzleInputs)
 
     When("validPasswordCount(inputs)(isPasswordValidPart2)")
     val result = validPasswordCount(inputs)(isPasswordValidPart2)
@@ -53,12 +55,5 @@ class Day02Spec extends AnyFlatSpec with GivenWhenThen with Day02Fixtures {
     Then(s"Result is 605")
     result shouldBe 605
   }
-
-  private def readInputFile(path: String): List[PasswordRow] =
-    readInputLines(path)
-      .map(_.trim)
-      .filterNot(_.isEmpty)
-      .flatMap(parse)
-      .toList
 
 }

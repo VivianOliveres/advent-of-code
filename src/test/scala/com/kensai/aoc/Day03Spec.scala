@@ -10,12 +10,12 @@ import org.scalatestplus.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class Day03Spec extends AnyFlatSpec with GivenWhenThen {
 
-  private val SpecInputPath = "src/test/resources/Day03Spec.input"
-  private val InputPath = "src/test/resources/Day03.input"
+  private lazy val puzzleInputs = readInputLines("src/test/resources/Day03.input")
+  private lazy val specInputs = readInputLines("src/test/resources/Day03Spec.input")
 
   "countTrees(3, 1) for specs" should "return 7" in {
     Given(s"Input is from specs")
-    val input = readInputFile(SpecInputPath)
+    val input = parse(specInputs)
 
     When("countTrees(3, 1, input)")
     val result = countTrees(3, 1, input)
@@ -26,7 +26,7 @@ class Day03Spec extends AnyFlatSpec with GivenWhenThen {
 
   "countTrees(3, 1)" should "return solution" in {
     Given(s"Puzzle input")
-    val input = readInputFile(InputPath)
+    val input = parse(puzzleInputs)
 
     When("countTrees(3, 1, input)")
     val result = countTrees(3, 1, input)
@@ -37,7 +37,7 @@ class Day03Spec extends AnyFlatSpec with GivenWhenThen {
 
   "countMultipleTrees for spec" should "return solution" in {
     Given(s"Input is from specs")
-    val input = readInputFile(SpecInputPath)
+    val input = parse(specInputs)
 
     val slopes = List((1, 1), (3, 1), (5, 1), (7, 1), (1, 2))
     When(s"countMultipleTrees($slopes, input)")
@@ -49,7 +49,7 @@ class Day03Spec extends AnyFlatSpec with GivenWhenThen {
 
   "countMultipleTrees" should "return solution" in {
     Given(s"Puzzle input")
-    val input = readInputFile(InputPath)
+    val input = parse(puzzleInputs)
 
     val slopes = List((1, 1), (3, 1), (5, 1), (7, 1), (1, 2))
     When(s"countMultipleTrees($slopes, input)")
@@ -58,15 +58,6 @@ class Day03Spec extends AnyFlatSpec with GivenWhenThen {
     Then("Result is 3621285278")
     result shouldBe 3621285278L
   }
-
-  private def readInputFile(path: String): Map[Int, TobogganRow] =
-    readInputLines(path)
-      .filterNot(_.isEmpty)
-      .zipWithIndex
-      .map {case (row, y) => (row.trim, y)}
-      .map{case (row, y) => parse(row, y)}
-      .map(row => row.x -> row)
-      .toMap
 
 
 }

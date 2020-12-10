@@ -10,17 +10,16 @@ import org.scalatestplus.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class Day04Spec extends AnyFlatSpec with GivenWhenThen with Day04Fixtures {
 
-  private val InputPath = "src/test/resources/Day04.input"
-  private val SpecInputPath = "src/test/resources/Day04Spec.input"
-  private val InvalidPasswordsInputPath = "src/test/resources/Day04-part2-invalid-passports.input"
-  private val ValidPasswordsInputPath = "src/test/resources/Day04-part2-valid-passports.input"
+  private lazy val puzzleInputs = readInputFile("src/test/resources/Day04.input")
+  private lazy val specInputs = readInputFile("src/test/resources/Day04Spec.input")
+  private lazy val part2InvalidInputs = readInputFile("src/test/resources/Day04-part2-invalid-passports.input")
+  private lazy val part2ValidInputs = readInputFile("src/test/resources/Day04-part2-valid-passports.input")
 
   "parse Rows from spec" should "return 4 elements" in {
     // GIVEN: input from specs
-    val input = readInputFile(SpecInputPath)
 
     // WHEN: parse
-    val result = parse(input)
+    val result = parse(specInputs)
 
     // THEN: result is parsed
     result should have size 4
@@ -66,8 +65,7 @@ class Day04Spec extends AnyFlatSpec with GivenWhenThen with Day04Fixtures {
 
   "countValid for rows from spec" should "return 2" in {
     // GIVEN: input from specs
-    val input = readInputFile(SpecInputPath)
-    val passport = parse(input)
+    val passport = parse(specInputs)
 
     // WHEN: countValid
     val result = countValid(passport, FirstPartValidators)
@@ -78,8 +76,7 @@ class Day04Spec extends AnyFlatSpec with GivenWhenThen with Day04Fixtures {
 
   "countValid for rows" should "find solution for first part" in {
     // GIVEN: input from specs
-    val input = readInputFile(InputPath)
-    val passport = parse(input)
+    val passport = parse(puzzleInputs)
 
     // WHEN: countValid
     val result = countValid(passport, FirstPartValidators)
@@ -90,8 +87,7 @@ class Day04Spec extends AnyFlatSpec with GivenWhenThen with Day04Fixtures {
 
   "countValid2 for rows from invalid passports" should "return 0" in {
     // GIVEN: input from specs
-    val input = readInputFile(InvalidPasswordsInputPath)
-    val passport = parse(input)
+    val passport = parse(part2InvalidInputs)
 
     // WHEN: countValid2
     val result = countValid(passport, SecondPartValidators)
@@ -102,8 +98,7 @@ class Day04Spec extends AnyFlatSpec with GivenWhenThen with Day04Fixtures {
 
   "countValid for rows from valid passports" should "return 4" in {
     // GIVEN: input from specs
-    val input = readInputFile(ValidPasswordsInputPath)
-    val passport = parse(input)
+    val passport = parse(part2ValidInputs)
 
     // WHEN: countValid2
     val result = countValid(passport, SecondPartValidators)
@@ -114,8 +109,7 @@ class Day04Spec extends AnyFlatSpec with GivenWhenThen with Day04Fixtures {
 
   "countValid for rows" should "find solution for second part" in {
     // GIVEN: input from specs
-    val input = readInputFile(InputPath)
-    val passport = parse(input)
+    val passport = parse(puzzleInputs)
 
     // WHEN: countValid
     val result = countValid(passport, SecondPartValidators)

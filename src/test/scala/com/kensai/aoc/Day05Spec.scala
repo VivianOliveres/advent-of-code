@@ -10,7 +10,7 @@ import org.scalatestplus.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class Day05Spec extends AnyFlatSpec with GivenWhenThen with Day05Fixtures {
 
-  private val InputPath = "src/test/resources/Day05.input"
+  private lazy val puzzleInputs = readInputLines("src/test/resources/Day05.input")
 
   "computeHighestSeatId for (Row1, Row2, Row3, Row4))" should "return 820" in {
     val inputs = List(Row1, Row2, Row3, Row4)
@@ -25,10 +25,9 @@ class Day05Spec extends AnyFlatSpec with GivenWhenThen with Day05Fixtures {
 
   "computeHighestSeatId" should "find solution" in {
     Given("Puzzle input")
-    val inputs = readInputLines(InputPath)
 
     When(s"computeHighestSeatId(inputs)")
-    val result = computeHighestSeatId(inputs)
+    val result = computeHighestSeatId(puzzleInputs)
 
     Then(s"Result is 818")
     result should be(818)
@@ -36,10 +35,9 @@ class Day05Spec extends AnyFlatSpec with GivenWhenThen with Day05Fixtures {
 
   "findSeatId" should "find solution" in {
     Given("Puzzle input")
-    val inputs = readInputLines(InputPath)
 
     When(s"findSeatId(inputs)")
-    val result = findSeatId(inputs)
+    val result = findSeatId(puzzleInputs)
 
     Then(s"Result is 559")
     result should be(559)
@@ -47,10 +45,9 @@ class Day05Spec extends AnyFlatSpec with GivenWhenThen with Day05Fixtures {
 
   "findSeatIdAlternative" should "find solution" in {
     Given("Puzzle input")
-    val inputs = readInputLines(InputPath)
 
     When(s"findSeatIdAlternative(inputs)")
-    val result = findSeatIdAlternative(inputs)
+    val result = findSeatIdAlternative(puzzleInputs)
 
     Then(s"Result is 559")
     result should be(559)

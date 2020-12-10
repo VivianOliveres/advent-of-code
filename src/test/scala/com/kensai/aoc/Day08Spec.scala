@@ -10,15 +10,14 @@ import org.scalatestplus.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class Day08Spec extends AnyFlatSpec with GivenWhenThen {
 
-  private val InputPath = "src/test/resources/Day08.input"
-  private val InputSpecPath = "src/test/resources/Day08Spec.input"
+  private lazy val puzzleInputs = readInputLines("src/test/resources/Day08.input")
+  private lazy val specInputs = readInputLines("src/test/resources/Day08Spec.input")
 
   "accumulatorBeforeLoop for spec" should "return 5" in {
     Given(s"Input is spec")
-    val inputs = readInputLines(InputSpecPath)
 
     When(s"accumulatorBeforeLoop(input)")
-    val result = accumulatorBeforeLoop(inputs)
+    val result = accumulatorBeforeLoop(specInputs)
 
     Then(s"Result is 5")
     result shouldBe 5
@@ -26,10 +25,9 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
 
   "accumulatorBeforeLoop for puzzle" should "return solution" in {
     Given(s"Puzzle input")
-    val inputs = readInputLines(InputPath)
 
     When(s"accumulatorBeforeLoop(input)")
-    val result = accumulatorBeforeLoop(inputs)
+    val result = accumulatorBeforeLoop(puzzleInputs)
 
     Then(s"Result is 2003")
     result shouldBe 2003
@@ -37,10 +35,9 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
 
   "accumulatorAfterFixingInputs for spec" should "return 8" in {
     Given(s"Input is spec")
-    val inputs = readInputLines(InputSpecPath)
 
     When(s"accumulatorAfterFixingInputs(input)")
-    val result = accumulatorAfterFixingInputs(inputs)
+    val result = accumulatorAfterFixingInputs(specInputs)
 
     Then(s"Result is 8")
     result shouldBe 8
@@ -48,10 +45,9 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
 
   "accumulatorAfterFixingInputs for puzzle" should "return solution" in {
     Given(s"Puzzle solution")
-    val inputs = readInputLines(InputPath)
 
     When(s"accumulatorAfterFixingInputs(input)")
-    val result = accumulatorAfterFixingInputs(inputs)
+    val result = accumulatorAfterFixingInputs(puzzleInputs)
 
     Then(s"Result is 1984")
     result shouldBe 1984
