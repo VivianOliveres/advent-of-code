@@ -7,8 +7,6 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers._
 import org.scalatestplus.junit.JUnitRunner
 
-import scala.io.Source
-
 @RunWith(classOf[JUnitRunner])
 class Day01Spec extends AnyFlatSpec with GivenWhenThen {
 
@@ -16,7 +14,7 @@ class Day01Spec extends AnyFlatSpec with GivenWhenThen {
 
   "compute" should "find result from input" in {
     Given("Puzzle input")
-    val input = readInputFile("src/test/resources/Day01.input")
+    val input = readLongInputLines("src/test/resources/Day01.input")
 
     When("compute(2020, input)")
     val result = compute(ExpectedSum, input)
@@ -28,7 +26,7 @@ class Day01Spec extends AnyFlatSpec with GivenWhenThen {
   "compute3" should "find result from input" in {
     // GIVEN: input from specs
     Given("")
-    val input = readInputFile("src/test/resources/Day01.input")
+    val input = readLongInputLines("src/test/resources/Day01.input")
 
     When("compute3(2020, input)")
     val result = compute3(ExpectedSum, input)
@@ -36,11 +34,4 @@ class Day01Spec extends AnyFlatSpec with GivenWhenThen {
     Then("Result is Some(18847752)")
     result shouldBe Some(18847752)
   }
-  private def readInputFile(path: String): List[Long] =
-    Source.fromFile(path)
-      .getLines
-      .map(_.trim)
-      .filterNot(_.isEmpty)
-      .map(_.toLong)
-      .toList
 }

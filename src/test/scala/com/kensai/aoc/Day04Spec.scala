@@ -7,8 +7,6 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers._
 import org.scalatestplus.junit.JUnitRunner
 
-import scala.io.Source
-
 @RunWith(classOf[JUnitRunner])
 class Day04Spec extends AnyFlatSpec with GivenWhenThen with Day04Fixtures {
 
@@ -125,11 +123,5 @@ class Day04Spec extends AnyFlatSpec with GivenWhenThen with Day04Fixtures {
     // THEN: count is 127
     result should be(127)
   }
-
-  private def readInputFile(path: String): String =
-    Source.fromFile(path)
-      .getLines
-      .toList
-      .mkString("\n")
 
 }

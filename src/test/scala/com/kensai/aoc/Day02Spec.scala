@@ -7,8 +7,6 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers._
 import org.scalatestplus.junit.JUnitRunner
 
-import scala.io.Source
-
 @RunWith(classOf[JUnitRunner])
 class Day02Spec extends AnyFlatSpec with GivenWhenThen with Day02Fixtures {
 
@@ -57,8 +55,7 @@ class Day02Spec extends AnyFlatSpec with GivenWhenThen with Day02Fixtures {
   }
 
   private def readInputFile(path: String): List[PasswordRow] =
-    Source.fromFile(path)
-      .getLines
+    readInputLines(path)
       .map(_.trim)
       .filterNot(_.isEmpty)
       .flatMap(parse)

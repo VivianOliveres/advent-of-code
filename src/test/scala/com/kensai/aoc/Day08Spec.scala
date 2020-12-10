@@ -7,8 +7,6 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers._
 import org.scalatestplus.junit.JUnitRunner
 
-import scala.io.Source
-
 @RunWith(classOf[JUnitRunner])
 class Day08Spec extends AnyFlatSpec with GivenWhenThen {
 
@@ -17,7 +15,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
 
   "accumulatorBeforeLoop for spec" should "return 5" in {
     Given(s"Input is spec")
-    val inputs = readInputFile(InputSpecPath)
+    val inputs = readInputLines(InputSpecPath)
 
     When(s"accumulatorBeforeLoop(input)")
     val result = accumulatorBeforeLoop(inputs)
@@ -28,7 +26,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
 
   "accumulatorBeforeLoop for puzzle" should "return solution" in {
     Given(s"Puzzle input")
-    val inputs = readInputFile(InputPath)
+    val inputs = readInputLines(InputPath)
 
     When(s"accumulatorBeforeLoop(input)")
     val result = accumulatorBeforeLoop(inputs)
@@ -39,7 +37,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
 
   "accumulatorAfterFixingInputs for spec" should "return 8" in {
     Given(s"Input is spec")
-    val inputs = readInputFile(InputSpecPath)
+    val inputs = readInputLines(InputSpecPath)
 
     When(s"accumulatorAfterFixingInputs(input)")
     val result = accumulatorAfterFixingInputs(inputs)
@@ -50,7 +48,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
 
   "accumulatorAfterFixingInputs for puzzle" should "return solution" in {
     Given(s"Puzzle solution")
-    val inputs = readInputFile(InputPath)
+    val inputs = readInputLines(InputPath)
 
     When(s"accumulatorAfterFixingInputs(input)")
     val result = accumulatorAfterFixingInputs(inputs)
@@ -58,10 +56,5 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
     Then(s"Result is 1984")
     result shouldBe 1984
   }
-
-  private def readInputFile(path: String): List[String] =
-    Source.fromFile(path)
-      .getLines
-      .toList
 
 }

@@ -7,8 +7,6 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers._
 import org.scalatestplus.junit.JUnitRunner
 
-import scala.io.Source
-
 @RunWith(classOf[JUnitRunner])
 class Day10Spec extends AnyFlatSpec with GivenWhenThen {
 
@@ -65,7 +63,7 @@ class Day10Spec extends AnyFlatSpec with GivenWhenThen {
 
   "computeDiff for spec" should "return (22, 0, 10)" in {
     Given(s"Input is spec")
-    val inputs = readInputFile(InputSpecPath)
+    val inputs = readInputLines(InputSpecPath)
 
     When(s"computeDiff(input)")
     val result = computeDiff(inputs)
@@ -76,7 +74,7 @@ class Day10Spec extends AnyFlatSpec with GivenWhenThen {
 
   "computeResult for spec" should "return 220" in {
     Given(s"Input is spec")
-    val inputs = readInputFile(InputSpecPath)
+    val inputs = readInputLines(InputSpecPath)
 
     When(s"computeResult(input)")
     val result = computeResult(inputs)
@@ -87,7 +85,7 @@ class Day10Spec extends AnyFlatSpec with GivenWhenThen {
 
   "computeResult for puzzle" should "return solution" in {
     Given(s"Puzzle input")
-    val inputs = readInputFile(InputPath)
+    val inputs = readInputLines(InputPath)
 
     When(s"computeResult(input)")
     val result = computeResult(inputs)
@@ -122,7 +120,7 @@ class Day10Spec extends AnyFlatSpec with GivenWhenThen {
 
   "compute2 for spec" should "return 19208" in {
     Given(s"Input is spec")
-    val inputs = readInputFile(InputSpecPath)
+    val inputs = readInputLines(InputSpecPath)
 
     When(s"compute(input)")
     val result = pathReachingMaxCount(inputs)
@@ -133,7 +131,7 @@ class Day10Spec extends AnyFlatSpec with GivenWhenThen {
 
   "compute2 for solution" should "find solution" in {
     Given(s"Input is spec")
-    val inputs = readInputFile(InputPath)
+    val inputs = readInputLines(InputPath)
 
     When(s"compute(input)")
     val result = pathReachingMaxCount(inputs)
@@ -141,10 +139,5 @@ class Day10Spec extends AnyFlatSpec with GivenWhenThen {
     Then(s"Result is 173625106649344")
     result shouldBe 173625106649344L
   }
-
-  private def readInputFile(path: String): List[String] =
-    Source.fromFile(path)
-      .getLines
-      .toList
 
 }

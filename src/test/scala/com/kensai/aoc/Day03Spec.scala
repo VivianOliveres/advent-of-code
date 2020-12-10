@@ -7,8 +7,6 @@ import org.scalatest.flatspec._
 import org.scalatest.matchers.should.Matchers._
 import org.scalatestplus.junit.JUnitRunner
 
-import scala.io.Source
-
 @RunWith(classOf[JUnitRunner])
 class Day03Spec extends AnyFlatSpec with GivenWhenThen {
 
@@ -62,9 +60,7 @@ class Day03Spec extends AnyFlatSpec with GivenWhenThen {
   }
 
   private def readInputFile(path: String): Map[Int, TobogganRow] =
-    Source.fromFile(path)
-      .getLines
-      .toList
+    readInputLines(path)
       .filterNot(_.isEmpty)
       .zipWithIndex
       .map {case (row, y) => (row.trim, y)}
