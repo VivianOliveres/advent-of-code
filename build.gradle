@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     implementation 'org.scala-lang:scala-library:2.13.2'
+    implementation 'org.typelevel:cats-core_2.13:2.3.0'
 
     // Use Scalatest for testing
     testImplementation 'junit:junit:null'

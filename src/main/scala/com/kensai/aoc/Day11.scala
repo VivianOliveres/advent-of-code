@@ -1,5 +1,7 @@
 package com.kensai.aoc
 
+import cats.Semigroupal
+import cats.implicits._
 import scala.annotation.tailrec
 
 object Day11 {
@@ -15,45 +17,30 @@ object Day11 {
       AllDirections.map(_.next(this))
   }
 
-  val AllDirections = List(N, NO, NE, E, W, SW, SE, S)
-  sealed trait Direction {
-    def next(pos: Pos): Pos
+  case class Direction(x: Int, y: Int) {
+    def next(pos: Pos): Pos =
+      pos.addX(x).addY(y)
 
     @tailrec
-    final def nextValue(pos: Pos, board: Board): Option[Char] = {
+    private def doNextValue(pos: Pos, board: Board): Option[Char] =
       if (isInGrid(pos, board))
         if (board.contains(pos))
           Some(board.at(pos))
         else
-        nextValue(next(pos), board)
+          doNextValue(next(pos), board)
       else
         None
-    }
+
+    def nextValue(pos: Pos, board: Board): Option[Char] =
+      doNextValue(next(pos), board)
   }
-  case object NO extends Direction {
-    override def next(pos: Pos): Pos = pos.addX(-1).addY(1)
-  }
-  case object N extends Direction {
-    override def next(pos: Pos): Pos = pos.addX(0).addY(1)
-  }
-  case object NE extends Direction {
-    override def next(pos: Pos): Pos = pos.addX(1).addY(1)
-  }
-  case object E extends Direction {
-    override def next(pos: Pos): Pos = pos.addX(1).addY(0)
-  }
-  case object W extends Direction {
-    override def next(pos: Pos): Pos = pos.addX(-1).addY(0)
-  }
-  case object SE extends Direction {
-    override def next(pos: Pos): Pos = pos.addX(1).addY(-1)
-  }
-  case object S extends Direction {
-    override def next(pos: Pos): Pos = pos.addX(0).addY(-1)
-  }
-  case object SW extends Direction {
-    override def next(pos: Pos): Pos = pos.addX(-1).addY(-1)
-  }
+
+  val AllDirections: List[Direction] =
+    Semigroupal.map2(List(0, 1, -1), List(0, 1, -1)){Direction}
+      .filter{
+        case Direction(0, 0) => false
+        case _ => true
+      }
 
   case class Board(maxX: Int, maxY: Int, grid: Map[Pos, Char]) {
     def updated(pos: Pos, value: Char): Board =
@@ -113,7 +100,7 @@ object Day11 {
   }
 
   def extractVisibleAdjacent(pos: Pos, board: Board): List[Char] =
-    AllDirections.flatMap(d => d.nextValue(d.next(pos), board))
+    AllDirections.flatMap(d => d.nextValue(pos, board))
 
   def isInGrid(pos: Pos, board: Board): Boolean =
     pos.x >= 0 && pos.x <= board.maxX && pos.y >= 0 && pos.y <= board.maxY
@@ -139,140 +126,4 @@ object Day11 {
 
     next.countOccupied
   }
-
-
-//  def extractAdjacent2(x: Int, y: Int, values: List[List[String]]): List[String] = {
-//    var adjacents = List.empty[String]
-//    (x + 1 until values.size)
-//      .map(values(_)(y))
-//      .find(_ != ".")
-//      .foreach(s => {
-//      adjacents = s :: adjacents
-//    })
-//    (1 to x)
-//      .map(i => x - i)
-//      .filter(_ >= 0)
-//      .map(values(_)(y))
-//      .find(_ != ".")
-//      .foreach(s => {
-//      adjacents = s :: adjacents
-//    })
-//    (y + 1 until values(x).size)
-//      .map(values(x)(_))
-//      .find(_ != ".")
-//      .foreach(s => {
-//      adjacents = s :: adjacents
-//    })
-//    (1 to y)
-//      .map(j => y - j)
-//      .filter(_ >= 0)
-//      .map(values(x)(_))
-//      .find(_ != ".")
-//      .foreach(s => {
-//      adjacents = s :: adjacents
-//    })
-//    (1 until values.size)
-//      .map(i => (x + i, y + i))
-//      .filter{case (i, j) => i >= 0 && j >= 0}
-//      .filter{case (i, j) => i < values.size && j < values(i).size}
-//      .find{case (i, j) =>values(i)(j) != "."}
-//      .foreach{case (i, j) => {
-//        val s =  values(i)(j)
-//        adjacents = s :: adjacents
-//      }
-//      }
-//    (1 until values.size)
-//      .map(i => (x - i, y - i))
-//      .filter{case (i, j) => i >= 0 && j >= 0}
-//      .filter{case (i, j) => i < values.size && j < values(i).size}
-//      .find{case (i, j) =>values(i)(j) != "."}
-//      .foreach{case (i, j) => {
-//        val s =  values(i)(j)
-//        adjacents = s :: adjacents
-//      }
-//      }
-//    (1 until values.size)
-//      .map(i => (x + i, y - i))
-//      .filter{case (i, j) => i >= 0 && j >= 0}
-//      .filter{case (i, j) => i < values.size && j < values(i).size}
-//      .find{case (i, j) =>values(i)(j) != "."}
-//      .foreach{case (i, j) => {
-//        val s =  values(i)(j)
-//        adjacents = s :: adjacents
-//      }
-//      }
-//    (1 until values.size)
-//      .map(i => (x - i, y + i))
-//      .filter{case (i, j) => i >= 0 && j >= 0}
-//      .filter{case (i, j) => i < values.size && j < values(i).size}
-//      .find{case (i, j) =>values(i)(j) != "."}
-//      .foreach{case (i, j) => {
-//        val s =  values(i)(j)
-//        adjacents = s :: adjacents
-//      }
-//      }
-//    adjacents
-//  }
-//
-//  def countOccupied(adjacent: List[String]) =
-//    adjacent.count(_ == "#")
-//
-//
-//  def doCompute(inputs: List[List[String]], expectedCount: Int)(extractFun: (Int, Int, List[List[String]]) => List[String]): List[List[String]] = {
-//    var result = inputs
-//    var x = 0
-//    while (x < inputs.size) {
-//      var y = 0
-//      while (y < inputs(x).size) {
-//        val cell = inputs(x)(y)
-//        val adjacents = extractFun(x, y, inputs)
-//        val count = countOccupied(adjacents)
-//        if (cell == "L" && count == 0) {
-//          val row = result(x).updated(y, "#")
-//          result = result.updated(x, row)
-//
-//        } else if (cell == "#" && count >= expectedCount) {
-//          val row = result(x).updated(y, "L")
-//          result = result.updated(x, row)
-//        }
-//
-//        y = y + 1
-//      }
-//      x = x + 1
-//    }
-//
-//    result
-//  }
-//
-//
-//  def asString(values: List[List[String]]): String = {
-//    (0 to values.size - 1).map(x => {
-//      (0 to values(x).size - 1).map(y => {
-//        values(x)(y)
-//      }).mkString + "\n"
-//    }).mkString
-//  }
-//
-//  def compute1(inputs: List[List[String]]): Long = {
-//    var previous = inputs
-//    var next = doCompute(inputs, 4)(extractAdjacent)
-//    while(previous != next) {
-//      previous = next
-//      next = doCompute(next, 4)(extractAdjacent)
-//    }
-//
-//    next.flatten.count(_ == "#")
-//  }
-//
-//  def compute2(inputs: List[List[String]]): Long = {
-//    var previous = inputs
-//    var next = doCompute(inputs, 5)(extractAdjacent2)
-//    while(previous != next) {
-//      previous = next
-//      next = doCompute(next, 5)(extractAdjacent2)
-//    }
-//
-//    next.flatten.count(_ == "#")
-//  }
-
 }
