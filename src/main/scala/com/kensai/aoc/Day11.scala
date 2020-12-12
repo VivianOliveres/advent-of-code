@@ -94,10 +94,11 @@ object Day11 {
     updates.foldLeft(board){case (old, ope) => old.updated(ope._1, ope._2)}
   }
 
-  def extractAdjacent(pos: Pos, board: Board): List[Char] = {
-    val positions = pos.directAdjacent
-    positions.filter(isInGrid(_, board)).flatMap(board.grid.get)
-  }
+  def extractAdjacent(pos: Pos, board: Board): List[Char] =
+    pos
+      .directAdjacent
+      .filter(isInGrid(_, board))
+      .flatMap(board.grid.get)
 
   def extractVisibleAdjacent(pos: Pos, board: Board): List[Char] =
     AllDirections.flatMap(d => d.nextValue(pos, board))
