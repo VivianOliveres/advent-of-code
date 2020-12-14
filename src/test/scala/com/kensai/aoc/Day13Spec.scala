@@ -23,42 +23,42 @@ class Day13Spec extends AnyFlatSpec with GivenWhenThen {
     result shouldBe (939L, Set(7L,13L,59L,31L,19L))
   }
 
-  "doCompute from specs" should "return " in {
+  "computeEarliestBus from specs" should "return Some((944L, 59L))" in {
     Given(s"Input is \n$specInputs")
     val i = parse(specInputs)
 
-    When("parse")
-    val result = doCompute(i)
+    When("computeEarliestBus")
+    val result = computeEarliestBus(i)
 
     Then(s"Result is 1L")
     result shouldBe Some((944L, 59L))
   }
 
-  "compute1 from specs" should "return 295L" in {
+  "computePart1 from specs" should "return 295L" in {
     Given(s"Input is \n$specInputs")
 
-    When("parse")
-    val result = compute(specInputs)
+    When("computePart1")
+    val result = computePart1(specInputs)
 
     Then(s"Result is 1L")
     result shouldBe 295L
   }
 
-  "compute1 from puzzle" should "return solution" in {
+  "computePart1 from puzzle" should "return solution" in {
     Given(s"Input is puzzle")
 
     When("parse")
-    val result = compute(puzzleInputs)
+    val result = computePart1(puzzleInputs)
 
     Then(s"Result is 2545L")
     result shouldBe 2545L
   }
 
-  "parse2 from specs" should "return Map(7 -> 0, 13 -> 1, 59 -> 4, 31 -> 6, 19 -> 7)" in {
+  "parseRow2 from specs" should "return Map(7 -> 0, 13 -> 1, 59 -> 4, 31 -> 6, 19 -> 7)" in {
     Given(s"Input is \n$specInputs")
 
     When("parse2")
-    val result = parse2(specInputs)
+    val result = parseRow2(specInputs)
 
     Then(s"Result is 1L")
     result shouldBe Map(7L -> 0L, 13L -> 1L, 59L -> 4L, 31L -> 6L, 19L -> 7L)
@@ -66,7 +66,7 @@ class Day13Spec extends AnyFlatSpec with GivenWhenThen {
 
   "compute2 from specs" should "return 1068781L" in {
     Given(s"Input is \n$specInputs")
-    val input = parse2(specInputs)
+    val input = parseRow2(specInputs)
 
     When("compute2")
     val result = compute2(input)
@@ -85,19 +85,25 @@ class Day13Spec extends AnyFlatSpec with GivenWhenThen {
     result shouldBe 233L
   }
 
-  "chineseRemainderTheorem for Map(3 -> 2, 5 -> 3, 7 -> 2)" should "return valid" in {
+  "chineseRemainderTheorem for Map(3 -> 2, 5 -> 3, 7 -> 2)" should "return 23" in {
     val input = Map(3L -> 2L, 5L -> 3L, 7L -> 2L)
+    Given(s"Input is $input")
 
+    When("chineseRemainderTheorem")
     val result = chineseRemainderTheorem(input)
 
+    Then(s"Result is 23")
     result shouldBe 23L
   }
 
-  "chineseRemainderTheorem for Map(3 -> 1, 4 -> 2, 5 -> 3)" should "return valid" in {
+  "chineseRemainderTheorem for Map(3 -> 1, 4 -> 2, 5 -> 3)" should "return 58" in {
     val input = Map(3L -> 1L, 4L -> 2L, 5L -> 3L)
+    Given(s"Input is $input")
 
+    When("chineseRemainderTheorem")
     val result = chineseRemainderTheorem(input)
 
+    Then(s"Result is 58")
     result shouldBe 58L
   }
 
@@ -119,10 +125,8 @@ class Day13Spec extends AnyFlatSpec with GivenWhenThen {
     When("compute2")
     val result = compute2(input)
 
-    val expectedResult = 3417L
-
-    Then(s"Result is $expectedResult")
-    result shouldBe expectedResult
+    Then(s"Result is 3417L")
+    result shouldBe 3417L
   }
 
   "compute2 from specs5" should "return 1_202_161_486" in {
@@ -136,9 +140,8 @@ class Day13Spec extends AnyFlatSpec with GivenWhenThen {
     result shouldBe 1202161486L
   }
 
-  //TODO
   "chineseRest from puzzle" should "return 266204454441577" in {
-    val input = parse2(puzzleInputs)
+    val input = parseRow2(puzzleInputs)
     Given(s"Input is \n$input")
 
     When("compute2")
