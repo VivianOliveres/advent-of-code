@@ -1,4 +1,4 @@
-name := "rootProject.name = 'advent-of-code"
+name := "advent-of-code"
 
 version := "0.1"
 
