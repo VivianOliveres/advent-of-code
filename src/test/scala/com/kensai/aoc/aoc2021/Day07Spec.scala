@@ -22,7 +22,7 @@ class Day07Spec extends AnyFlatSpec with GivenWhenThen {
   "computeMinFuel" should "find result from spec input" in {
     Given("Puzzle spec input")
 
-    When("computeMinFuel(input, 80)")
+    When("computeMinFuel(input)")
     val result = computeMinFuel(puzzleSpecInput.head)
 
     Then("Result is 37")
