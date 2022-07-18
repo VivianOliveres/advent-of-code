@@ -60,7 +60,7 @@ class Day09Spec extends AnyFlatSpec with GivenWhenThen {
     result shouldBe Seq((1, 3), (0, 9), (5, 14), (5, 9))
   }
 
-    "multiply3LargestBasinsSize" should "find result from spec input" in {
+  "multiply3LargestBasinsSize" should "find result from spec input" in {
     Given("Puzzle spec input")
 
     When("multiply3LargestBasinsSize(input)")
@@ -78,6 +78,6 @@ class Day09Spec extends AnyFlatSpec with GivenWhenThen {
     val result = multiply3LargestBasinsSize(puzzleInput)
 
     Then("Result is expected")
-    result shouldBe 1051087
+    result shouldBe 1558722
   }
 }

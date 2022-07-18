@@ -13,11 +13,10 @@ object Day09 {
       matrix(x)(y)
   }
 
-  private def parse(inputs: Seq[String]): Seq[Seq[Int]] = {
+  private def parse(inputs: Seq[String]): Seq[Seq[Int]] =
     inputs.filterNot(_.isEmpty).map { line =>
       line.toArray.map(_.toInt).map(_ - 48).toSeq
     }
-  }
 
   /** Return the value of the lowest points.
     */
@@ -30,16 +29,12 @@ object Day09 {
       .map { case Pos(x, y) => matrix(x)(y) }
       .forall(matrixValue => value < matrixValue)
 
-  /**
-    * Sum the value of each lowest points.
+  /** Sum the value of each lowest points.
     */
-  def computeRiskLevel(inputs: Seq[String]): Int = {
-    val lowestPoints = findLowestPoints(inputs)
-    lowestPoints.map(_ + 1).sum
-  }
+  def computeRiskLevel(inputs: Seq[String]): Int =
+    findLowestPoints(inputs).map(_ + 1).sum
 
-  /**
-    * Find the lowest points and sum the closest points tahat do not have a 9 value.
+  /** Find the lowest points and sum the closest points tahat do not have a 9 value.
     */
   def findLowestAndBasins(inputs: Seq[String]): Seq[(Int, Int)] = {
     def matrix = parse(inputs)
@@ -70,8 +65,7 @@ object Day09 {
     count
   }
 
-  /**
-    * Find the 3 largest basins and multiply them.
+  /** Find the 3 largest basins and multiply them.
     */
   def multiply3LargestBasinsSize(inputs: Seq[String]): Int =
     findLowestAndBasins(inputs).map(_._2).sortBy(-_).take(3).product
