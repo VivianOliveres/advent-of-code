@@ -23,6 +23,7 @@
 | 6   | [Lanternfish](https://adventofcode.com/2021/day/6)             | [Day06](../master/src/main/scala/com/kensai/aoc/aoc2021/Day06.scala) | [Day06Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day06Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day06PropSpec.scala) | [Day06.input](../master/src/test/resources/aoc2021/Day06.input) | 
 | 7   | [The Treachery of Whales](https://adventofcode.com/2021/day/7) | [Day07](../master/src/main/scala/com/kensai/aoc/aoc2021/Day07.scala) | [Day07Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day07Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day07PropSpec.scala) | [Day07.input](../master/src/test/resources/aoc2021/Day07.input) | 
 | 8   | [Seven Segment Search](https://adventofcode.com/2021/day/8)    | [Day08](../master/src/main/scala/com/kensai/aoc/aoc2021/Day08.scala) | [Day08Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day08Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day08PropSpec.scala) | [Day08.input](../master/src/test/resources/aoc2021/Day08.input) | 
+| 8   | [Smoke Basin](https://adventofcode.com/2021/day/9)             | [Day09](../master/src/main/scala/com/kensai/aoc/aoc2021/Day09.scala) | [Day09Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day09Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day09PropSpec.scala) | [Day09.input](../master/src/test/resources/aoc2021/Day09.input) | 
 
 
 ## [AOC 2020](https://adventofcode.com/2020)
