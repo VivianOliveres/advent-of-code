@@ -26,6 +26,7 @@
 | 9   | [Smoke Basin](https://adventofcode.com/2021/day/9)             | [Day09](../master/src/main/scala/com/kensai/aoc/aoc2021/Day09.scala) | [Day09Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day09Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day09PropSpec.scala) | [Day09.input](../master/src/test/resources/aoc2021/Day09.input) | 
 | 10  | [Syntax Scoring](https://adventofcode.com/2021/day/10)         | [Day10](../master/src/main/scala/com/kensai/aoc/aoc2021/Day10.scala) | [Day10Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day10Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day10PropSpec.scala) | [Day10.input](../master/src/test/resources/aoc2021/Day10.input) | 
 | 11  | [Dumbo Octopus](https://adventofcode.com/2021/day/11)          | [Day11](../master/src/main/scala/com/kensai/aoc/aoc2021/Day11.scala) | [Day11Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day11Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day11PropSpec.scala) | [Day11.input](../master/src/test/resources/aoc2021/Day11.input) | 
+| 12  | [Passage Pathing](https://adventofcode.com/2021/day/12)        | [Day12](../master/src/main/scala/com/kensai/aoc/aoc2021/Day12.scala) | [Day12Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day12Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day12PropSpec.scala) | [Day12.input](../master/src/test/resources/aoc2021/Day12.input) | 
 
 
 ## [AOC 2020](https://adventofcode.com/2020)
