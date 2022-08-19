@@ -94,17 +94,12 @@ object Day08 {
 
     val f = digit1.diff(c).head
 
-    println(s"a[$a] b[$b] c[$c] d[$d] e[$e] f[$f] g[$g]")
-
     val digit0 = Digits(Set(a, b, c, e, f, g))
     val digit2 = Digits(Set(a, c, d, e, g))
     val digit3 = Digits(Set(a, c, d, f, g))
     val digit5 = Digits(Set(a, b, d, f, g))
     val digit6 = Digits(Set(a, b, d, e, f, g))
     val digit9 = Digits(Set(a, b, c, d, f, g))
-    println(
-      s"0[$digit0] 1[$digit1] 2[$digit2] 3[$digit3] 4[$digit4] 5[$digit5] 6[$digit6] 7[$digit7] 8[$digit8] 9[$digit9]"
-    )
 
     val resultSeq = values.value.foldLeft(Seq(0)) { case (acc, digit) =>
       digit match {
@@ -126,7 +121,6 @@ object Day08 {
   }
 
   def computeDigitValue(inputs: Seq[String]): Int = {
-    println(inputs)
     val values = parseInput(inputs)
     values.map(computeDigitValue).sum
   }

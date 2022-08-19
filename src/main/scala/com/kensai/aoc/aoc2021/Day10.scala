@@ -39,8 +39,7 @@ object Day10 {
           chunk.corruptedScore
         }
       }
-    case e =>
-      println(e)
+    case _ =>
       ???
   }
 
@@ -63,9 +62,8 @@ object Day10 {
           Seq() // Corrupted line
         }
       }
-    case e =>
+    case _ =>
       // Should not happen
-      println(e)
       ???
   }
 
@@ -81,10 +79,7 @@ object Day10 {
 
   def computeMiddleIncompleteSyntaxScore(lines: Seq[String]): Long = {
     val incompleteScores = computeIncompleteSyntaxScore(lines)
-    println(incompleteScores.size)
-    println(incompleteScores.size / 2)
-    incompleteScores.sorted
-      .apply(incompleteScores.size / 2)
+    incompleteScores.sorted.apply(incompleteScores.size / 2)
   }
 
 }

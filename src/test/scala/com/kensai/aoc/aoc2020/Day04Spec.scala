@@ -64,7 +64,6 @@ class Day04Spec extends AnyFlatSpec with GivenWhenThen with Day04Fixtures {
 
     // THEN: Row2 is ok
     val row2 = result.head
-    println(row2)
     row2(KeyIssueYear) should be("2013")
     row2(KeyEyeColor) should be("amb")
     row2(KeyCountryID) should be("350")

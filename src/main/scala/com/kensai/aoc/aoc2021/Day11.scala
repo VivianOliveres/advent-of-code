@@ -17,8 +17,8 @@ object Day11 {
         (0 to 9).foreach{x =>
           print(octopos(OctopusPos(x, y)).energy.toString)
         }
-        println(s"")
       }
+      ()
     }
 
     /**
