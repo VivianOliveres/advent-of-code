@@ -1,9 +1,10 @@
 package com.kensai.aoc.aoc2021
 
+import com.kensai.aoc.lib.Geo.Point2D
+
 object Day20 {
 
-  case class Point(x: Int, y: Int)
-  case class Image(points: Map[Point, Boolean], outerPointsValue: Boolean)
+  case class Image(points: Map[Point2D, Boolean], outerPointsValue: Boolean)
   case class Day20Input(enhancementAlgorithm: Seq[Boolean], image: Image)
 
   def parse(rows: Seq[String]): Day20Input = {
@@ -12,7 +13,7 @@ object Day20 {
       val row = rows(rowIndex)
       row.zipWithIndex.map{case (char, columnIndex) =>
         val value = char == '#'
-        Point(columnIndex, rowIndex - 2) -> value
+        Point2D(columnIndex, rowIndex - 2) -> value
       }
     }.toMap
     Day20Input(enhancementAlgorithm, Image(image, false))
@@ -24,18 +25,18 @@ object Day20 {
       acc + value * math.pow(2.0, index.toDouble).toInt
     }
 
-  private def minMax(points: Seq[Point]): (Int, Int, Int, Int) =
+  private def minMax(points: Seq[Point2D]): (Int, Int, Int, Int) =
     points.foldLeft((Int.MaxValue, Int.MinValue, Int.MaxValue, Int.MinValue)) { case ((minX, maxX, minY, maxY), point) =>
       (math.min(minX, point.x), math.max(maxX, point.x), math.min(minY, point.y), math.max(maxY, point.y))
     }
 
-  def printImage(image: Map[Point, Boolean]): Unit = {
+  def printImage(image: Map[Point2D, Boolean]): Unit = {
     val (minX, maxX, minY, maxY) = minMax(image.keys.toSeq)
     for {
       y <- minY to maxY
       x <- minX to maxX
     } yield {
-      val bool = image.getOrElse(Point(x, y), false)
+      val bool = image.getOrElse(Point2D(x, y), false)
       val value = if (bool) "#" else "."
       print(value)
       if (x == maxX) println()
@@ -59,13 +60,13 @@ object Day20 {
   /**
     * Create all points at paddingValue distance from other points and initialize them to image.outerPointsValue
     */
-  private def applyPadding(image: Image, paddingValue: Int = 1): Map[Point, Boolean] = {
+  private def applyPadding(image: Image, paddingValue: Int = 1): Map[Point2D, Boolean] = {
     val points = image.points
     val (minX, maxX, minY, maxY) = minMax(points.keys.toSeq)
     val paddingPoints = (for {
       x <- minX - paddingValue to maxX + paddingValue
       y <- minY - paddingValue to maxY + paddingValue
-      point = Point(x, y) if !points.contains(point)
+      point = Point2D(x, y) if !points.contains(point)
     } yield {
       point -> image.outerPointsValue
     }).toMap
@@ -73,12 +74,12 @@ object Day20 {
     points ++ paddingPoints
   }
 
-  private def applyImageEnhancer(enhancementAlgorithm: Seq[Boolean], points: Map[Point, Boolean], outerPointsValue: Boolean): Map[Point, Boolean] =
-    points.foldLeft(Map.empty[Point, Boolean]) { case (acc, (point, _)) =>
+  private def applyImageEnhancer(enhancementAlgorithm: Seq[Boolean], points: Map[Point2D, Boolean], outerPointsValue: Boolean): Map[Point2D, Boolean] =
+    points.foldLeft(Map.empty[Point2D, Boolean]) { case (acc, (point, _)) =>
       val neighbourValues = for {
         y <- point.y - 1 to point.y + 1
         x <- point.x - 1 to point.x + 1
-        otherPoint = Point(x, y)
+        otherPoint = Point2D(x, y)
       } yield points.getOrElse(otherPoint, outerPointsValue)
 
       val enhancerIndex = binToDecimal(neighbourValues)

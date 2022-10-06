@@ -1,6 +1,7 @@
 package com.kensai.aoc.aoc2021
 
 import com.kensai.aoc.aoc2021.Day20._
+import com.kensai.aoc.lib.Geo.Point2D
 import com.kensai.aoc.lib.Lib.readInputLines
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -29,17 +30,17 @@ class Day20Spec extends AnyFlatSpec with GivenWhenThen {
       result.image.points should have size 25
       result.enhancementAlgorithm should have size 512
 
-      result.image.points(Point(0, 0)) shouldBe true
-      result.image.points(Point(3, 0)) shouldBe true
-      result.image.points(Point(0, 1)) shouldBe true
-      result.image.points(Point(2, 1)) shouldBe false
-      result.image.points(Point(0, 2)) shouldBe true
-      result.image.points(Point(1, 2)) shouldBe true
-      result.image.points(Point(4, 2)) shouldBe true
-      result.image.points(Point(2, 3)) shouldBe true
-      result.image.points(Point(2, 4)) shouldBe true
-      result.image.points(Point(3, 4)) shouldBe true
-      result.image.points(Point(4, 4)) shouldBe true
+      result.image.points(Point2D(0, 0)) shouldBe true
+      result.image.points(Point2D(3, 0)) shouldBe true
+      result.image.points(Point2D(0, 1)) shouldBe true
+      result.image.points(Point2D(2, 1)) shouldBe false
+      result.image.points(Point2D(0, 2)) shouldBe true
+      result.image.points(Point2D(1, 2)) shouldBe true
+      result.image.points(Point2D(4, 2)) shouldBe true
+      result.image.points(Point2D(2, 3)) shouldBe true
+      result.image.points(Point2D(2, 4)) shouldBe true
+      result.image.points(Point2D(3, 4)) shouldBe true
+      result.image.points(Point2D(4, 4)) shouldBe true
     }
 
   "countPixelsLit(2)" should "find result from spec input" in {
