@@ -1,6 +1,7 @@
 package com.kensai.aoc.aoc2021
 
 import com.kensai.aoc.aoc2021.Day05._
+import com.kensai.aoc.lib.Geo.Point2D
 import com.kensai.aoc.lib.Lib.readInputLines
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -49,15 +50,15 @@ class Day05Spec extends AnyFlatSpec with GivenWhenThen {
 
     Then("Result is expected")
     result shouldBe Seq(
-      VentPoint(0, 8),
-      VentPoint(1, 7),
-      VentPoint(2, 6),
-      VentPoint(3, 5),
-      VentPoint(4, 4),
-      VentPoint(5, 3),
-      VentPoint(6, 2),
-      VentPoint(7, 1),
-      VentPoint(8, 0)
+      Point2D(0, 8),
+      Point2D(1, 7),
+      Point2D(2, 6),
+      Point2D(3, 5),
+      Point2D(4, 4),
+      Point2D(5, 3),
+      Point2D(6, 2),
+      Point2D(7, 1),
+      Point2D(8, 0)
     )
   }
 

@@ -1,25 +1,25 @@
 package com.kensai.aoc.aoc2021
 
+import com.kensai.aoc.lib.Geo.Point2D
+
 object Day05 {
 
   case class VentLine(x1: Int, y1: Int, x2: Int, y2: Int) {
-    def generatePoints: Seq[VentPoint] =
+    def generatePoints: Seq[Point2D] =
       if (x1 == x2)
-        range(y1, y2).map(y => VentPoint(x1, y))
+        range(y1, y2).map(y => Point2D(x1, y))
       else if (y1 == y2)
-        range(x1, x2).map(x => VentPoint(x, y1))
+        range(x1, x2).map(x => Point2D(x, y1))
       else
         for {
           (x, y) <- range(x1, x2) zip range(y1, y2)
-        } yield VentPoint(x, y)
+        } yield Point2D(x, y)
 
     private def range(val1: Int, val2: Int): Range = {
       val step = if (val1 < val2) 1 else -1
       val1 to val2 by step
     }
   }
-
-  case class VentPoint(x: Int, y: Int)
 
   private val lineRegex = """(\d+),(\d+) -> (\d+),(\d+)""".r
   private def parse(inputs: Seq[String]): Seq[VentLine] =
