@@ -35,6 +35,7 @@
 | 18  | [Snailfish](https://adventofcode.com/2021/day/18)               | [Day18](../master/src/main/scala/com/kensai/aoc/aoc2021/Day18.scala) | [Day18Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day18Spec.scala) | [Day18PropSpec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day18PropSpec.scala) | [Day18.input](../master/src/test/resources/aoc2021/Day18.input) | 
 | 19  | [Beacon Scanner](https://adventofcode.com/2021/day/19)          | [Day19](../master/src/main/scala/com/kensai/aoc/aoc2021/Day19.scala) | [Day19Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day19Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day19PropSpec.scala)              | [Day19.input](../master/src/test/resources/aoc2021/Day19.input) | 
 | 20  | [Trench Map](https://adventofcode.com/2021/day/20)              | [Day20](../master/src/main/scala/com/kensai/aoc/aoc2021/Day20.scala) | [Day20Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day20Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day20PropSpec.scala)              | [Day20.input](../master/src/test/resources/aoc2021/Day20.input) | 
+| 21  | [Dirac Dice](https://adventofcode.com/2021/day/21)              | [Day21](../master/src/main/scala/com/kensai/aoc/aoc2021/Day21.scala) | [Day21Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day21Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day21PropSpec.scala)              | [Day21.input](../master/src/test/resources/aoc2021/Day21.input) | 
 
 
 ## [AOC 2020](https://adventofcode.com/2020)
