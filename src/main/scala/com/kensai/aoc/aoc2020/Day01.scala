@@ -2,15 +2,14 @@ package com.kensai.aoc.aoc2020
 
 object Day01 {
 
-  /** Compute the multiplication of the two numbers from {@code candidates}
-    * that the sum is equal to {@code expectedSum}.
+  /** Compute the multiplication of the two numbers from {@code candidates} that the sum is equal to {@code expectedSum}.
     *
     * Return {@code None} if the expected sum cannot be found.
     */
   def compute(expectedSum: Long, candidates: List[Long]): Option[Long] = {
     val sortedCandidates = candidates.sorted
-    var firstIndex = 0
-    var lastIndex = sortedCandidates.size - 1
+    var firstIndex       = 0
+    var lastIndex        = sortedCandidates.size - 1
 
     while (firstIndex < lastIndex) {
       val sum = sortedCandidates(firstIndex) + sortedCandidates(lastIndex)
@@ -24,8 +23,7 @@ object Day01 {
     None
   }
 
-  /** Compute the multiplication of the three numbers from {@code candidates}
-    * that the sum is equal to {@code expectedSum}.
+  /** Compute the multiplication of the three numbers from {@code candidates} that the sum is equal to {@code expectedSum}.
     *
     * Return {@code None} if the expected sum cannot be found.
     */

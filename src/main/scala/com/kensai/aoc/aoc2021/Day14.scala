@@ -5,14 +5,13 @@ object Day14 {
   case class Inputs(
       initialTemplate: String,
       polymer: Map[(Char, Char), Long],
-      rules: Map[(Char, Char), Rule]
-  )
+      rules: Map[(Char, Char), Rule])
   case class Rule(left: Char, right: Char, toInsert: Char)
 
   private val ruleRegex = """([A-Z])([A-Z]) -> ([A-Z])""".r
   def parse(lines: Seq[String]): Inputs = {
     val polymer = parsePolymer(lines.head.toCharArray.toSeq)
-    val rules = parseRules(lines.tail)
+    val rules   = parseRules(lines.tail)
     Inputs(lines.head, polymer, rules)
   }
 
@@ -20,9 +19,8 @@ object Day14 {
     */
   private def parsePolymer(polymer: Seq[Char]): Map[(Char, Char), Long] = {
     val (results, _) =
-      polymer.tail.foldLeft((Seq.empty[(Char, Char)], polymer.head)) {
-        case (acc, currentChar) =>
-          (acc._1 :+ (acc._2, currentChar), currentChar)
+      polymer.tail.foldLeft((Seq.empty[(Char, Char)], polymer.head)) { case (acc, currentChar) =>
+        (acc._1 :+ (acc._2, currentChar), currentChar)
       }
     results.groupBy(identity).map { case (k, v) => (k, v.size.toLong) }
   }
@@ -59,18 +57,18 @@ object Day14 {
     max - min
   }
 
-  /** Apply rules on the inputs for x steps.
-    * Then return the count of each pair of Chars (For instance: "ABC" will become Map((A,B)->1, (B,C)->1)
+  /** Apply rules on the inputs for x steps. Then return the count of each pair of Chars (For instance: "ABC" will become Map((A,B)->1,
+    * (B,C)->1)
     */
   def insert(inputs: Inputs, step: Int): Map[(Char, Char), Long] =
-    (0 until step - 1).foldLeft(doInsert(inputs.polymer, inputs.rules)) {
-      case (acc, _) => doInsert(acc, inputs.rules)
+    (0 until step - 1).foldLeft(doInsert(inputs.polymer, inputs.rules)) { case (acc, _) =>
+      doInsert(acc, inputs.rules)
     }
 
   private def doInsert(
       polymer: Map[(Char, Char), Long],
       rules: Map[(Char, Char), Rule]
-  ): Map[(Char, Char), Long] = {
+    ): Map[(Char, Char), Long] =
     polymer.toSeq
       .flatMap { case (key, value) =>
         val r = rules(key)
@@ -81,6 +79,5 @@ object Day14 {
       .map { case (key, value) =>
         (key, value.foldLeft(0L)(_ + _._2))
       }
-  }
 
 }

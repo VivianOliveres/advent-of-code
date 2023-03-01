@@ -9,19 +9,14 @@ import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Day15PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen {
+class Day15PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen {
 
   property("lastSpokenAt should return result") {
 
     case class LastSpokenParam(
         input: String,
         turnNumber: Long,
-        expectedResult: Long
-    )
+        expectedResult: Long)
 
     val inputs = Table(
       "Test parameters",

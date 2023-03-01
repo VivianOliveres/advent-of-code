@@ -1,7 +1,7 @@
 package com.kensai.aoc.aoc2021
 
 import com.kensai.aoc.aoc2021.Day07._
-import com.kensai.aoc.lib.Lib.{readInputLines}
+import com.kensai.aoc.lib.Lib.readInputLines
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.flatspec._

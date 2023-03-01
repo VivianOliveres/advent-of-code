@@ -20,21 +20,17 @@ object Geo {
       else
         None
     }
-    def iterator: Iterator[Point2D] = {
+    def iterator: Iterator[Point2D] =
       for {
         x <- (min.x to max.x).iterator
         y <- (min.y to max.y).iterator
       } yield Point2D(x, y)
-    }
     def size: Int = iterator.size
   }
   object Cube2D {
     def apply(minX: Int, maxX: Int, minY: Int, maxY: Int): Cube2D =
       Cube2D(Point2D(minX, minY), Point2D(maxX, maxY))
   }
-
-
-
 
   case class Point3D(x: Int, y: Int, z: Int) {
     def min(that: Point3D): Point3D =
@@ -54,13 +50,12 @@ object Geo {
       else
         None
     }
-    def iterator: Iterator[Point3D] = {
+    def iterator: Iterator[Point3D] =
       for {
         x <- (min.x to max.x).iterator
         y <- (min.y to max.y).iterator
         z <- (min.z to max.z).iterator
       } yield Point3D(x, y, z)
-    }
     def size: Int = iterator.size
   }
   object Cube3D {

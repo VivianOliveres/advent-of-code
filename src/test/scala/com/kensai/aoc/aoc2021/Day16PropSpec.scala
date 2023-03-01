@@ -10,11 +10,7 @@ import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Day16PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen {
+class Day16PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen {
 
   property("parse should return valid Message") {
     val inputs = Table(
@@ -56,7 +52,7 @@ class Day16PropSpec
       Given(s"Input is ${param.input}")
 
       When(s"parse(${param.input})")
-      val bits = toBits(param.input)
+      val bits   = toBits(param.input)
       val result = parse(bits)
 
       Then(s"result should be ${param.expectedResult}")
@@ -78,9 +74,9 @@ class Day16PropSpec
       Given(s"Input is ${param.input}")
 
       When(s"computeSumVersionNumbers(${param.input})")
-      val bits = hexToBin(param.input)
+      val bits    = hexToBin(param.input)
       val message = parse(bits)
-      val result = computeSumVersionNumbers(message)
+      val result  = computeSumVersionNumbers(message)
 
       Then(s"result should be ${param.expectedResult}")
       result shouldBe param.expectedResult
@@ -104,9 +100,9 @@ class Day16PropSpec
       Given(s"Input is ${param.input}")
 
       When(s"eval(${param.input})")
-      val bits = hexToBin(param.input)
+      val bits    = hexToBin(param.input)
       val message = parse(bits)
-      val result = message.eval
+      val result  = message.eval
 
       Then(s"Result is ${param.expectedResult}")
       result shouldBe param.expectedResult

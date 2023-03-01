@@ -37,7 +37,7 @@ object Day11 {
 
   val AllDirections: List[Direction] =
     Semigroupal
-      .map2(List(0, 1, -1), List(0, 1, -1)) { Direction }
+      .map2(List(0, 1, -1), List(0, 1, -1))(Direction)
       .filter {
         case Direction(0, 0) => false
         case _               => true
@@ -84,9 +84,9 @@ object Day11 {
       board: Board,
       expectedCount: Int,
       extractFun: (Pos, Board) => List[Char]
-  ): Option[(Pos, Char)] = {
+    ): Option[(Pos, Char)] = {
     val adjacent = extractFun(pos, board)
-    val count = adjacent.count(_ == '#')
+    val count    = adjacent.count(_ == '#')
     if (board.at(pos) == '#' && count >= expectedCount)
       Some((pos, 'L'))
     else if (board.at(pos) == 'L' && count == 0)
@@ -98,7 +98,7 @@ object Day11 {
       board: Board,
       expectedCount: Int,
       extractFun: (Pos, Board) => List[Char]
-  ): Board = {
+    ): Board = {
     val updates = (for {
       x <- 0 to board.maxX
       y <- 0 to board.maxY
@@ -122,7 +122,7 @@ object Day11 {
 
   def countOccupiedSeats(board: Board): Long = {
     var previous = board
-    var next = doComputeNextBoard(board, 4, extractAdjacent)
+    var next     = doComputeNextBoard(board, 4, extractAdjacent)
     while (previous != next) {
       previous = next
       next = doComputeNextBoard(next, 4, extractAdjacent)
@@ -133,7 +133,7 @@ object Day11 {
 
   def countOccupiedSeats2(board: Board): Long = {
     var previous = board
-    var next = doComputeNextBoard(board, 5, extractVisibleAdjacent)
+    var next     = doComputeNextBoard(board, 5, extractVisibleAdjacent)
     while (previous != next) {
       previous = next
       next = doComputeNextBoard(next, 5, extractVisibleAdjacent)

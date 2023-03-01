@@ -13,16 +13,14 @@ object Day17 {
       .map(_.trim)
       .filterNot(_.isEmpty)
       .zipWithIndex
-      .flatMap {
-        case (row, y) => {
-          row
-            .chars()
-            .toArray
-            .toList
-            .zipWithIndex
-            .filter(_._1 == '#')
-            .map { case (_, x) => Coord3(x, y, 0) }
-        }
+      .flatMap { case (row, y) =>
+        row
+          .chars()
+          .toArray
+          .toList
+          .zipWithIndex
+          .filter(_._1 == '#')
+          .map { case (_, x) => Coord3(x, y, 0) }
       }
       .toSet
 
@@ -50,7 +48,7 @@ object Day17 {
       coord: T,
       activeCoord: Set[T],
       neighbors: Int
-  ): Boolean =
+    ): Boolean =
     if (activeCoord.contains(coord))
       neighbors == 2 || neighbors == 3
     else
@@ -59,7 +57,7 @@ object Day17 {
   def doComputeNextState[T](
       activeCoord: Set[T],
       neighborsGenerator: T => Seq[T]
-  ): Set[T] =
+    ): Set[T] =
     activeCoord.toList
       .flatMap(neighborsGenerator)
       .groupBy(x => x)
@@ -77,7 +75,9 @@ object Day17 {
 
   def activeCubeAfter[T](
       neighborsGenerator: T => Seq[T]
-  )(numCycles: Int, cubes: Set[T]): Long =
+    )(numCycles: Int,
+      cubes: Set[T]
+    ): Long =
     (0 until numCycles)
       .foldLeft(cubes) { case (acc, _) =>
         doComputeNextState(acc, neighborsGenerator)

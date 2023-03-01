@@ -17,10 +17,10 @@ object Day06 {
   private def doCompute(timers: Seq[Int], nbDays: Int): Long = {
     // Map[Day, Count of fishs]
     val tmp: collection.mutable.Map[Int, Long] = collection.mutable.Map()
-    timers.foreach(timer => {
+    timers.foreach { timer =>
       val dayOfProcreation = nbDays - timer
       tmp.put(dayOfProcreation, tmp.getOrElse(dayOfProcreation, 0L) + 1L)
-    })
+    }
 
     // For each day decremental
     (nbDays to 1 by -1).foreach { day =>

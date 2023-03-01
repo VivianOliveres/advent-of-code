@@ -31,27 +31,22 @@ object Day05 {
       }
     }
 
-  /**
-    * Count the number of dangerous points (ie: points crossed by at least to VentLine).
-    * But count only the Vertical and Horizontal lines.
+  /** Count the number of dangerous points (ie: points crossed by at least to VentLine). But count only the Vertical and Horizontal lines.
     */
   def countVHDangerousPoints(inputs: Seq[String]): Int =
     countDangerousPoints(inputs, line => line.x1 == line.x2 || line.y1 == line.y2)
 
-  private def countDangerousPoints(inputs: Seq[String], filter: VentLine=>Boolean): Int = {
-    val lines = parse(inputs).filter(filter)
+  private def countDangerousPoints(inputs: Seq[String], filter: VentLine => Boolean): Int = {
+    val lines  = parse(inputs).filter(filter)
     val points = lines.flatMap(_.generatePoints)
     val countByPoint =
-      points.groupBy(point => (point.x, point.y)).map{case (key, value) => (key, value.size)}
+      points.groupBy(point => (point.x, point.y)).map { case (key, value) => (key, value.size) }
     countByPoint.count(_._2 > 1)
   }
 
-  /**
-    * Count the number of dangerous points (ie: points crossed by at least to VentLine).
-    * Count Vertical, Horizontal and Diagonal lines.
+  /** Count the number of dangerous points (ie: points crossed by at least to VentLine). Count Vertical, Horizontal and Diagonal lines.
     */
-  def countAllDangerousPoints(inputs: Seq[String]): Int = {
+  def countAllDangerousPoints(inputs: Seq[String]): Int =
     countDangerousPoints(inputs, _ => true)
-  }
 
 }

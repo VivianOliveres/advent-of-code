@@ -6,7 +6,7 @@ object Day03 {
     */
   case class TobogganRow(x: Int, rowSize: Int, trees: Set[Int])
 
-  def parse(input: String, x: Int): TobogganRow = {
+  def parse(input: String, x: Int): TobogganRow =
     try {
       val result = input.zipWithIndex
         .filter(_._1 == '#')
@@ -15,12 +15,10 @@ object Day03 {
       TobogganRow(x, input.length, result)
 
     } catch {
-      case _: RuntimeException => {
+      case _: RuntimeException =>
         System.err.println(s"Day03 - parse - Invalid format for input[$input]")
         TobogganRow(x, input.length, Set())
-      }
     }
-  }
 
   def parse(inputs: List[String]): Map[Int, TobogganRow] =
     inputs
@@ -31,15 +29,16 @@ object Day03 {
       .map(row => row.x -> row)
       .toMap
 
-  /** Count the number of trees found when starting from (0, 0) position and incrementing current position by ({@code xSlope}, {@code ySlope}).
+  /** Count the number of trees found when starting from (0, 0) position and incrementing current position by ({@code xSlope}, {@code
+    * ySlope}).
     */
   def countTrees(
       xSlope: Int,
       ySlope: Int,
       input: Map[Int, TobogganRow]
-  ): Long = {
-    var x = 0
-    var y = 0
+    ): Long = {
+    var x       = 0
+    var y       = 0
     var counter = 0
     while (y < input.size) {
       val row = input(y)
@@ -59,7 +58,7 @@ object Day03 {
   def countMultipleTrees(
       slopes: List[(Int, Int)],
       input: Map[Int, TobogganRow]
-  ): Long =
+    ): Long =
     slopes
       .map(slope => countTrees(slope._1, slope._2, input))
       .foldLeft(1L)(_ * _)

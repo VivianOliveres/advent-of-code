@@ -5,16 +5,12 @@ import com.kensai.aoc.lib.SimpleTestParam
 import org.junit.runner.RunWith
 import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1}
+import org.scalatest.prop.{ TableDrivenPropertyChecks, TableFor1 }
 import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Day01PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen {
+class Day01PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen {
 
   val ExpectedSum = 2020L
 

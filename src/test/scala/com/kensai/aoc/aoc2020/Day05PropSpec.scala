@@ -9,19 +9,13 @@ import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Day05PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen
-    with Day05Fixtures {
+class Day05PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen with Day05Fixtures {
 
   case class Day05TestParam(
       input: String,
       expectedRow: Long,
       expectedColumn: Long,
-      expectedSeatId: Long
-  )
+      expectedSeatId: Long)
 
   property(
     "computeRow and computeColumn and computeSeatId should be valid for spec inputs"

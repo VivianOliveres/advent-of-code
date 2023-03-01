@@ -1,7 +1,7 @@
 package com.kensai.aoc.aoc2021
 
 import com.kensai.aoc.aoc2021.Day13._
-import com.kensai.aoc.lib.Lib.{readInputFile}
+import com.kensai.aoc.lib.Lib.readInputFile
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.flatspec._
@@ -64,7 +64,7 @@ class Day13Spec extends AnyFlatSpec with GivenWhenThen {
     Then("Result is expected")
     result should have size 108
 
-    //Solution is "pzehraer"
+    // Solution is "pzehraer"
     printSolution(result)
   }
 }

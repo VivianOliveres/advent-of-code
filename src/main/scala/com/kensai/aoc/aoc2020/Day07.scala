@@ -2,11 +2,11 @@ package com.kensai.aoc.aoc2020
 
 object Day07 {
 
-  //shiny gold bags contain XYZ
+  // shiny gold bags contain XYZ
   private val headColorRegex = """([a-z ]+) bags contain (.*)\.""".r
 
-  //3 faded blue bags
-  //3 faded blue bag
+  // 3 faded blue bags
+  // 3 faded blue bag
   private val countColorsRegex = """(\d+) ([a-z ]+) bags?""".r
 
   def parseColorContainedBy(input: String): Map[String, String] = {
@@ -24,7 +24,7 @@ object Day07 {
   private def combine(
       acc: Map[String, Set[String]],
       other: Map[String, String]
-  ): Map[String, Set[String]] = {
+    ): Map[String, Set[String]] = {
     val keys = acc.keySet ++ other.keySet
     keys
       .map(key =>
@@ -37,7 +37,7 @@ object Day07 {
   private def combineRight(
       key: String,
       other: Map[String, String]
-  ): Set[String] =
+    ): Set[String] =
     other.get(key).map(Set(_)).getOrElse(Set.empty[String])
 
   def bagsContaining(color: String, inputs: List[String]): Long = {
@@ -48,7 +48,7 @@ object Day07 {
   def doBagsContaining(
       color: String,
       rules: Map[String, Set[String]]
-  ): Set[String] = {
+    ): Set[String] = {
     val containsDirectly = rules.getOrElse(color, Set.empty[String])
     containsDirectly
       .map(doBagsContaining(_, rules))
@@ -57,7 +57,7 @@ object Day07 {
 
   def parseColorContaining(
       inputs: List[String]
-  ): Map[String, Map[String, Int]] =
+    ): Map[String, Map[String, Int]] =
     inputs
       .map(_.trim)
       .map(doParseColorContaining)
@@ -75,7 +75,7 @@ object Day07 {
 
   private def doParseColorContaining(
       input: String
-  ): (String, Map[String, Int]) =
+    ): (String, Map[String, Int]) =
     input match {
       case headColorRegex(headColor, other) => (headColor, parseColors(other))
       case _                                => throw new RuntimeException(s"Invalid color [$input]")
@@ -84,7 +84,7 @@ object Day07 {
   private def doComputeBagContainingOtherBAgs(
       color: String,
       rules: Map[String, Map[String, Int]]
-  ): Long =
+    ): Long =
     rules
       .get(color)
       .map(sumBags(_, rules))
@@ -95,7 +95,7 @@ object Day07 {
   private def sumBags(
       elements: Map[String, Int],
       rules: Map[String, Map[String, Int]]
-  ): Long =
+    ): Long =
     elements.toList.map { case (key, count) =>
       count * doComputeBagContainingOtherBAgs(key, rules)
     }.sum
@@ -103,7 +103,7 @@ object Day07 {
   def computeBagContainingOtherBags(
       color: String,
       inputs: List[String]
-  ): Long = {
+    ): Long = {
     val rules = parseColorContaining(inputs)
     doComputeBagContainingOtherBAgs(color, rules) - 1 // Remove itself
   }

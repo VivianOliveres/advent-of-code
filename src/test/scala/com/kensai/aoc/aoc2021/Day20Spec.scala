@@ -20,28 +20,28 @@ class Day20Spec extends AnyFlatSpec with GivenWhenThen {
     "src/test/resources/2021/Day20Spec.input"
   )
 
-    "parse" should "find result from spec input" in {
-      Given("Puzzle spec input")
+  "parse" should "find result from spec input" in {
+    Given("Puzzle spec input")
 
-      When("parse(puzzleSpecInput)")
-      val result = parse(puzzleSpecInput)
+    When("parse(puzzleSpecInput)")
+    val result = parse(puzzleSpecInput)
 
-      Then("Result is expected")
-      result.image.points should have size 25
-      result.enhancementAlgorithm should have size 512
+    Then("Result is expected")
+    result.image.points should have size 25
+    result.enhancementAlgorithm should have size 512
 
-      result.image.points(Point2D(0, 0)) shouldBe true
-      result.image.points(Point2D(3, 0)) shouldBe true
-      result.image.points(Point2D(0, 1)) shouldBe true
-      result.image.points(Point2D(2, 1)) shouldBe false
-      result.image.points(Point2D(0, 2)) shouldBe true
-      result.image.points(Point2D(1, 2)) shouldBe true
-      result.image.points(Point2D(4, 2)) shouldBe true
-      result.image.points(Point2D(2, 3)) shouldBe true
-      result.image.points(Point2D(2, 4)) shouldBe true
-      result.image.points(Point2D(3, 4)) shouldBe true
-      result.image.points(Point2D(4, 4)) shouldBe true
-    }
+    result.image.points(Point2D(0, 0)) shouldBe true
+    result.image.points(Point2D(3, 0)) shouldBe true
+    result.image.points(Point2D(0, 1)) shouldBe true
+    result.image.points(Point2D(2, 1)) shouldBe false
+    result.image.points(Point2D(0, 2)) shouldBe true
+    result.image.points(Point2D(1, 2)) shouldBe true
+    result.image.points(Point2D(4, 2)) shouldBe true
+    result.image.points(Point2D(2, 3)) shouldBe true
+    result.image.points(Point2D(2, 4)) shouldBe true
+    result.image.points(Point2D(3, 4)) shouldBe true
+    result.image.points(Point2D(4, 4)) shouldBe true
+  }
 
   "countPixelsLit(2)" should "find result from spec input" in {
     Given("Puzzle spec input")

@@ -29,7 +29,6 @@ class Day11Spec extends AnyFlatSpec with GivenWhenThen {
     result shouldBe 0
   }
 
-
   "countFlashes(2)" should "find result from spec input" in {
     Given("Puzzle spec input")
 
@@ -47,7 +46,7 @@ class Day11Spec extends AnyFlatSpec with GivenWhenThen {
     val result = countFlashes(puzzleSpecInput, 3)
 
     Then("Result is 35+45")
-    result shouldBe 35+45
+    result shouldBe 35 + 45
   }
 
   "countFlashes(100)" should "find result from spec input" in {

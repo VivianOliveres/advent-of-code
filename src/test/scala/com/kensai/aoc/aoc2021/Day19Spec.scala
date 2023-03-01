@@ -1,7 +1,7 @@
 package com.kensai.aoc.aoc2021
 
 import com.kensai.aoc.aoc2021.Day19._
-import com.kensai.aoc.lib.Lib.{readInputFile}
+import com.kensai.aoc.lib.Lib.readInputFile
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.flatspec._
@@ -19,28 +19,27 @@ class Day19Spec extends AnyFlatSpec with GivenWhenThen {
     "src/test/resources/2021/Day19Spec.input"
   )
 
-    "parse" should "find result from spec input" in {
-      Given("Puzzle spec input")
+  "parse" should "find result from spec input" in {
+    Given("Puzzle spec input")
 
-      When("parse(puzzleSpecInput)")
-      val result = parse(puzzleSpecInput)
+    When("parse(puzzleSpecInput)")
+    val result = parse(puzzleSpecInput)
 
-      Then("Result is expected")
-      result.scanners should have size 5
-      result.scanners.head.points should have size 25
-    }
+    Then("Result is expected")
+    result.scanners should have size 5
+    result.scanners.head.points should have size 25
+  }
 
-    "parse" should "find result from input" in {
-      Given("Puzzle input")
+  "parse" should "find result from input" in {
+    Given("Puzzle input")
 
-      When("parse(puzzleInput)")
-      val result = parse(puzzleInput)
+    When("parse(puzzleInput)")
+    val result = parse(puzzleInput)
 
-      Then("Result is expected")
-      result.scanners should have size 35
-      result.scanners.head.points should have size 26
-    }
-
+    Then("Result is expected")
+    result.scanners should have size 35
+    result.scanners.head.points should have size 26
+  }
 
   "compute" should "find result from spec input" in {
     Given("Puzzle spec input")

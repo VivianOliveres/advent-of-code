@@ -1,7 +1,7 @@
 package com.kensai.aoc.aoc2021
 
 import com.kensai.aoc.aoc2021.Day14._
-import com.kensai.aoc.lib.Lib.{readInputLines}
+import com.kensai.aoc.lib.Lib.readInputLines
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.flatspec._
@@ -38,7 +38,7 @@ class Day14Spec extends AnyFlatSpec with GivenWhenThen {
     val result = insert(inputs, 1)
 
     Then("Result is parsed")
-    //NCNBCHB
+    // NCNBCHB
     result shouldBe Map(
       ('N', 'C') -> 1,
       ('C', 'N') -> 1,
@@ -57,7 +57,7 @@ class Day14Spec extends AnyFlatSpec with GivenWhenThen {
     val result = insert(inputs, 2)
 
     Then("Result is parsed")
-    //NBCCNBBBCBHCB
+    // NBCCNBBBCBHCB
     result(('H', 'C')) shouldBe 1
     result(('C', 'B')) shouldBe 2
     result(('B', 'H')) shouldBe 1
@@ -100,7 +100,7 @@ class Day14Spec extends AnyFlatSpec with GivenWhenThen {
     val result = insert(inputs, 4)
 
     Then("Result is parsed")
-    //NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB
+    // NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB
     result(('C', 'B')) shouldBe 5
     result(('B', 'N')) shouldBe 6
     result(('N', 'C')) shouldBe 1

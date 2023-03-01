@@ -11,7 +11,7 @@ object Day21 {
       player2.score >= winningScore || player1.score >= winningScore
 
     def loser(winningScore: Int): Player =
-      if(player1.score >= winningScore) player2 else player1
+      if (player1.score >= winningScore) player2 else player1
   }
 
   def parse(rows: Seq[String]): Day21Input = {
@@ -34,9 +34,9 @@ object Day21 {
 
   def move(input: Day21Input, dicedValuesToAdd: Int): Day21Input = {
     val isFirstPlayerToPlay = firstPlayerToPlay(input.rollCount)
-    val player = if (isFirstPlayerToPlay) input.player1 else input.player2
-    val newPosition = movePlayer(player.position, dicedValuesToAdd)
-    val newScore = player.score + newPosition
+    val player              = if (isFirstPlayerToPlay) input.player1 else input.player2
+    val newPosition         = movePlayer(player.position, dicedValuesToAdd)
+    val newScore            = player.score + newPosition
     if (isFirstPlayerToPlay)
       input.copy(rollCount = input.rollCount + 3, player1 = Player(newPosition, newScore))
     else
@@ -68,7 +68,7 @@ object Day21 {
 
   case class GameWinCounter(player1Count: Long, player2Count: Long) {
     def incPlayer1(value: Long): GameWinCounter =
-      GameWinCounter(player1Count + value , player2Count)
+      GameWinCounter(player1Count + value, player2Count)
     def incPlayer2(value: Long): GameWinCounter =
       GameWinCounter(player1Count, player2Count + value)
     def max: Long = math.max(player1Count, player2Count)
@@ -89,7 +89,8 @@ object Day21 {
   }
 
   @tailrec
-  private def doFindQuantumSolution(winningScore: Int, counter: GameWinCounter, acc: Map[Day21Input, Long]): (GameWinCounter, Map[Day21Input, Long]) = {
+  private def doFindQuantumSolution(winningScore: Int, counter: GameWinCounter, acc: Map[Day21Input, Long])
+      : (GameWinCounter, Map[Day21Input, Long]) =
     if (acc.isEmpty)
       (counter, acc)
     else {
@@ -100,12 +101,11 @@ object Day21 {
       } else {
         val toUpdate = diracRollCounts
           .map(value => move(current, value._1) -> value._2)
-          .map{ case (i, countLocal) =>
+          .map { case (i, countLocal) =>
             (i, count * countLocal + next.getOrElse(i, 0L))
           }
         doFindQuantumSolution(winningScore, counter, next ++ toUpdate)
       }
     }
 
-  }
 }

@@ -7,11 +7,10 @@ import scala.language.reflectiveCalls
 object Lib {
 
   def using[A <: { def close(): Unit }, B](resource: A)(f: A => B): B =
-    try {
+    try
       f(resource)
-    } finally {
+    finally
       resource.close()
-    }
 
   def readInputFile(path: String): String =
     using(Source.fromFile(path))(_.mkString)

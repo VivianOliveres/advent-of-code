@@ -5,17 +5,12 @@ import com.kensai.aoc.lib.SimpleTestParam
 import org.junit.runner.RunWith
 import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1}
+import org.scalatest.prop.{ TableDrivenPropertyChecks, TableFor1 }
 import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Day02PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen
-    with Day02Fixtures {
+class Day02PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen with Day02Fixtures {
 
   property("compute should return expected value") {
     val inputs: TableFor1[SimpleTestParam[String, Option[PasswordRow]]] = Table(

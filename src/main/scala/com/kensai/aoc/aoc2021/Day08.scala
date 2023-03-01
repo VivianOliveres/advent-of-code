@@ -21,8 +21,8 @@ object Day08 {
 
   def parseInput(inputs: Seq[String]): Seq[DigitValues] =
     inputs.map(_.trim).filterNot(_.isEmpty).map { line =>
-      val splitted = line.split(" \\| ")
-      val leftDigits = splitted.head.split(" ").map(i => Digits(i.toSet)).toSet
+      val splitted    = line.split(" \\| ")
+      val leftDigits  = splitted.head.split(" ").map(i => Digits(i.toSet)).toSet
       val rightDigits = splitted(1).split(" ").map(i => Digits(i.toSet)).toSeq
       DigitValues(leftDigits, rightDigits)
     }

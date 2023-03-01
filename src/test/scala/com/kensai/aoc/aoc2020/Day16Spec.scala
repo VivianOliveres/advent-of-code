@@ -71,9 +71,9 @@ class Day16Spec extends AnyFlatSpec with GivenWhenThen {
   "invalidValue for valid ticket" should "return 0" in {
     Given(s"Input is spec")
     val ticket = Ticket(List(7L, 1L, 14L))
-    val rule1 = Rule("row", 1, 3, 5, 7)
-    val rule2 = Rule("class", 6, 11, 33, 44)
-    val rule3 = Rule("seat", 13, 40, 45, 50)
+    val rule1  = Rule("row", 1, 3, 5, 7)
+    val rule2  = Rule("class", 6, 11, 33, 44)
+    val rule3  = Rule("seat", 13, 40, 45, 50)
 
     When("sumFirstInvalidValues")
     Then(s"Result is ")
@@ -104,10 +104,10 @@ class Day16Spec extends AnyFlatSpec with GivenWhenThen {
 
   "doFieldsPosition for invalid ticket" should "return None" in {
     Given(s"Input is spec")
-    val rule1 = Rule("class", 1, 3, 5, 7)
-    val rule2 = Rule("row", 6, 11, 33, 44)
-    val rule3 = Rule("seat", 13, 40, 45, 50)
-    val rules = List(rule1, rule2, rule3)
+    val rule1  = Rule("class", 1, 3, 5, 7)
+    val rule2  = Rule("row", 6, 11, 33, 44)
+    val rule3  = Rule("seat", 13, 40, 45, 50)
+    val rules  = List(rule1, rule2, rule3)
     val ticket = Ticket(List(40L, 4L, 50L))
 
     When("doFieldsPosition")
@@ -119,11 +119,11 @@ class Day16Spec extends AnyFlatSpec with GivenWhenThen {
 
   "doFieldsPosition for valid ticket" should "return Some(result)" in {
     Given(s"Input is spec")
-    val ruleRow = Rule("row", 1, 3, 5, 7)
+    val ruleRow   = Rule("row", 1, 3, 5, 7)
     val ruleClass = Rule("class", 6, 11, 33, 44)
-    val ruleSeat = Rule("seat", 13, 40, 45, 50)
-    val rules = List(ruleRow, ruleClass, ruleSeat)
-    val ticket = Ticket(List(7L, 3L, 47L))
+    val ruleSeat  = Rule("seat", 13, 40, 45, 50)
+    val rules     = List(ruleRow, ruleClass, ruleSeat)
+    val ticket    = Ticket(List(7L, 3L, 47L))
 
     When("doFieldsPosition")
     val result = doFieldsPosition(ticket, rules)
@@ -191,8 +191,8 @@ class Day16Spec extends AnyFlatSpec with GivenWhenThen {
     When("doFieldsPosition")
     val result = doFieldsPosition(tickets, rules)
 
-    //Map(0 -> Set(rule0, rule2), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
-    //Map(0 -> Set(rule0, rule1), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
+    // Map(0 -> Set(rule0, rule2), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
+    // Map(0 -> Set(rule0, rule1), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
 
     Then(s"Result is ")
     result shouldBe Map(
@@ -216,8 +216,8 @@ class Day16Spec extends AnyFlatSpec with GivenWhenThen {
     When("doFieldsPosition")
     val result = doFieldsPosition(tickets, rules)
 
-    //Map(0 -> Set(rule0, rule2), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
-    //Map(0 -> Set(rule0, rule1), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
+    // Map(0 -> Set(rule0, rule2), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
+    // Map(0 -> Set(rule0, rule1), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
 
     Then(s"Result is ")
     result shouldBe Map(
@@ -242,9 +242,9 @@ class Day16Spec extends AnyFlatSpec with GivenWhenThen {
     When("doFieldsPosition")
     val result = doFieldsPosition(tickets, rules)
 
-    //Map(0 -> Set(rule0, rule2), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
-    //Map(0 -> Set(rule0, rule1), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
-    //Map(0 -> Set(rule0, rule1, rule2), 1 -> Set(rule0, rule1), 2 -> Set(rule0, rule1, rule2))
+    // Map(0 -> Set(rule0, rule2), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
+    // Map(0 -> Set(rule0, rule1), 1 -> Set(rule0, rule1, rule2), 2 -> Set(rule0, rule1, rule2))
+    // Map(0 -> Set(rule0, rule1, rule2), 1 -> Set(rule0, rule1), 2 -> Set(rule0, rule1, rule2))
 
     Then(s"Result is ")
     result shouldBe Map(0 -> Set(rule0), 1 -> Set(rule1), 2 -> Set(rule2))
@@ -257,7 +257,7 @@ class Day16Spec extends AnyFlatSpec with GivenWhenThen {
     val rule2 = Rule("seat", 0, 13, 16, 19)
     val rules = List(rule0, rule1, rule2)
 
-    val first = rules.indices.map(i => i -> rules.toSet).toMap
+    val first   = rules.indices.map(i => i -> rules.toSet).toMap
     val ticket1 = Ticket(List(3L, 9L, 18L))
     val r1 =
       List(ticket1).flatMap(doFieldsPosition(_, rules)).foldLeft(first)(reduce)

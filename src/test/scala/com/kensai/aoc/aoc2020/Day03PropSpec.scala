@@ -4,23 +4,17 @@ import Day03._
 import org.junit.runner.RunWith
 import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1}
+import org.scalatest.prop.{ TableDrivenPropertyChecks, TableFor1 }
 import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Day03PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen
-    with Day03Fixtures {
+class Day03PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen with Day03Fixtures {
 
   case class Day03TestParam(
       row: String,
       index: Int,
-      expectedResult: TobogganRow
-  )
+      expectedResult: TobogganRow)
 
   property("compute should return expected value") {
     val inputs: TableFor1[Day03TestParam] = Table(

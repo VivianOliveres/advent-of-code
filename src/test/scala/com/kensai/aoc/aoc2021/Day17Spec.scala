@@ -19,7 +19,6 @@ class Day17Spec extends AnyFlatSpec with GivenWhenThen {
     "src/test/resources/2021/Day17Spec.input"
   )
 
-
   "computeHighestVelocityY" should "find result from spec input" in {
     Given("Puzzle spec input")
     val input = puzzleSpecInput.head
@@ -28,7 +27,7 @@ class Day17Spec extends AnyFlatSpec with GivenWhenThen {
     val result = computeHighestVelocityY(input)
 
     Then("Result is ((6,9), 45)")
-    result shouldBe ((6,9), 45)
+    result shouldBe ((6, 9), 45)
   }
 
   "computeHighestVelocityY" should "find result from input" in {
@@ -39,7 +38,7 @@ class Day17Spec extends AnyFlatSpec with GivenWhenThen {
     val result = computeHighestVelocityY(input)
 
     Then("Result is expected")
-    result shouldBe ((14,143),10296)
+    result shouldBe ((14, 143), 10296)
   }
 
   "countVelocityY" should "find result from spec input" in {

@@ -57,7 +57,6 @@ class Day22Spec extends AnyFlatSpec with GivenWhenThen {
     result shouldBe 607657
   }
 
-
   "countCubeOn2" should "find result from spec2 input" in {
     Given("Puzzle spec input")
     val input = parse(puzzleSpecPart2Input)

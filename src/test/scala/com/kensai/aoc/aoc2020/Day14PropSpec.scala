@@ -9,19 +9,14 @@ import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Day14PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen {
+class Day14PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen {
 
   property("mask.computeLong should return valid value") {
 
     case class MaskComputeLongParam(
         maskInput: String,
         valueInput: Long,
-        expectedResult: Long
-    )
+        expectedResult: Long)
 
     val inputs = Table(
       "Test parameters",

@@ -33,16 +33,16 @@ class Day18Spec extends AnyFlatSpec with GivenWhenThen {
   }
 
   "addAll" should "work" in {
-    val init = Seq("[1,1]", "[2,2]", "[3,3]", "[4,4]").map(parse)
-    val initOutput = addAll(init)
+    val init         = Seq("[1,1]", "[2,2]", "[3,3]", "[4,4]").map(parse)
+    val initOutput   = addAll(init)
     val initExpected = parse("[[[[1,1],[2,2]],[3,3]],[4,4]]")
     initOutput shouldBe initExpected
 
-    val step1 = add(initOutput, Parent(5, 5))
+    val step1         = add(initOutput, Parent(5, 5))
     val expectedStep1 = parse("[[[[3,0],[5,3]],[4,4]],[5,5]]")
     step1 shouldBe expectedStep1
 
-    val step2 = add(step1, Parent(6, 6))
+    val step2         = add(step1, Parent(6, 6))
     val expectedStep2 = parse("[[[[5,0],[7,4]],[5,5]],[6,6]]")
     step2 shouldBe expectedStep2
   }
@@ -71,7 +71,7 @@ class Day18Spec extends AnyFlatSpec with GivenWhenThen {
 
     When("computeMagnitude(puzzleInput)")
     val resultNode = addAll(input)
-    val result = computeMagnitude(resultNode)
+    val result     = computeMagnitude(resultNode)
 
     Then("Result is expected")
     result shouldBe 4202L

@@ -11,7 +11,7 @@ object Day05 {
       boardingPass: String,
       firstIndex: Long,
       lastIndex: Long
-  ): Long = {
+    ): Long =
     if (boardingPass.isEmpty)
       firstIndex
     else {
@@ -22,13 +22,12 @@ object Day05 {
         case 'R' => doComputeLower(boardingPass, firstIndex, lastIndex)
       }
     }
-  }
 
   private def doComputeUpper(
       boardingPass: String,
       firstIndex: Long,
       lastIndex: Long
-  ): Long =
+    ): Long =
     doCompute(
       boardingPass.tail,
       firstIndex,
@@ -39,7 +38,7 @@ object Day05 {
       boardingPass: String,
       firstIndex: Long,
       lastIndex: Long
-  ): Long =
+    ): Long =
     doCompute(
       boardingPass.tail,
       (firstIndex + (lastIndex - firstIndex) / 2.0).round,
@@ -74,7 +73,7 @@ object Day05 {
       .map { case (row, other) => (row, other.groupBy(_._2)) }
       .head
 
-    val indexColumns = cellsByRowIndex._2.keySet
+    val indexColumns  = cellsByRowIndex._2.keySet
     val missingColumn = (0L to 7L).toSet.diff(indexColumns).toList.head
 
     val row = cellsByRowIndex._1
@@ -91,8 +90,8 @@ object Day05 {
     val minSeatId = seatIds.min
 
     // Find missing seatIds
-    (minSeatId to 120L * 8 + 7) //generate all possibilities
+    (minSeatId to 120L * 8 + 7)    // generate all possibilities
       .filterNot(seatIds.contains) // take missing values
-      .min // keep the first missing (to avoid the missing rows from max values)
+      .min                         // keep the first missing (to avoid the missing rows from max values)
   }
 }

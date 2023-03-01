@@ -24,8 +24,8 @@ object Day18 {
     strHead match {
       case '[' =>
         val (leftPart, rightPart) = doParseParent(strTail)
-        val leftNode = parse(leftPart)
-        val rightNode = parse(rightPart)
+        val leftNode              = parse(leftPart)
+        val rightNode             = parse(rightPart)
         Parent(leftNode, rightNode)
       case _ => Leaf(strHead.asDigit)
     }
@@ -34,14 +34,13 @@ object Day18 {
   private def doParseParent(remainingLine: String): (String, String) = {
     val cleanedLine =
       remainingLine.substring(0, remainingLine.length - 1) // skip last bracket
-    val (indexComa, _) = cleanedLine.zipWithIndex.foldLeft((-1, 0)) {
-      case ((indexComa, countOpenBracket), (char, index)) =>
-        if (char == ',' && countOpenBracket == 0) (index, 0)
-        else if (char == '[') (indexComa, countOpenBracket + 1)
-        else if (char == ']') (indexComa, countOpenBracket - 1)
-        else (indexComa, countOpenBracket)
+    val (indexComa, _) = cleanedLine.zipWithIndex.foldLeft((-1, 0)) { case ((indexComa, countOpenBracket), (char, index)) =>
+      if (char == ',' && countOpenBracket == 0) (index, 0)
+      else if (char == '[') (indexComa, countOpenBracket + 1)
+      else if (char == ']') (indexComa, countOpenBracket - 1)
+      else (indexComa, countOpenBracket)
     }
-    val leftPart = cleanedLine.substring(0, indexComa)
+    val leftPart  = cleanedLine.substring(0, indexComa)
     val rightPart = cleanedLine.substring(indexComa + 1)
     (leftPart, rightPart)
   }
@@ -56,8 +55,8 @@ object Day18 {
   def add(node1: Node, node2: Node): Node =
     explodeLoop(Parent(node1, node2))
 
-  /** Loop that will explode until the result does not change. Then it will split.
-    * If the split does not produce changes, then it returns the result. Else it iterate recursively.
+  /** Loop that will explode until the result does not change. Then it will split. If the split does not produce changes, then it returns
+    * the result. Else it iterate recursively.
     */
   private def explodeLoop(node: Node): Node = doExplode(node, 0) match {
     case ExplodeNothing         => splitLoop(node)
@@ -83,8 +82,8 @@ object Day18 {
   case class Exploded(
       maybeLeftRest: Option[Int],
       result: Node,
-      maybeRightRest: Option[Int]
-  ) extends ExplodeResult
+      maybeRightRest: Option[Int])
+      extends ExplodeResult
 
   private def doExplode(node: Node, depth: Int): ExplodeResult = node match {
     case Parent(Leaf(left), Leaf(right)) if depth == 4 =>
@@ -98,7 +97,7 @@ object Day18 {
       depth: Int,
       leftNode: Node,
       rightNode: Node
-  ): ExplodeResult = {
+    ): ExplodeResult = {
     val leftResult = doExplode(leftNode, depth + 1)
     leftResult match {
       case ExplodeNothing =>
@@ -123,7 +122,7 @@ object Day18 {
       depth: Int,
       leftNode: Node,
       rightNode: Node
-  ): ExplodeResult = {
+    ): ExplodeResult = {
     val rightResult = doExplode(rightNode, depth + 1)
     rightResult match {
       case ExplodeNothing =>
@@ -148,8 +147,7 @@ object Day18 {
     }
   }
 
-  /**
-    * Add this value to first left Leaf node.
+  /** Add this value to first left Leaf node.
     */
   private def addLeft(rightNode: Node, value: Int): (Node, Option[Int]) =
     rightNode match {
@@ -159,8 +157,7 @@ object Day18 {
         (Parent(result, rightNode), rest)
     }
 
-  /**
-    * Add this value to first right Leaf node.
+  /** Add this value to first right Leaf node.
     */
   private def addRight(leftNode: Node, value: Int): (Node, Option[Int]) =
     leftNode match {
@@ -170,8 +167,7 @@ object Day18 {
         (Parent(left, result), rest)
     }
 
-  /**
-    * Split the first (left order) Leaf node wich value is >= 10.
+  /** Split the first (left order) Leaf node wich value is >= 10.
     */
   def split(root: Node): Node =
     doSplit(root).getOrElse(root)
@@ -195,8 +191,7 @@ object Day18 {
       computeMagnitude(left) * 3 + computeMagnitude(right) * 2
   }
 
-  /**
-    * Find the two numbers from the list that, after an addition, produces the highest magnitude.
+  /** Find the two numbers from the list that, after an addition, produces the highest magnitude.
     */
   def computeLargestMagnitude(nodes: Seq[Node]): Long =
     nodes.combinations(2).foldLeft(0L) { case (max, combination) =>

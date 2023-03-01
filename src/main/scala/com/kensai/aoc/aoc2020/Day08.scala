@@ -6,8 +6,8 @@ object Day08 {
 
   sealed abstract class Instruction(val index: Int, val value: Int)
   case class Jump(override val index: Int, override val value: Int) extends Instruction(index, value)
-  case class Acc(override val index: Int, override val value: Int) extends Instruction(index, value)
-  case class Nop(override val index: Int, override val value: Int) extends Instruction(index, value)
+  case class Acc(override val index: Int, override val value: Int)  extends Instruction(index, value)
+  case class Nop(override val index: Int, override val value: Int)  extends Instruction(index, value)
 
   private val rowRegex = """([a-z]+) ([+-]\d+)""".r
 
@@ -39,7 +39,7 @@ object Day08 {
       parsed: List[Instruction],
       acc: Long,
       indexesVisited: Set[Int]
-  ): Long = {
+    ): Long = {
     val current = parsed(index)
     if (indexesVisited.contains(current.index))
       acc // Loop reached: return solution
@@ -69,13 +69,9 @@ object Day08 {
   def accumulatorAfterFixingInputs(inputs: List[String]): Long = {
     val parsed = parseRows(inputs)
     inputs.indices
-      .map(index =>
-        parsed.updated(index, switchValues(parsed(index)))
-      ) // Generate data set
-      .map(s =>
-        accumulatorAfterFixingInputs(0, s, 0L, Set())
-      ) // compute solution
-      .filterNot(_ < 0) // Filter invalid
+      .map(index => parsed.updated(index, switchValues(parsed(index)))) // Generate data set
+      .map(s => accumulatorAfterFixingInputs(0, s, 0L, Set()))          // compute solution
+      .filterNot(_ < 0)                                                 // Filter invalid
       .head
   }
 
@@ -92,7 +88,7 @@ object Day08 {
       parsed: List[Instruction],
       acc: Long,
       indexVisited: Set[Int]
-  ): Long =
+    ): Long =
     if (currentIndex == parsed.size)
       acc // Solution
     else if (currentIndex < 0 || currentIndex > parsed.size)

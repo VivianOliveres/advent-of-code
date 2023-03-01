@@ -2,22 +2,19 @@ package com.kensai.aoc.aoc2020
 
 object Day16 {
 
-  //TODO: clean everything
+  // TODO: clean everything
 
   case class Board(
       rules: List[Rule],
       yourTicket: Ticket,
-      nearbyTickets: List[Ticket]
-  )
+      nearbyTickets: List[Ticket])
 
   case class Ticket(values: List[Long]) {
     def isValid(rules: List[Rule]): Boolean =
       values.forall(value => rules.exists(_.isValid(value)))
     def validRules(rules: List[Rule]): Map[Rule, Set[Int]] =
       rules
-        .map(r =>
-          r -> values.zipWithIndex.filter(v => r.isValid(v._1)).map(_._2).toSet
-        )
+        .map(r => r -> values.zipWithIndex.filter(v => r.isValid(v._1)).map(_._2).toSet)
         .toMap
   }
   object Ticket {
@@ -30,8 +27,7 @@ object Day16 {
       min1: Long,
       max1: Long,
       min2: Long,
-      max2: Long
-  ) {
+      max2: Long) {
     def isValid(value: Long): Boolean =
       (min1 <= value && value <= max1) || (min2 <= value && value <= max2)
 
@@ -75,11 +71,10 @@ object Day16 {
     Board(rules, yourTicketPart, nearbyTicketPart)
   }
 
-  def doSumFirstInvalidValues(ticket: Ticket, rules: List[Rule]): Long = {
+  def doSumFirstInvalidValues(ticket: Ticket, rules: List[Rule]): Long =
     ticket.values
       .map(value => rules.find(_.isValid(value)).map(_ => 0L).getOrElse(value))
       .sum
-  }
 
   def sumFirstInvalidValues(input: String): Long = {
     val board = parse(input)
@@ -91,11 +86,9 @@ object Day16 {
   def doFieldsPosition(
       ticket: Ticket,
       rules: List[Rule]
-  ): Option[Map[Int, Set[Rule]]] = {
-    val result = ticket.values.zipWithIndex.map {
-      case (value, index) => {
-        index -> rules.filter(r => r.isValid(value)).toSet
-      }
+    ): Option[Map[Int, Set[Rule]]] = {
+    val result = ticket.values.zipWithIndex.map { case (value, index) =>
+      index -> rules.filter(r => r.isValid(value)).toSet
     }.toMap
     if (result.exists(_._2.isEmpty) || result.size != rules.size)
       None
@@ -108,7 +101,7 @@ object Day16 {
   /** When an index contains only one rule, try to remove this rule for every other indexes that contains it.
     */
   def replaceSolutions(input: Map[Int, Set[Rule]]): Map[Int, Set[Rule]] = {
-    var tmp = input
+    var tmp                       = input
     var alreadyReduced: Set[Rule] = Set()
     var toRemove = input
       .filter(_._2.size == 1)
@@ -116,16 +109,14 @@ object Day16 {
       .filterNot(rule => alreadyReduced.contains(rule))
       .toList
     while (toRemove.nonEmpty) {
-      toRemove.foreach(rule => {
+      toRemove.foreach { rule =>
         tmp
           .filter(tuple => tuple._2.contains(rule) && tuple._2.size > 1)
-          .foreach {
-            case (index, rules) => {
-              tmp = tmp.updated(index, rules - rule)
-            }
+          .foreach { case (index, rules) =>
+            tmp = tmp.updated(index, rules - rule)
           }
         alreadyReduced = alreadyReduced + rule
-      })
+      }
       toRemove = input
         .filter(_._2.size == 1)
         .flatMap(_._2)
@@ -138,21 +129,21 @@ object Day16 {
   def reduce(
       i1: Map[Int, Set[Rule]],
       i2: Map[Int, Set[Rule]]
-  ): Map[Int, Set[Rule]] = {
+    ): Map[Int, Set[Rule]] = {
     var result: Map[Int, Set[Rule]] = i1
-    (0 until i2.size).foreach(index => {
-      val rs1 = result(index)
-      val rs2 = i2(index)
+    (0 until i2.size).foreach { index =>
+      val rs1    = result(index)
+      val rs2    = i2(index)
       val newSet = rs1.intersect(rs2)
       result = replaceSolutions(result.updated(index, newSet))
-    })
+    }
     replaceSolutions(result)
   }
 
   def doFieldsPosition(
       tickets: List[Ticket],
       rules: List[Rule]
-  ): Map[Int, Set[Rule]] = {
+    ): Map[Int, Set[Rule]] = {
     val first = rules.indices.map(i => i -> rules.toSet).toMap
     val tmp = tickets
       .flatMap(doFieldsPosition(_, rules))

@@ -4,15 +4,10 @@ import Day04._
 import com.kensai.aoc.lib.SimpleTestParam
 import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1}
+import org.scalatest.prop.{ TableDrivenPropertyChecks, TableFor1 }
 import org.scalatest.propspec.AnyPropSpec
 
-class Day04PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen
-    with Day04Fixtures {
+class Day04PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen with Day04Fixtures {
 
   property("countValid should return expected value") {
     val inputs: TableFor1[SimpleTestParam[String, Int]] = Table(
@@ -43,8 +38,7 @@ class Day04PropSpec
     case class PassportFieldValidatorTestParam(
         passport: Passport,
         validator: PassportFieldValidator,
-        expectedResult: Boolean
-    )
+        expectedResult: Boolean)
 
     val inputs: TableFor1[PassportFieldValidatorTestParam] = Table(
       "Test parameters",

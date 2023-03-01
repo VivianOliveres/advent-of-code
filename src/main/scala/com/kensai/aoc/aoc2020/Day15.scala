@@ -20,7 +20,7 @@ object Day15 {
         .map { case (num, index) => num -> (index + 1L) }
         .to(mutable.Map) // Mutable map increase perf by 66% in this case
     var lastSpoken = firstNumbers.last
-    var turn = firstNumbers.size + 1L
+    var turn       = firstNumbers.size + 1L
     while (turn < expectedTurn + 1L) {
       if (
         currentState

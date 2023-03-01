@@ -9,28 +9,24 @@ object Day13 {
   }
   case class XFold(x: Int) extends Fold {
     def fold(dots: Seq[PaperDot]): Seq[PaperDot] =
-      dots
-        .flatMap(d => {
-          if (d.x < x) Some(d)
-          else if (d.x == x) None
-          else Some(PaperDot(2 * x - d.x, d.y))
-        })
-        .distinct
+      dots.flatMap { d =>
+        if (d.x < x) Some(d)
+        else if (d.x == x) None
+        else Some(PaperDot(2 * x - d.x, d.y))
+      }.distinct
   }
   case class YFold(y: Int) extends Fold {
     def fold(dots: Seq[PaperDot]): Seq[PaperDot] =
-      dots
-        .flatMap(d => {
-          if (d.y < y) Some(d)
-          else if (d.y == y) None
-          else Some(PaperDot(d.x, 2 * y - d.y))
-        })
-        .distinct
+      dots.flatMap { d =>
+        if (d.y < y) Some(d)
+        else if (d.y == y) None
+        else Some(PaperDot(d.x, 2 * y - d.y))
+      }.distinct
   }
 
   case class Inputs(dots: Seq[PaperDot], folds: Seq[Fold])
 
-  private val dotRegex = """(\d+),(\d+)""".r
+  private val dotRegex   = """(\d+),(\d+)""".r
   private val yFoldRegex = """fold along y=(\d+)""".r
   private val xFoldRegex = """fold along x=(\d+)""".r
   def parse(fileInput: String): Inputs = {

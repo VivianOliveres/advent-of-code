@@ -4,14 +4,14 @@ import scala.util.matching.Regex
 
 object Day04 {
 
-  val KeyBirthYear = "byr"
-  val KeyIssueYear = "iyr"
+  val KeyBirthYear      = "byr"
+  val KeyIssueYear      = "iyr"
   val KeyExpirationYear = "eyr"
-  val KeyHeight = "hgt"
-  val KeyHairColor = "hcl"
-  val KeyEyeColor = "ecl"
-  val KeyPassportID = "pid"
-  val KeyCountryID = "cid"
+  val KeyHeight         = "hgt"
+  val KeyHairColor      = "hcl"
+  val KeyEyeColor       = "ecl"
+  val KeyPassportID     = "pid"
+  val KeyCountryID      = "cid"
 
   /** Type for passport.
     */
@@ -25,8 +25,7 @@ object Day04 {
 
   /** Generic validator that check if the given `Passport` has the expected key `name`.
     */
-  class PassportFieldExistValidator(val name: String)
-      extends PassportFieldValidator {
+  class PassportFieldExistValidator(val name: String) extends PassportFieldValidator {
     override def apply(passport: Passport): Boolean = passport.contains(name)
   }
 
@@ -38,9 +37,7 @@ object Day04 {
     override def apply(passport: Passport): Boolean =
       passport
         .get(name())
-        .exists(year =>
-          year.length == 4 && year.toInt >= 1920 && year.toInt <= 2002
-        )
+        .exists(year => year.length == 4 && year.toInt >= 1920 && year.toInt <= 2002)
   }
 
   /** Validator that check the issue year field.
@@ -51,23 +48,18 @@ object Day04 {
     override def apply(passport: Passport): Boolean =
       passport
         .get(name())
-        .exists(year =>
-          year.length == 4 && year.toInt >= 2010 && year.toInt <= 2020
-        )
+        .exists(year => year.length == 4 && year.toInt >= 2010 && year.toInt <= 2020)
   }
 
   /** Validator that check the expiration year field.
     */
-  case object PassportFieldExpirationYearValidator
-      extends PassportFieldValidator {
+  case object PassportFieldExpirationYearValidator extends PassportFieldValidator {
     override def name(): String = KeyExpirationYear
 
     override def apply(passport: Passport): Boolean =
       passport
         .get(name())
-        .exists(year =>
-          year.length == 4 && year.toInt >= 2020 && year.toInt <= 2030
-        )
+        .exists(year => year.length == 4 && year.toInt >= 2020 && year.toInt <= 2030)
   }
 
   /** Validator that check the height year field.
@@ -75,11 +67,11 @@ object Day04 {
   case object PassportFieldHeightValidator extends PassportFieldValidator {
     override def name(): String = KeyHeight
 
-    private val cmRegex = """(\d+)cm""".r
-    private val inRegex = """(\d+)in""".r
+    private val cmRegex     = """(\d+)cm""".r
+    private val inRegex     = """(\d+)in""".r
     private val numberRegex = """(\d+)""".r
 
-    override def apply(passport: Passport): Boolean = {
+    override def apply(passport: Passport): Boolean =
       passport
         .get(name())
         .exists(hgt =>
@@ -90,7 +82,6 @@ object Day04 {
             case _              => false
           }
         )
-    }
   }
 
   /** Validator that check the hear color field.
@@ -103,9 +94,7 @@ object Day04 {
     override def apply(passport: Passport): Boolean =
       passport
         .get(name())
-        .exists(color =>
-          HairColorRegex.pattern.matcher(color).find() && color.length == 7
-        )
+        .exists(color => HairColorRegex.pattern.matcher(color).find() && color.length == 7)
   }
 
   /** Validator that check the eye color field.
@@ -136,21 +125,19 @@ object Day04 {
 
   /** Parse a `String` into a list of `Passport`
     */
-  def parse(input: String): List[Passport] = {
-    try {
+  def parse(input: String): List[Passport] =
+    try
       input
         .split("\n\n")
         .toList
         .filterNot(_.isEmpty)
         .map(toPassport)
 
-    } catch {
-      case _: RuntimeException => {
+    catch {
+      case _: RuntimeException =>
         System.err.println(s"Day04 - parse - Invalid format for input[$input]")
         List()
-      }
     }
-  }
 
   private def toPassport(row: String): Passport =
     row
@@ -164,7 +151,7 @@ object Day04 {
   def countValid(
       passports: List[Passport],
       validators: List[PassportFieldValidator]
-  ): Int =
+    ): Int =
     passports.count(passport => validators.forall(_.apply(passport)))
 
 }

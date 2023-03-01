@@ -6,8 +6,7 @@ object Day10 {
       open: Char,
       close: Char,
       corruptedScore: Int,
-      incompleteScore: Int
-  )
+      incompleteScore: Int)
   val allChunks: Seq[Chunk] = Seq(
     Chunk('(', ')', 3, 1),
     Chunk('{', '}', 1197, 3),
@@ -26,7 +25,7 @@ object Day10 {
   private def doComputeCorruptedSyntaxScore(
       line: Seq[Char],
       openChars: Seq[Char]
-  ): Int = line match {
+    ): Int = line match {
     case Nil => 0
     case head +: tail =>
       val chunk = allChunks.find(c => c.open == head || c.close == head).get
@@ -46,7 +45,7 @@ object Day10 {
   def doComputeIncompleteSyntaxScore(
       line: Seq[Char],
       openChars: Seq[Char]
-  ): Seq[Int] = line match {
+    ): Seq[Int] = line match {
     case Nil =>
       openChars
         .flatMap(c => allChunks.find(_.open == c))
@@ -72,9 +71,7 @@ object Day10 {
     val incompleteLines = inputs
       .map(line => doComputeIncompleteSyntaxScore(line, Seq()))
       .filterNot(_.isEmpty)
-    incompleteLines.map(incompleteLine =>
-      incompleteLine.foldLeft(0L) { case (acc, right) => 5L * acc + right }
-    )
+    incompleteLines.map(incompleteLine => incompleteLine.foldLeft(0L) { case (acc, right) => 5L * acc + right })
   }
 
   def computeMiddleIncompleteSyntaxScore(lines: Seq[String]): Long = {

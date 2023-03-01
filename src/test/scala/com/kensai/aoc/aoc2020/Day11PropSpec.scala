@@ -10,12 +10,7 @@ import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Day11PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen
-    with Day11Fixtures {
+class Day11PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen with Day11Fixtures {
 
   property("parse should return valid Board") {
     val inputs = Table(
@@ -47,8 +42,7 @@ class Day11PropSpec
     case class ExtractAdjacentTestParam(
         input: String,
         pos: Pos,
-        expectedResult: List[Char]
-    )
+        expectedResult: List[Char])
 
     val inputs = Table(
       "Test parameters",
@@ -84,8 +78,7 @@ class Day11PropSpec
     case class ComputeSwitchTestParam(
         input: String,
         pos: Pos,
-        expectedResult: Option[(Pos, Char)]
-    )
+        expectedResult: Option[(Pos, Char)])
 
     val inputs = Table(
       "Test parameters",
@@ -138,8 +131,7 @@ class Day11PropSpec
     case class ComputeNextBoardTestParam(
         input: String,
         expectedCount: Int,
-        expectedResult: String
-    )
+        expectedResult: String)
 
     val inputs = Table(
       "Test parameters",

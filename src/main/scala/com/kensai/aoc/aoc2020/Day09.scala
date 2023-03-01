@@ -27,7 +27,7 @@ object Day09 {
   /** Find the first contiguous set where the sum is equal to `firstInvalidNumber` and return the `min+max` of this set.
     */
   def findContiguousSet(window: Int, inputs: List[String]): Long = {
-    val values = parse(inputs)
+    val values   = parse(inputs)
     val expected = doFirstInvalidNumber(window, values)
     val contiguousSet = (0 until values.size - window)
       .flatMap(doFindContiguousSet(_, expected, values))
@@ -39,7 +39,7 @@ object Day09 {
       currentIndex: Int,
       expectedSum: Long,
       values: List[Long]
-  ): Option[List[Long]] =
+    ): Option[List[Long]] =
     (2 to values.size)
       .map(i => values.slice(currentIndex, currentIndex + i))
       .find(_.sum == expectedSum)

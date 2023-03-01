@@ -1,6 +1,6 @@
 package com.kensai.aoc.aoc2021
 
-import com.kensai.aoc.aoc2021.Day01.{compute, compute2}
+import com.kensai.aoc.aoc2021.Day01.{ compute, compute2 }
 import com.kensai.aoc.lib.Lib.readLongInputLines
 import org.junit.runner.RunWith
 import org.scalatest._

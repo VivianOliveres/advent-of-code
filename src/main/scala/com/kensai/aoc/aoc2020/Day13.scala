@@ -3,7 +3,7 @@ package com.kensai.aoc.aoc2020
 object Day13 {
 
   def parse(inputs: List[String]): (Long, Set[Long]) = {
-    val rows = inputs.map(_.trim).filterNot(_.isEmpty)
+    val rows             = inputs.map(_.trim).filterNot(_.isEmpty)
     val currentTimestamp = rows.head.toLong
     val bus = rows.tail.head
       .split(",")
@@ -16,8 +16,8 @@ object Day13 {
 
   def computeEarliestBus(input: (Long, Set[Long])): Option[(Long, Long)] = {
     val currentTimestamp = input._1
-    val buses = input._2
-    val minBus = buses.min
+    val buses            = input._2
+    val minBus           = buses.min
     (currentTimestamp to (currentTimestamp + minBus))
       .flatMap(timestamp => buses.map(bus => (timestamp, bus, timestamp % bus)))
       .find(_._3 == 0)
@@ -25,7 +25,7 @@ object Day13 {
   }
 
   def computePart1(inputs: List[String]): Long = {
-    val input = parse(inputs)
+    val input            = parse(inputs)
     val (timestamp, bus) = computeEarliestBus(input).head
     (timestamp - input._1) * bus
   }

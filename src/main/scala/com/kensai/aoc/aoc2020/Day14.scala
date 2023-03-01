@@ -21,10 +21,8 @@ object Day14 {
     private def generateFloatingBitSets(
         acc: List[BitSet],
         floatingIndex: Int
-    ): List[BitSet] =
-      acc.flatMap(bitset =>
-        List(bitset + floatingIndex, bitset - floatingIndex)
-      )
+      ): List[BitSet] =
+      acc.flatMap(bitset => List(bitset + floatingIndex, bitset - floatingIndex))
 
     def computeAddresses(valueToWrite: Long): Set[Long] = {
       // Start by applying the or BitMask
@@ -33,7 +31,7 @@ object Day14 {
         .filter(_._1 == 'X')
         .map(_._2)
       xIndexes
-        .foldLeft(List(orResult)) { generateFloatingBitSets }
+        .foldLeft(List(orResult))(generateFloatingBitSets)
         .map(_.toBitMask.head) // Convert to long
         .toSet
     }
@@ -45,13 +43,12 @@ object Day14 {
         .filter(i => if (keepPositive) i._1 == '1' else i._1 == '0')
         .foldLeft(BitSet.empty) { case (l, r) => l + r._2 }
 
-    def apply(input: String): Mask = {
+    def apply(input: String): Mask =
       new Mask(
         maskStr = input,
         positiveMask = valueToBitSet(input, keepPositive = true),
         negativeMask = valueToBitSet(input, keepPositive = false)
       )
-    }
   }
 
   case class Instruction(memoryAddress: Long, valueToApply: Long)
@@ -66,7 +63,7 @@ object Day14 {
       .toList
       .map(_.trim)
       .filterNot(_.isEmpty)
-      .map(other => {
+      .map { other =>
         val rows = other.split("\n")
         val mask = Mask(rows.head)
         val instructions =
@@ -77,7 +74,7 @@ object Day14 {
               throw new RuntimeException(s"Unknown instruction [$something]")
           }.toList
         Input(mask, instructions)
-      })
+      }
 
   def computePart1(input: String): Long = {
     val inputs = parse(input)

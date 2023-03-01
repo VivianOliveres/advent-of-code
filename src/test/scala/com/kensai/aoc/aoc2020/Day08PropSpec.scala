@@ -10,11 +10,7 @@ import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Day08PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen {
+class Day08PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen {
 
   property("parseColorContainedBy should be valid for spec inputs") {
     val inputs = Table(

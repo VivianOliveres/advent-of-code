@@ -18,27 +18,22 @@ object Day19 {
       Point(-y, x, z),
       Point(-x, -y, z),
       Point(y, -x, z),
-
       Point(-x, y, -z),
       Point(y, x, -z),
       Point(x, -y, -z),
       Point(-y, -x, -z),
-
       Point(-z, y, x),
       Point(-z, x, -y),
       Point(-z, -y, -x),
       Point(-z, -x, y),
-
       Point(z, y, -x),
       Point(z, x, y),
       Point(z, -y, x),
       Point(z, -x, -y),
-
       Point(x, -z, y),
       Point(-y, -z, x),
       Point(-x, -z, -y),
       Point(y, -z, -x),
-
       Point(x, z, -y),
       Point(-y, z, -x),
       Point(-x, z, y),
@@ -63,7 +58,7 @@ object Day19 {
   case class Inputs(scanners: Seq[Scanner])
 
   private val scannerRegex = """--- scanner (\d+) ---""".r
-  private val pointRegex = """(-?\d+),(-?\d+),(-?\d+)""".r
+  private val pointRegex   = """(-?\d+),(-?\d+),(-?\d+)""".r
   def parse(fileContent: String): Inputs = {
     val splitAreas = fileContent.split("\n\n")
     val scanners = splitAreas.map { area =>
@@ -85,7 +80,7 @@ object Day19 {
     Inputs(scanners)
   }
 
-  //Parse
+  // Parse
   // For each scanner compute the distance of each points to each other points
   // For scanners 1 to n, compute also the other possibilities by rotation
   // foldLeft(scanner0) on scanner 1 to n
@@ -102,7 +97,7 @@ object Day19 {
   }
 
   private def doCompute(inputs: Inputs): Acc = {
-    val scanner0 = inputs.scanners.head
+    val scanner0    = inputs.scanners.head
     val s0Distances = computeDistancesFromTo(scanner0.points.toSet)
     val acc = Acc(
       scanner0.points.toSet,
@@ -116,23 +111,21 @@ object Day19 {
   def computeDistancesFromTo(
       newPoints: Set[Point],
       oldPoints: Set[Point]
-  ): Map[Distance, (Point, Point)] =
+    ): Map[Distance, (Point, Point)] =
     (for {
       newPoint <- newPoints
       if !oldPoints.contains(newPoint)
       oldPoint <- oldPoints
-    } yield {
-      newPoint.distance(oldPoint) -> (newPoint, oldPoint)
-    }).toMap
+    } yield newPoint.distance(oldPoint) -> (newPoint, oldPoint)).toMap
 
   def computeDistancesFromTo(
       points: Set[Point]
-  ): Map[Distance, (Point, Point)] =
+    ): Map[Distance, (Point, Point)] =
     computeDistancesFromTo(points.toSeq)
 
   def computeDistancesFromTo(
       points: Seq[Point]
-  ): Map[Distance, (Point, Point)] =
+    ): Map[Distance, (Point, Point)] =
     points
       .combinations(2)
       .map(seq => (seq.head, seq.tail.head))
@@ -145,26 +138,24 @@ object Day19 {
   def matches(
       scanner: Map[Distance, (Point, Point)],
       beacons: Map[Distance, (Point, Point)]
-  ): Map[Distance, ((Point, Point), (Point, Point))] =
+    ): Map[Distance, ((Point, Point), (Point, Point))] =
     for {
       (distBeacon, beaconPoints) <- beacons
       if scanner.contains(distBeacon)
     } yield distBeacon -> (scanner(distBeacon), beaconPoints)
 
-  /**
-    * Accumulator that keeps tracks of scanners and points relative to scanner 0.
+  /** Accumulator that keeps tracks of scanners and points relative to scanner 0.
     */
   case class Acc(
       currentPoints: Set[Point],
       currentDistances: Map[Distance, (Point, Point)],
       availableScanners: Seq[Scanner],
-      scannersPositions: Seq[(Int, Point)]
-  ) {
+      scannersPositions: Seq[(Int, Point)]) {
     def update(
         pointsToAdd: Set[Point],
         scannerToRemove: Scanner,
         scannerPosition: Point
-    ): Acc = {
+      ): Acc = {
       val newPointsDistances = computeDistancesFromTo(
         pointsToAdd,
         currentPoints
@@ -183,30 +174,30 @@ object Day19 {
   }
 
   @tailrec
-  def doMergeScanners(acc: Acc): Acc = {
+  def doMergeScanners(acc: Acc): Acc =
     if (acc.availableScanners.isEmpty)
       acc
     else {
       val possibilities = for {
-        otherScanner <- acc.availableScanners
+        otherScanner  <- acc.availableScanners
         rotateAttempt <- 0 to 23
       } yield (otherScanner, rotateAttempt)
 
       val (beaconPoints, otherScanner, results) = possibilities
         .map { case (otherScanner, rotateAttempt) =>
           val beaconPoints = rotate(otherScanner.points, rotateAttempt)
-          val s1Distances = computeDistancesFromTo(beaconPoints)
-          val results = matches(acc.currentDistances, s1Distances)
+          val s1Distances  = computeDistancesFromTo(beaconPoints)
+          val results      = matches(acc.currentDistances, s1Distances)
           (beaconPoints, otherScanner, results)
         }
         .find(_._3.size >= 12)
         .get
 
       // Find the correct rotation -> relocate points
-      val headResult = results.head._2
+      val headResult   = results.head._2
       val scannerPoint = headResult._1._1
-      val beaconPoint = headResult._2._1
-      val translation = scannerPoint.translation(beaconPoint)
+      val beaconPoint  = headResult._2._1
+      val translation  = scannerPoint.translation(beaconPoint)
       val translatedBeaconPoints =
         beaconPoints.map(_.translate(translation)).toSet
 
@@ -216,7 +207,6 @@ object Day19 {
 
       doMergeScanners(r)
     }
-  }
 
   def manhattanDistance(inputs: Inputs): Int = {
     val results = doCompute(inputs)

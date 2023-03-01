@@ -47,22 +47,18 @@ object Day15 {
 
   def parse(lines: Seq[String]): Cave = {
     val cases = for {
-      (str, y) <- lines.zipWithIndex
+      (str, y)   <- lines.zipWithIndex
       (value, x) <- str.zipWithIndex
     } yield (x, y) -> CaveCell(x, y, value.asDigit)
     Cave(cases.toMap)
   }
 
-  /** Parse input to generate a Cave but with:<br>
-    * <ul>
-    *     <li>5 more cells</li>
-    *     <li>new cells have a risk that is +1 from the previous cell</li>
-    *     <li>new cells cannot have a risk greater than 9 (10 will be 1)</li>
-    * </ul>
+  /** Parse input to generate a Cave but with:<br> <ul> <li>5 more cells</li> <li>new cells have a risk that is +1 from the previous
+    * cell</li> <li>new cells cannot have a risk greater than 9 (10 will be 1)</li> </ul>
     */
   def parseBiggerMap(lines: Seq[String]): Cave = {
     val initCave = parse(lines)
-    val cases = initCave.positions.toSeq
+    val cases    = initCave.positions.toSeq
 
     val generatedCases = for {
       x <- 0 to 4
@@ -84,22 +80,26 @@ object Day15 {
   }
 
   /** Compute the best path from entry to every cells. It is a Dijkstra computation.
-    * @param cave: The input cave.
-    * @param riskCache: All cells already computed with the sum of risks to reach each of them.
-    * @param nextPositions: Next positions to compute. Should be sorted from minRisk to maxRisk.
-    * @return riskCache for every cells in the Cave.
+    * @param cave:
+    *   The input cave.
+    * @param riskCache:
+    *   All cells already computed with the sum of risks to reach each of them.
+    * @param nextPositions:
+    *   Next positions to compute. Should be sorted from minRisk to maxRisk.
+    * @return
+    *   riskCache for every cells in the Cave.
     */
   @tailrec
   private def doComputeLowestRiskPath(
       cave: Cave,
       riskCache: Map[(Int, Int), Int],
       nextPositions: Seq[(CaveCell, Int)]
-  ): Map[(Int, Int), Int] = {
+    ): Map[(Int, Int), Int] =
     if (nextPositions.isEmpty)
       riskCache
     else {
       val (currentCell, currentRisk) = nextPositions.head
-      val updatedCache = riskCache + (currentCell.pos -> currentRisk)
+      val updatedCache               = riskCache + (currentCell.pos -> currentRisk)
       val updatedNextPositions =
         updateNextPositions(cave, currentCell, updatedCache, nextPositions)
       doComputeLowestRiskPath(
@@ -108,20 +108,17 @@ object Day15 {
         updatedNextPositions
       )
     }
-  }
 
   private def updateNextPositions(
       cave: Cave,
       currentCell: CaveCell,
       cache: Map[(Int, Int), Int],
       nextPositions: Seq[(CaveCell, Int)]
-  ): Seq[(CaveCell, Int)] = {
+    ): Seq[(CaveCell, Int)] = {
     val neighboursToCompute = cave
       .neighbours(currentCell)
-      .filterNot(tmp =>
-        cache.contains(tmp.pos)
-      ) //neighbours from currentCell that are not computed
-      .flatMap { p => // Compute their minRisk
+      .filterNot(tmp => cache.contains(tmp.pos)) // neighbours from currentCell that are not computed
+      .flatMap { p =>                            // Compute their minRisk
         cave
           .neighbours(p)
           .filter(n => cache.contains(n.pos))
@@ -143,8 +140,7 @@ object Day15 {
     (nextPositionsUpdated ++ neighboursToCompute).sortBy(_._2)
   }
 
-  /** Compute the best path from entry to exit (ie from (0, 0) to (maxX, maxY))
-    * and return the sum of risks from the visited cells.
+  /** Compute the best path from entry to exit (ie from (0, 0) to (maxX, maxY)) and return the sum of risks from the visited cells.
     */
   def computeLowestRiskPath(cave: Cave): Int = {
     val riskCache = Map((cave(0, 0).pos, 0))

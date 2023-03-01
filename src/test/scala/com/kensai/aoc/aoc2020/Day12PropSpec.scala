@@ -11,11 +11,7 @@ import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Day12PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen {
+class Day12PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen {
 
   property("parse should return valid Command") {
     val inputs = Table(
@@ -45,8 +41,7 @@ class Day12PropSpec
     case class MoveTestParam(
         initialPosition: Pos,
         command: Command,
-        expectedPosition: Pos
-    )
+        expectedPosition: Pos)
 
     val inputs = Table(
       "Test parameters",
@@ -77,8 +72,7 @@ class Day12PropSpec
         initialWaypoint: Pos,
         command: Command,
         expectedPosition: Pos,
-        expectedWaypoint: Pos
-    )
+        expectedWaypoint: Pos)
 
     val inputs = Table(
       "Test parameters",

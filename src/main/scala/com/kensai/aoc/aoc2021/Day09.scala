@@ -39,7 +39,7 @@ object Day09 {
   def findLowestAndBasins(inputs: Seq[String]): Seq[(Int, Int)] = {
     def matrix = parse(inputs)
     for {
-      (line, x) <- matrix.zipWithIndex
+      (line, x)  <- matrix.zipWithIndex
       (value, y) <- line.zipWithIndex
       pos = Pos(x, y)
       if isLowest(value, pos, matrix)
@@ -48,7 +48,7 @@ object Day09 {
   }
 
   private def findBasinsSize(pos: Pos, matrix: Seq[Seq[Int]]): Int = {
-    var count = 0
+    var count             = 0
     var visited: Set[Pos] = Set()
     var toVisit: Set[Pos] = Set(pos)
     while (toVisit.nonEmpty) {
@@ -57,9 +57,7 @@ object Day09 {
       visited = visited + head
       val nextPositions = head.closestPoints
         .filter(_.isReachable(matrix))
-        .filterNot(otherPos =>
-          visited.contains(otherPos) || otherPos.value(matrix) == 9
-        )
+        .filterNot(otherPos => visited.contains(otherPos) || otherPos.value(matrix) == 9)
       toVisit = toVisit.tail ++ nextPositions
     }
     count

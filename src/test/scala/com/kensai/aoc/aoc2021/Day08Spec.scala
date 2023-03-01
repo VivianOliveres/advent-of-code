@@ -40,7 +40,6 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
     result shouldBe 530
   }
 
-
   "computeDigitValue" should "find result from one input" in {
     // GIVEN: input
     Given("Puzzle input")
@@ -53,7 +52,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
     result shouldBe 5353
   }
 
-    "computeDigitValue" should "find result from spec input" in {
+  "computeDigitValue" should "find result from spec input" in {
     Given("Puzzle spec input")
 
     When("computeDigitValue(input)")

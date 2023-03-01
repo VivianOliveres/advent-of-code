@@ -20,10 +20,10 @@ object Day12 {
 
     protected def rotate(pos: Pos, value: Int): Pos = {
       val index = Direction.indexOf(pos.direction)
-      val inc = value / 90
-      val diff = index + inc
+      val inc   = value / 90
+      val diff  = index + inc
       val newIndex =
-        if (diff >= 0) diff % Direction.values.size
+        if (diff >= 0) diff                 % Direction.values.size
         else (Direction.values.size + diff) % Direction.values.size
       pos.copy(direction = Direction.values(newIndex))
     }
@@ -91,7 +91,7 @@ object Day12 {
 
   def computeManhattanDistance(pos: Pos, inputs: List[String]): Long = {
     val commands = parse(inputs)
-    val lastPos = move(pos, commands)
+    val lastPos  = move(pos, commands)
     manhattanDistance(lastPos).toLong
   }
 
@@ -99,7 +99,7 @@ object Day12 {
     math.abs(pos.x) + math.abs(pos.y)
 
   private def moveTo(pos: Pos, waypoint: Pos, value: Int): Pos = {
-    val moveEast = East(waypoint.x)
+    val moveEast  = East(waypoint.x)
     val moveNorth = North(waypoint.y)
     (1 to value).foldLeft(pos) { case (newPOs, _) =>
       moveNorth.move(moveEast.move(newPOs))
@@ -130,8 +130,8 @@ object Day12 {
       pos: Pos,
       waypoint: Pos,
       inputs: List[String]
-  ): Int = {
-    val commands = parse(inputs)
+    ): Int = {
+    val commands     = parse(inputs)
     val (lastPos, _) = move2(pos, waypoint, commands)
     manhattanDistance(lastPos)
   }

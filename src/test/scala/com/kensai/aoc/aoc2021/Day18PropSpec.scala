@@ -10,11 +10,7 @@ import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class Day18PropSpec
-    extends AnyPropSpec
-    with TableDrivenPropertyChecks
-    with Matchers
-    with GivenWhenThen {
+class Day18PropSpec extends AnyPropSpec with TableDrivenPropertyChecks with Matchers with GivenWhenThen {
 
   property("parse should return valid Message") {
     val inputs = Table(
@@ -88,7 +84,7 @@ class Day18PropSpec
 
       When(s"explode(${param.input})")
       val message = parse(param.input)
-      val result = explode(message)
+      val result  = explode(message)
 
       Then(s"result should be ${param.expectedResult}")
       val expected = parse(param.expectedResult)
