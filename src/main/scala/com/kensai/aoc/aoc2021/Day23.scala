@@ -1,6 +1,7 @@
 package com.kensai.aoc.aoc2021
 
 import com.kensai.aoc.lib.Geo.Point2D
+import enumeratum._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -10,36 +11,18 @@ import scala.collection.mutable
  */
 object Day23 {
 
-  sealed trait Amphipod {
-    def energy: Int
-    def roomIndex: Int
-
+  sealed abstract class Amphipod(override val entryName: String, val energy: Int, val roomIndex: Int) extends EnumEntry {
     def name: String =
       toString.head.toString
   }
-  object Amphipod {
-    def apply(name: String): Amphipod = name match {
-      case "A" => Amber
-      case "B" => Bronze
-      case "C" => Copper
-      case "D" => Desert
-    }
-  }
-  case object Amber extends Amphipod {
-    val energy = 1
-    val roomIndex = 2
-  }
-  case object Bronze extends Amphipod {
-    val energy = 10
-    val roomIndex = 4
-  }
-  case object Copper extends Amphipod {
-    val energy = 100
-    val roomIndex = 6
-  }
-  case object Desert extends Amphipod {
-    val energy = 1000
-    val roomIndex = 8
+  object Amphipod extends Enum[Amphipod] {
+    val values = findValues
+
+    case object Amber extends Amphipod("A", energy = 1, roomIndex = 2)
+    case object Bronze extends Amphipod(entryName = "B", energy = 10, roomIndex = 4)
+    case object Copper extends Amphipod("C", energy = 100, roomIndex = 6)
+    case object Desert extends Amphipod("D", energy = 1000, roomIndex = 8)
+
   }
 
   type Positions = Map[Point2D, Amphipod]
@@ -50,7 +33,7 @@ object Day23 {
 
   def parsePart1(rows: Seq[String]): Board = {
     val parseRow: String => Seq[Amphipod] = row =>
-      row.filterNot(_ == '#').filterNot(_ == ' ').split("").toSeq.map(c => Amphipod(c))
+      row.filterNot(_ == '#').filterNot(_ == ' ').split("").toSeq.map(c => Amphipod.withName(c))
 
     val positions = for {
       y <- (2 to 3)
@@ -68,6 +51,7 @@ object Day23 {
     }
     //#D#C#B#A#
     //#D#B#A#C#
+    import com.kensai.aoc.aoc2021.Day23.Amphipod._
     val newPositions = moved ++ Map(
       Point2D(2, 2) -> Desert,
       Point2D(2, 3) -> Desert,

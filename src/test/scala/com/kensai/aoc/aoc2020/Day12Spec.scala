@@ -1,6 +1,7 @@
 package com.kensai.aoc.aoc2020
 
 import Day12._
+import Day12.Direction._
 import com.kensai.aoc.lib.Lib.readInputLines
 import org.junit.runner.RunWith
 import org.scalatest.GivenWhenThen

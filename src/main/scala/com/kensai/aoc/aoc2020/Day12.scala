@@ -1,13 +1,17 @@
 package com.kensai.aoc.aoc2020
 
+import enumeratum._
+
 object Day12 {
 
-  val AllDirections = List(N, E, S, W)
-  sealed trait Direction
-  case object N extends Direction
-  case object E extends Direction
-  case object W extends Direction
-  case object S extends Direction
+  sealed trait Direction extends EnumEntry
+  object Direction extends Enum[Direction] {
+    val values = findValues
+    case object N extends Direction
+    case object E extends Direction
+    case object S extends Direction
+    case object W extends Direction
+  }
 
   case class Pos(x: Int, y: Int, direction: Direction)
 
@@ -15,17 +19,18 @@ object Day12 {
     def move(pos: Pos): Pos
 
     protected def rotate(pos: Pos, value: Int): Pos = {
-      val index = AllDirections.indexOf(pos.direction)
+      val index = Direction.indexOf(pos.direction)
       val inc = value / 90
       val diff = index + inc
       val newIndex =
-        if (diff >= 0) diff % AllDirections.size
-        else (AllDirections.size + diff) % AllDirections.size
-      pos.copy(direction = AllDirections(newIndex))
+        if (diff >= 0) diff % Direction.values.size
+        else (Direction.values.size + diff) % Direction.values.size
+      pos.copy(direction = Direction.values(newIndex))
     }
   }
 
   case class Forward(value: Int) extends Command {
+    import Direction._
     override def move(pos: Pos): Pos = pos.direction match {
       case N => pos.copy(y = pos.y + value)
       case E => pos.copy(x = pos.x + value)

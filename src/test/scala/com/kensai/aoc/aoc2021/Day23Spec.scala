@@ -1,6 +1,7 @@
 package com.kensai.aoc.aoc2021
 
 import com.kensai.aoc.aoc2021.Day23._
+import com.kensai.aoc.aoc2021.Day23.Amphipod._
 import com.kensai.aoc.lib.Geo.Point2D
 import com.kensai.aoc.lib.Lib.readInputLines
 import org.junit.runner.RunWith

@@ -4,13 +4,10 @@ import scala.annotation.tailrec
 
 object Day08 {
 
-  sealed trait Instruction {
-    def index: Int
-    def value: Int
-  }
-  case class Jump(index: Int, value: Int) extends Instruction
-  case class Acc(index: Int, value: Int) extends Instruction
-  case class Nop(index: Int, value: Int) extends Instruction
+  sealed abstract class Instruction(val index: Int, val value: Int)
+  case class Jump(override val index: Int, override val value: Int) extends Instruction(index, value)
+  case class Acc(override val index: Int, override val value: Int) extends Instruction(index, value)
+  case class Nop(override val index: Int, override val value: Int) extends Instruction(index, value)
 
   private val rowRegex = """([a-z]+) ([+-]\d+)""".r
 
