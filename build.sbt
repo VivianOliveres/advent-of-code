@@ -17,3 +17,5 @@ libraryDependencies += "org.scalatestplus" %% "scalacheck-1-16" % "3.2.14.0" % "
 libraryDependencies += "org.typelevel" %% "cats-core" % "2.9.0"
 libraryDependencies += ("org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0")
 libraryDependencies += ("com.beachape" %% "enumeratum" % "1.7.2")
+
+testForkedParallel in IntegrationTest := true
