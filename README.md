@@ -38,6 +38,7 @@
 | 21  | [Dirac Dice](https://adventofcode.com/2021/day/21)              | [Day21](../master/src/main/scala/com/kensai/aoc/aoc2021/Day21.scala) | [Day21Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day21Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2021/Day21PropSpec.scala)              | [Day21.input](../master/src/test/resources/aoc2021/Day21.input) | 
 | 22  | [Reactor Reboot](https://adventofcode.com/2021/day/22)          | [Day22](../master/src/main/scala/com/kensai/aoc/aoc2021/Day22.scala) | [Day22Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day22Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day22PropSpec.scala)              | [Day22.input](../master/src/test/resources/aoc2021/Day22.input) | 
 | 23  | [Amphipod](https://adventofcode.com/2021/day/23)                | [Day23](../master/src/main/scala/com/kensai/aoc/aoc2021/Day23.scala) | [Day23Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day23Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day23PropSpec.scala)              | [Day23.input](../master/src/test/resources/aoc2021/Day23.input) | 
+| 24  | [Arithmetic Logic Unit](https://adventofcode.com/2021/day/24)   | [Day24](../master/src/main/scala/com/kensai/aoc/aoc2021/Day24.scala) | [Day24Spec](../master/src/test/scala/com/kensai/aoc/aoc2021/Day24Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day24PropSpec.scala)              | [Day24.input](../master/src/test/resources/aoc2021/Day24.input) | 
 
 
 ## [AOC 2020](https://adventofcode.com/2020)
