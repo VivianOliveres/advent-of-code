@@ -13,9 +13,10 @@
 
 ## [AOC 2022](https://adventofcode.com/2022)
 
-| Day | Description                                             | code                                                                 | Spec                                                                         | PropertySpec                                                            | Input                                                           |
-|-----|---------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------|
-| 1   | [Calorie Counting](https://adventofcode.com/2022/day/1) | [Day01](../master/src/main/scala/com/kensai/aoc/aoc2022/Day01.scala) | [Day01Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day01Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day01PropSpec.scala) | [Day01.input](../master/src/test/resources/aoc2022/Day01.input) | 
+| Day | Description                                                | code                                                                 | Spec                                                                         | PropertySpec                                                            | Input                                                           |
+|-----|------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------|
+| 1   | [Calorie Counting](https://adventofcode.com/2022/day/1)    | [Day01](../master/src/main/scala/com/kensai/aoc/aoc2022/Day01.scala) | [Day01Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day01Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day01PropSpec.scala) | [Day01.input](../master/src/test/resources/aoc2022/Day01.input) | 
+| 2   | [Rock Paper Scissors](https://adventofcode.com/2022/day/2) | [Day02](../master/src/main/scala/com/kensai/aoc/aoc2022/Day02.scala) | [Day02Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day02Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day02PropSpec.scala) | [Day02.input](../master/src/test/resources/aoc2022/Day02.input) | 
 
 
 ## [AOC 2021](https://adventofcode.com/2021)
