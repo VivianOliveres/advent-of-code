@@ -18,6 +18,7 @@
 | 1   | [Calorie Counting](https://adventofcode.com/2022/day/1)        | [Day01](../master/src/main/scala/com/kensai/aoc/aoc2022/Day01.scala) | [Day01Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day01Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day01PropSpec.scala)              | [Day01.input](../master/src/test/resources/aoc2022/Day01.input) | 
 | 2   | [Rock Paper Scissors](https://adventofcode.com/2022/day/2)     | [Day02](../master/src/main/scala/com/kensai/aoc/aoc2022/Day02.scala) | [Day02Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day02Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day02PropSpec.scala)              | [Day02.input](../master/src/test/resources/aoc2022/Day02.input) | 
 | 3   | [Rucksack Reorganization](https://adventofcode.com/2022/day/3) | [Day03](../master/src/main/scala/com/kensai/aoc/aoc2022/Day03.scala) | [Day03Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day03Spec.scala) | [Day03PropSpec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day03PropSpec.scala) | [Day03.input](../master/src/test/resources/aoc2022/Day03.input) | 
+| 4   | [Camp Cleanup](https://adventofcode.com/2022/day/4)            | [Day04](../master/src/main/scala/com/kensai/aoc/aoc2022/Day04.scala) | [Day04Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day04Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day04PropSpec.scala)              | [Day04.input](../master/src/test/resources/aoc2022/Day04.input) | 
 
 
 ## [AOC 2021](https://adventofcode.com/2021)
