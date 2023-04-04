@@ -12,6 +12,9 @@ object Lib {
     finally
       resource.close()
 
+  def readRawInputFile(path: String): String =
+    using(Source.fromFile(path))(_.mkString)
+
   def readInputFile(path: String): String =
     using(Source.fromFile(path))(_.mkString)
 
