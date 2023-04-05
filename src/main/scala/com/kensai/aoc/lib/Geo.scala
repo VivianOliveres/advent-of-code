@@ -9,6 +9,15 @@ object Geo {
       Point2D(x max that.x, y max that.y)
     def <=(that: Point2D): Boolean =
       x <= that.x && y <= that.y
+
+    def minusX(value: Int): Point2D =
+      Point2D(x - value, y)
+    def minusY(value: Int): Point2D =
+      Point2D(x, y - value)
+    def plusX(value: Int): Point2D =
+      Point2D(x + value, y)
+    def plusY(value: Int): Point2D =
+      Point2D(x, y + value)
   }
   case class Distance2D(x: Int, y: Int)
   case class Cube2D(min: Point2D, max: Point2D) {
