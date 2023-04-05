@@ -20,6 +20,7 @@
 | 3   | [Rucksack Reorganization](https://adventofcode.com/2022/day/3) | [Day03](../master/src/main/scala/com/kensai/aoc/aoc2022/Day03.scala) | [Day03Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day03Spec.scala) | [Day03PropSpec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day03PropSpec.scala) | [Day03.input](../master/src/test/resources/aoc2022/Day03.input) | 
 | 4   | [Camp Cleanup](https://adventofcode.com/2022/day/4)            | [Day04](../master/src/main/scala/com/kensai/aoc/aoc2022/Day04.scala) | [Day04Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day04Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day04PropSpec.scala)              | [Day04.input](../master/src/test/resources/aoc2022/Day04.input) | 
 | 5   | [Supply Stacks](https://adventofcode.com/2022/day/5)           | [Day05](../master/src/main/scala/com/kensai/aoc/aoc2022/Day05.scala) | [Day05Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day05Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day05PropSpec.scala)              | [Day05.input](../master/src/test/resources/aoc2022/Day05.input) | 
+| 6   | [Tuning Trouble](https://adventofcode.com/2022/day/6)          | [Day06](../master/src/main/scala/com/kensai/aoc/aoc2022/Day06.scala) | [Day06Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day06Spec.scala) | [Day06PropSpec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day06PropSpec.scala) | [Day06.input](../master/src/test/resources/aoc2022/Day06.input) | 
 
 
 ## [AOC 2021](https://adventofcode.com/2021)
