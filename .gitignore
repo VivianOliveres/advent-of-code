@@ -17,6 +17,8 @@ project/plugins/project/
 
 .idea*
 
+.attach_pid*
+
 # Metals
 .metals/
 .bsp/
