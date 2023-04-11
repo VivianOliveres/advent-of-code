@@ -18,6 +18,16 @@ object Day09 {
   case object Right extends Direction
   case class MoveInstruction(direction: Direction, steps: Int)
 
+  case class Rope(ropeNumber: Int, currentPos: Point2D, previousPositions: Set[Point2D]) {
+
+    def move(newPos: Point2D): Rope =
+      Rope(ropeNumber, newPos, previousPositions + newPos)
+  }
+  object Rope {
+    def apply(ropeNumber: Int, currentPos: Point2D): Rope =
+      Rope(ropeNumber, currentPos, Set(currentPos))
+  }
+
   case class InputDay9(headPosition: Point2D, tailPosition: Point2D, instructions: Seq[MoveInstruction])
 
   private val upRegex    = """U (\d+)""".r
@@ -37,16 +47,17 @@ object Day09 {
 
   def countTailPositions(input: InputDay9, nbRopes: Int): Int = {
     val endPositions = executeAll(input, nbRopes)
-    endPositions(nbRopes - 1).size
+    endPositions(nbRopes - 1).previousPositions.size
   }
 
-  def executeAll(input: InputDay9, nbRopes: Int): Map[Int, Set[Point2D]] = {
-    val init: Map[Int, Seq[Point2D]] = (0 to nbRopes).map(i => (i, Seq(Point2D(0, 0)))).toMap
+  def executeAll(input: InputDay9, nbRopes: Int): Map[Int, Rope] = {
+    val init: Map[Int, Rope] = (0 to nbRopes)
+      .map(i => (i, Rope(i, Point2D(0, 0))))
+      .toMap
     input.instructions
       .foldLeft(init) { case (positions, instr) =>
         moveAll(positions, instr, nbRopes)
       }
-      .map { case (ropeNumber, points) => (ropeNumber, points.toSet) }
   }
 
   private def doMoveRope(headPos: Point2D, tailPos: Point2D): Point2D = {
@@ -69,18 +80,18 @@ object Day09 {
     newTail
   }
 
-  def moveAll(initialPositions: Map[Int, Seq[Point2D]], instr: MoveInstruction, nbRopes: Int): Map[Int, Seq[Point2D]] =
+  def moveAll(initialPositions: Map[Int, Rope], instr: MoveInstruction, nbRopes: Int): Map[Int, Rope] =
     (0 until instr.steps).foldLeft(initialPositions) { case (startStepPositions, _) =>
       // Update Head manually
-      val newHead                           = instr.direction.move(startStepPositions(0).last, 1)
-      val startStepPositionsWithHeadUpdated = startStepPositions + (0 -> (startStepPositions(0) :+ newHead))
+      val newHead                           = instr.direction.move(startStepPositions(0).currentPos, 1)
+      val startStepPositionsWithHeadUpdated = startStepPositions + (0 -> startStepPositions(0).move(newHead))
 
       // Then update other tails according to rope-1
       (1 until nbRopes).foldLeft(startStepPositionsWithHeadUpdated) { case (acc, ropeNumber) =>
-        val previousRopeHead = acc(ropeNumber - 1).last
-        val previousRopeTail = acc(ropeNumber).last
+        val previousRopeHead = acc(ropeNumber - 1).currentPos
+        val previousRopeTail = acc(ropeNumber).currentPos
         val newTail          = doMoveRope(previousRopeHead, previousRopeTail)
-        acc + (ropeNumber -> (acc(ropeNumber) :+ newTail))
+        acc + (ropeNumber -> acc(ropeNumber).move(newTail))
       }
     }
 
