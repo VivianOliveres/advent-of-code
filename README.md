@@ -24,6 +24,7 @@
 | 7   | [No Space Left On Device](https://adventofcode.com/2022/day/7) | [Day07](../master/src/main/scala/com/kensai/aoc/aoc2022/Day07.scala) | [Day07Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day07Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day07PropSpec.scala)              | [Day07.input](../master/src/test/resources/aoc2022/Day07.input) | 
 | 8   | [Treetop Tree House](https://adventofcode.com/2022/day/8)      | [Day08](../master/src/main/scala/com/kensai/aoc/aoc2022/Day08.scala) | [Day08Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day08Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day08PropSpec.scala)              | [Day08.input](../master/src/test/resources/aoc2022/Day08.input) | 
 | 9   | [Rope Bridge](https://adventofcode.com/2022/day/9)             | [Day09](../master/src/main/scala/com/kensai/aoc/aoc2022/Day09.scala) | [Day09Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day09Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day09PropSpec.scala)              | [Day09.input](../master/src/test/resources/aoc2022/Day09.input) | 
+| 10  | [Cathode-Ray Tube](https://adventofcode.com/2022/day/10)       | [Day10](../master/src/main/scala/com/kensai/aoc/aoc2022/Day10.scala) | [Day10Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day10Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day10PropSpec.scala)              | [Day10.input](../master/src/test/resources/aoc2022/Day10.input) | 
 
 
 ## [AOC 2021](https://adventofcode.com/2021)
