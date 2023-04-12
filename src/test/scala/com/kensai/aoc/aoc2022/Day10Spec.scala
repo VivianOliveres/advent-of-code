@@ -19,7 +19,7 @@ class Day10Spec extends AnyFlatSpec with GivenWhenThen {
     "src/test/resources/2022/Day10Spec.input"
   )
 
-  "parse" should "return Forest for spec input" in {
+  "parse" should "return Instructions for spec input" in {
     // GIVEN: input
     Given("Spec input")
     val input = puzzleSpecInput

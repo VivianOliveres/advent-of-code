@@ -41,7 +41,6 @@ object Day10 {
       val r =
         if (spritePixels.contains(pixel)) "#"
         else "."
-//      println(s"i[$i] min[${i% 40}] max[${i% 40 + 2}] x[$x] r[$r]")
       if (cycleNumber != 0 && cycleNumber % 40 == 0) "\n" + r else r
     }
     println(firstRow.mkString)
