@@ -18,6 +18,8 @@ object Geo {
       Point2D(x + value, y)
     def plusY(value: Int): Point2D =
       Point2D(x, y + value)
+
+    def prettyPrint: String = s"($x, $y)"
   }
   case class Distance2D(x: Int, y: Int)
   case class Cube2D(min: Point2D, max: Point2D) {
