@@ -1,8 +1,8 @@
 package com.kensai.aoc.aoc2022
 
-import scala.annotation.tailrec
+import scala.util.parsing.combinator._
 
-object Day13 {
+object Day13 extends RegexParsers {
 
   sealed trait Packet
   case class ValuePacket(value: Int) extends Packet
@@ -11,7 +11,7 @@ object Day13 {
       ListPacket(packets.tail)
   }
 
-  case class InputDay13(index: Int, left: ListPacket, right: ListPacket)
+  case class InputDay13(index: Int, left: Packet, right: Packet)
 
   def parse(lines: Seq[String]): Seq[InputDay13] =
     lines
@@ -24,49 +24,18 @@ object Day13 {
       }
       .toSeq
 
-  def parseLine(line: String): ListPacket =
-    doParse(line)._1
-      .asInstanceOf[ListPacket]
+  def parsePacket(s: String): Packet = {
 
-  private def doParse(remaining: String): (Packet, String) =
-    if (remaining.isEmpty)
-      (ListPacket(Seq()), remaining)
-    else
-      remaining.head match {
-        case '[' =>
-          val endIndex             = lastIndex(remaining.tail, 0, 1)
-          val substringToConsider  = remaining.substring(1, endIndex)
-          var results: Seq[Packet] = Seq()
-          var remainings           = substringToConsider
-          while (remainings.nonEmpty) {
-            val (result, tmpRemaining) = doParse(remainings)
-            results = results :+ result
-            if (tmpRemaining.startsWith(","))
-              remainings = tmpRemaining.tail
-            else
-              remainings = tmpRemaining
-          }
+    def packetNode: Parser[Packet] = (
+      "\\d+".r ^^ (value => ValuePacket(value.toInt))
+        | "[" ~> repsep(packetNode, ",") <~ "]" ^^ ListPacket.apply
+    )
 
-          val newRemaining = remaining.substring(endIndex + 1)
-          (ListPacket(results), newRemaining)
-        case _ =>
-          val index = remaining.indexOf(",")
-          if (index < 0)
-            (ValuePacket(remaining.toInt), "")
-          else {
-            val split  = remaining.substring(0, index)
-            val result = ValuePacket(split.toInt)
-            (result, remaining.substring(index + 1))
-          }
-      }
-
-  @tailrec
-  private def lastIndex(remaining: String, countOpenBraces: Int, currentIndex: Int): Int = remaining.head match {
-    case ']' if countOpenBraces == 0 => currentIndex
-    case ']'                         => lastIndex(remaining.tail, countOpenBraces - 1, currentIndex + 1)
-    case '['                         => lastIndex(remaining.tail, countOpenBraces + 1, currentIndex + 1)
-    case _                           => lastIndex(remaining.tail, countOpenBraces, currentIndex + 1)
+    parseAll(packetNode, s).get
   }
+
+  def parseLine(input: String): Packet =
+    input.linesIterator.map(parsePacket).next()
 
   def areInRightOrder(input: InputDay13): Boolean =
     doCompare(input.left, input.right).get
