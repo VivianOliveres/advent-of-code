@@ -28,6 +28,7 @@
 | 11  | [Monkey in the Middle](https://adventofcode.com/2022/day/11)    | [Day11](../master/src/main/scala/com/kensai/aoc/aoc2022/Day11.scala) | [Day11Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day11Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day11PropSpec.scala)              | [Day11.input](../master/src/test/resources/aoc2022/Day11.input) | 
 | 12  | [Hill Climbing Algorithm](https://adventofcode.com/2022/day/12) | [Day12](../master/src/main/scala/com/kensai/aoc/aoc2022/Day12.scala) | [Day12Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day12Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day12PropSpec.scala)              | [Day12.input](../master/src/test/resources/aoc2022/Day12.input) | 
 | 13  | [Distress Signal](https://adventofcode.com/2022/day/13)         | [Day13](../master/src/main/scala/com/kensai/aoc/aoc2022/Day13.scala) | [Day13Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day13Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day13PropSpec.scala)              | [Day13.input](../master/src/test/resources/aoc2022/Day13.input) | 
+| 14  | [Regolith Reservoir](https://adventofcode.com/2022/day/14)      | [Day14](../master/src/main/scala/com/kensai/aoc/aoc2022/Day14.scala) | [Day14Spec](../master/src/test/scala/com/kensai/aoc/aoc2022/Day14Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2022/Day14PropSpec.scala)              | [Day14.input](../master/src/test/resources/aoc2022/Day14.input) | 
 
 
 ## [AOC 2021](https://adventofcode.com/2021)
