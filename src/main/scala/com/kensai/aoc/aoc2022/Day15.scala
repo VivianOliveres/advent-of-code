@@ -2,6 +2,8 @@ package com.kensai.aoc.aoc2022
 
 import com.kensai.aoc.lib.Geo.Point2D
 
+import scala.annotation.tailrec
+
 object Day15 {
 
   case class Sensor(pos: Point2D, beacon: Point2D)
@@ -79,12 +81,18 @@ object Day15 {
   }
 
   def tuningFrequency(sensors: Set[Sensor], maxValue: Int): Long = {
-    val result = (0 to maxValue) // TODO: it takes 26s to find solution
-      .map(findValidPosition(sensors, _, maxValue))
-      .find(_.isDefined)
-      .get
-      .get
+    //TODO: it takes 18s
+    val result = searchValidPositions(sensors, maxValue, (0 to maxValue))
     result.x * 4000000L + result.y
+  }
+
+  @tailrec
+  private def searchValidPositions(sensors: Set[Sensor], maxValue: Int, remaining: Seq[Int]): Point2D = {
+    val result = findValidPosition(sensors, remaining.head, maxValue)
+    if (result.isEmpty)
+      searchValidPositions(sensors, maxValue, remaining.tail)
+    else
+      result.get
   }
 
 }
