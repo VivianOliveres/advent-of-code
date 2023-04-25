@@ -81,8 +81,10 @@ object Day15 {
   }
 
   def tuningFrequency(sensors: Set[Sensor], maxValue: Int): Long = {
-    //TODO: it takes 18s
-    val result = searchValidPositions(sensors, maxValue, (0 to maxValue))
+    // TODO: improve performance
+    // 18s if we use (0 to maxValue)
+    // 7s if (maxValue to 0 by(-1))
+    val result = searchValidPositions(sensors, maxValue, maxValue to 0 by -1)
     result.x * 4000000L + result.y
   }
 
