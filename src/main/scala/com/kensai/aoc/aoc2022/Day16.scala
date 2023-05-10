@@ -43,8 +43,13 @@ object Day16 {
       .toMap
 
   private def computeDirectPaths(valves: Map[String, Valve]): Map[(String, String), Int] = {
-    val interestingValves = "AA" +: valves.values.filter(_.flowRate > 0).map(_.name).toSeq.sorted
-    val allCouples        = generateAllPairs(interestingValves, Seq())
+    val interestingValves = "AA" +: valves.values
+      .collect {
+        case valve if valve.flowRate > 0 => valve.name
+      }
+      .toSeq
+      .sorted
+    val allCouples = generateAllPairs(interestingValves, Seq())
     allCouples.map { case (from, to) =>
       val bestPositions = mutable.Map(from -> 0)
       val nextPositions = mutable.PriorityQueue((from, 0))(Ordering.by(b => -b._2))
