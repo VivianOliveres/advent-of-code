@@ -97,7 +97,7 @@ object Day23 {
   private def isFinal(board: Board): Boolean =
     board.positions.forall { case (point, amphipod) => point.x == amphipod.roomIndex }
 
-  private def computeNextBoards(board: Board): Seq[Board] = {
+  private def computeNextBoards(board: Board): Iterable[Board] = {
     val results = for {
       (currentPosition, amphipod) <- board.positions
       nextPosition                <- nextPossiblePositions(board, currentPosition, amphipod)
@@ -110,7 +110,7 @@ object Day23 {
       val newEnergy    = board.totalEnergySpent + energyToSpend
       Board(newPositions, newEnergy, board.roomSize)
     }
-    results.toSeq
+    results
   }
 
   private val hallPositions = (0 to 10)
@@ -145,17 +145,17 @@ object Day23 {
   private def getPath(from: Point2D, to: Point2D): Seq[Point2D] = {
     val hall =
       if (from.x < to.x)
-        (from.x to to.x).map(x => Point2D(x, 0))
+        (from.x + 1 to to.x).map(x => Point2D(x, 0))
       else
-        (to.x to from.x).map(x => Point2D(x, 0))
+        (to.x until from.x).map(x => Point2D(x, 0))
 
     val rooms =
       if (from.y == 0)
-        (0 to to.y).map(y => Point2D(to.x, y))
+        (1 to to.y).map(y => Point2D(to.x, y))
       else
-        (0 to from.y).map(y => Point2D(from.x, y))
+        (0 until from.y).map(y => Point2D(from.x, y))
 
-    (rooms ++ hall).filterNot(_ == from).distinct
+    (rooms ++ hall).distinct
   }
 
   def print(board: Board): Unit = {
