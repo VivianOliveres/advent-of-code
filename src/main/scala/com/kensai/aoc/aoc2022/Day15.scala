@@ -47,7 +47,9 @@ object Day15 {
   def countInvalidPositions(sensors: Set[Sensor], yTarget: Int): Int = {
     val ranges = computeRanges(sensors, yTarget)
 
-    val xBeacons = sensors.filter(_.beacon.y == yTarget).map(_.beacon.x)
+    val xBeacons = sensors.collect {
+      case sensor if sensor.beacon.y == yTarget => sensor.beacon.x
+    }
     val rangesWithoutBeacons = xBeacons.foldLeft(ranges) { case (acc, xBeacon) =>
       acc.flatMap { range =>
         if (range.minX == xBeacon)
