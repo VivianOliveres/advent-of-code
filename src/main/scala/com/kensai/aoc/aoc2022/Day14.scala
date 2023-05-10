@@ -6,6 +6,7 @@ import scala.annotation.tailrec
 
 object Day14 {
 
+  //TODO: refacto to not generate all points but use (custom) ranges instead
   case class InputDay14(minX: Int, maxX: Int, maxY: Int, points: Set[Point2D], isPart2: Boolean) {
     def contains(point: Point2D): Boolean =
       if (isPart2)
@@ -27,10 +28,17 @@ object Day14 {
   }
 
   def parse(lines: Seq[String]): InputDay14 = {
-    val allRocks = lines.filter(_.nonEmpty).map(doParse).foldLeft(Set.empty[Point2D])(_ ++ _)
-    val minX     = allRocks.minBy(_.x).x
-    val maxX     = allRocks.maxBy(_.x).x
-    val maxY     = allRocks.maxBy(_.y).y
+    val allRocks = lines
+      .collect {
+        case str if str.nonEmpty => doParse(str)
+      }
+      .foldLeft(Set.empty[Point2D])(_ ++ _)
+    val (minX, maxX, maxY) = allRocks.foldLeft((Int.MaxValue, Int.MinValue, Int.MinValue)) { case ((minX, maxX, maxY), rock) =>
+      val newMinX = math.min(minX, rock.x)
+      val newMaxX = math.max(maxX, rock.x)
+      val newMaxY = math.max(maxY, rock.y)
+      (newMinX, newMaxX, newMaxY)
+    }
     InputDay14(minX, maxX, maxY, allRocks, false)
   }
 
