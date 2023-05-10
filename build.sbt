@@ -19,3 +19,6 @@ libraryDependencies += ("org.scala-lang.modules" %% "scala-parser-combinators" %
 libraryDependencies += ("com.beachape" %% "enumeratum" % "1.7.2")
 
 testForkedParallel in IntegrationTest := true
+
+
+enablePlugins(JmhPlugin)
