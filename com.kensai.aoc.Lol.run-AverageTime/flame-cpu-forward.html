@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<style>
+	body {margin: 0; padding: 10px; background-color: #ffffff}
+	h1 {margin: 5px 0 0 0; font-size: 18px; font-weight: normal; text-align: center}
+	header {margin: -24px 0 5px 0; line-height: 24px}
+	button {font: 12px sans-serif; cursor: pointer}
+	p {margin: 5px 0 5px 0}
+	a {color: #0366d6}
+	#hl {position: absolute; display: none; overflow: hidden; white-space: nowrap; pointer-events: none; background-color: #ffffe0; outline: 1px solid #ffc000; height: 15px}
+	#hl span {padding: 0 3px 0 3px}
+	#status {overflow: hidden; white-space: nowrap}
+	#match {overflow: hidden; white-space: nowrap; display: none; float: right; text-align: right}
+	#reset {cursor: pointer}
+	#canvas {width: 100%; height: 656px}
+</style>
+</head>
+<body style='font: 12px Verdana, sans-serif'>
+<h1>CPU profile</h1>
+<header style='text-align: left'><button id='reverse' title='Reverse'>&#x1f53b;</button>&nbsp;&nbsp;<button id='search' title='Search'>&#x1f50d;</button></header>
+<header style='text-align: right'>Produced by <a href='https://github.com/jvm-profiling-tools/async-profiler'>async-profiler</a></header>
+<canvas id='canvas'></canvas>
+<div id='hl'><span></span></div>
+<p id='match'>Matched: <span id='matchval'></span> <span id='reset' title='Clear'>&#x274c;</span></p>
+<p id='status'>&nbsp;</p>
+<script>
+	// Copyright 2020 Andrei Pangin
+	// Licensed under the Apache License, Version 2.0.
+	'use strict';
+	var root, rootLevel, px, pattern;
+	var reverse = false;
+	const levels = Array(41);
+	for (let h = 0; h < levels.length; h++) {
+		levels[h] = [];
+	}
+
+	const canvas = document.getElementById('canvas');
+	const c = canvas.getContext('2d');
+	const hl = document.getElementById('hl');
+	const status = document.getElementById('status');
+
+	const canvasWidth = canvas.offsetWidth;
+	const canvasHeight = canvas.offsetHeight;
+	canvas.style.width = canvasWidth + 'px';
+	canvas.width = canvasWidth * (devicePixelRatio || 1);
+	canvas.height = canvasHeight * (devicePixelRatio || 1);
+	if (devicePixelRatio) c.scale(devicePixelRatio, devicePixelRatio);
+	c.font = document.body.style.font;
+
+	const palette = [
+		[0xb2e1b2, 20, 20, 20],
+		[0x50e150, 30, 30, 30],
+		[0x50cccc, 30, 30, 30],
+		[0xe15a5a, 30, 40, 40],
+		[0xc8c83c, 30, 30, 10],
+		[0xe17d00, 30, 30,  0],
+		[0xcce880, 20, 20, 20],
+	];
+
+	function getColor(p) {
+		const v = Math.random();
+		return '#' + (p[0] + ((p[1] * v) << 16 | (p[2] * v) << 8 | (p[3] * v))).toString(16);
+	}
+
+	function f(level, left, width, type, title, inln, c1, int) {
+		levels[level].push({left: left, width: width, color: getColor(palette[type]), title: title,
+			details: (int ? ', int=' + int : '') + (c1 ? ', c1=' + c1 : '') + (inln ? ', inln=' + inln : '')
+		});
+	}
+
+	function samples(n) {
+		return n === 1 ? '1 sample' : n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' samples';
+	}
+
+	function pct(a, b) {
+		return a >= b ? '100' : (100 * a / b).toFixed(2);
+	}
+
+	function findFrame(frames, x) {
+		let left = 0;
+		let right = frames.length - 1;
+
+		while (left <= right) {
+			const mid = (left + right) >>> 1;
+			const f = frames[mid];
+
+			if (f.left > x) {
+				right = mid - 1;
+			} else if (f.left + f.width <= x) {
+				left = mid + 1;
+			} else {
+				return f;
+			}
+		}
+
+		if (frames[left] && (frames[left].left - x) * px < 0.5) return frames[left];
+		if (frames[right] && (x - (frames[right].left + frames[right].width)) * px < 0.5) return frames[right];
+
+		return null;
+	}
+
+	function search(r) {
+		if (r === true && (r = prompt('Enter regexp to search:', '')) === null) {
+			return;
+		}
+
+		pattern = r ? RegExp(r) : undefined;
+		const matched = render(root, rootLevel);
+		document.getElementById('matchval').textContent = pct(matched, root.width) + '%';
+		document.getElementById('match').style.display = r ? 'inherit' : 'none';
+	}
+
+	function render(newRoot, newLevel) {
+		if (root) {
+			c.fillStyle = '#ffffff';
+			c.fillRect(0, 0, canvasWidth, canvasHeight);
+		}
+
+		root = newRoot || levels[0][0];
+		rootLevel = newLevel || 0;
+		px = canvasWidth / root.width;
+
+		const x0 = root.left;
+		const x1 = x0 + root.width;
+		const marked = [];
+
+		function mark(f) {
+			return marked[f.left] >= f.width || (marked[f.left] = f.width);
+		}
+
+		function totalMarked() {
+			let total = 0;
+			let left = 0;
+			Object.keys(marked).sort(function(a, b) { return a - b; }).forEach(function(x) {
+				if (+x >= left) {
+					total += marked[x];
+					left = +x + marked[x];
+				}
+			});
+			return total;
+		}
+
+		function drawFrame(f, y, alpha) {
+			if (f.left < x1 && f.left + f.width > x0) {
+				c.fillStyle = pattern && f.title.match(pattern) && mark(f) ? '#ee00ee' : f.color;
+				c.fillRect((f.left - x0) * px, y, f.width * px, 15);
+
+				if (f.width * px >= 21) {
+					const chars = Math.floor(f.width * px / 7);
+					const title = f.title.length <= chars ? f.title : f.title.substring(0, chars - 2) + '..';
+					c.fillStyle = '#000000';
+					c.fillText(title, Math.max(f.left - x0, 0) * px + 3, y + 12, f.width * px - 6);
+				}
+
+				if (alpha) {
+					c.fillStyle = 'rgba(255, 255, 255, 0.5)';
+					c.fillRect((f.left - x0) * px, y, f.width * px, 15);
+				}
+			}
+		}
+
+		for (let h = 0; h < levels.length; h++) {
+			const y = reverse ? h * 16 : canvasHeight - (h + 1) * 16;
+			const frames = levels[h];
+			for (let i = 0; i < frames.length; i++) {
+				drawFrame(frames[i], y, h < rootLevel);
+			}
+		}
+
+		return totalMarked();
+	}
+
+	canvas.onmousemove = function() {
+		const h = Math.floor((reverse ? event.offsetY : (canvasHeight - event.offsetY)) / 16);
+		if (h >= 0 && h < levels.length) {
+			const f = findFrame(levels[h], event.offsetX / px + root.left);
+			if (f) {
+				if (f != root) getSelection().removeAllRanges();
+				hl.style.left = (Math.max(f.left - root.left, 0) * px + canvas.offsetLeft) + 'px';
+				hl.style.width = (Math.min(f.width, root.width) * px) + 'px';
+				hl.style.top = ((reverse ? h * 16 : canvasHeight - (h + 1) * 16) + canvas.offsetTop) + 'px';
+				hl.firstChild.textContent = f.title;
+				hl.style.display = 'block';
+				canvas.title = f.title + '\n(' + samples(f.width) + f.details + ', ' + pct(f.width, levels[0][0].width) + '%)';
+				canvas.style.cursor = 'pointer';
+				canvas.onclick = function() {
+					if (f != root) {
+						render(f, h);
+						canvas.onmousemove();
+					}
+				};
+				status.textContent = 'Function: ' + canvas.title;
+				return;
+			}
+		}
+		canvas.onmouseout();
+	}
+
+	canvas.onmouseout = function() {
+		hl.style.display = 'none';
+		status.textContent = '\xa0';
+		canvas.title = '';
+		canvas.style.cursor = '';
+		canvas.onclick = '';
+	}
+
+	canvas.ondblclick = function() {
+		getSelection().selectAllChildren(hl);
+	}
+
+	document.getElementById('reverse').onclick = function() {
+		reverse = !reverse;
+		render();
+	}
+
+	document.getElementById('search').onclick = function() {
+		search(true);
+	}
+
+	document.getElementById('reset').onclick = function() {
+		search(false);
+	}
+
+	window.onkeydown = function() {
+		if (event.ctrlKey && event.keyCode === 70) {
+			event.preventDefault();
+			search(true);
+		} else if (event.keyCode === 27) {
+			search(false);
+		}
+	}
+
+f(0,0,11129,3,'all')
+f(1,0,3,3,'[unknown]')
+f(2,0,1,3,'__lll_lock_wait')
+f(2,1,1,3,'_int_free')
+f(2,2,1,3,'pthread_cond_timedwait@@GLIBC_2.3.2')
+f(1,3,244,3,'[unknown_Java]')
+f(2,3,54,1,'com/kensai/aoc/aoc2022/Day15$.computeRanges')
+f(2,57,14,3,'jint_conjoint_arraycopy_avx3')
+f(3,57,14,4,'G1BarrierSet::invalidate(MemRegion)')
+f(2,71,176,3,'jint_disjoint_arraycopy_avx3')
+f(3,71,176,4,'G1BarrierSet::invalidate(MemRegion)')
+f(1,247,2,3,'_IO_default_xsputn')
+f(1,249,3,3,'__GI___pthread_disable_asynccancel')
+f(1,252,2,3,'__futex_abstimed_wait_cancelable64')
+f(1,254,2,3,'__strlen_evex')
+f(1,256,10736,1,'java/lang/Thread.run')
+f(2,256,10736,1,'java/util/concurrent/ThreadPoolExecutor$Worker.run')
+f(3,256,10736,1,'java/util/concurrent/ThreadPoolExecutor.runWorker')
+f(4,256,10736,1,'java/util/concurrent/FutureTask.run')
+f(5,256,10736,1,'java/util/concurrent/Executors$RunnableAdapter.call')
+f(6,256,10736,1,'java/util/concurrent/FutureTask.run')
+f(7,256,10736,1,'org/openjdk/jmh/runner/BenchmarkHandler$BenchmarkTask.call')
+f(8,256,10736,1,'org/openjdk/jmh/runner/BenchmarkHandler$BenchmarkTask.call')
+f(9,256,10736,1,'java/lang/reflect/Method.invoke')
+f(10,256,10736,1,'jdk/internal/reflect/DelegatingMethodAccessorImpl.invoke')
+f(11,256,4285,1,'jdk/internal/reflect/GeneratedMethodAccessor2.invoke')
+f(12,256,4285,1,'com/kensai/aoc/jmh_generated/Lol_run_jmhTest.run_AverageTime')
+f(13,256,4285,1,'com/kensai/aoc/jmh_generated/Lol_run_jmhTest.run_avgt_jmhStub')
+f(14,256,4285,1,'com/kensai/aoc/Lol.run')
+f(15,256,4285,1,'com/kensai/aoc/aoc2022/Day15$.tuningFrequency')
+f(16,256,4285,1,'com/kensai/aoc/aoc2022/Day15$.searchValidPositions')
+f(17,256,4267,1,'com/kensai/aoc/aoc2022/Day15$.findValidPosition')
+f(18,259,3918,1,'com/kensai/aoc/aoc2022/Day15$.computeRanges')
+f(19,259,42,2,'scala/collection/AbstractIterable.toSeq',40,0,0)
+f(20,259,42,2,'scala/collection/IterableOnceOps.toSeq$',40,0,0)
+f(21,259,42,2,'scala/collection/IterableOnceOps.toSeq',40,0,0)
+f(22,259,42,2,'scala/collection/immutable/Seq$.from',40,0,0)
+f(23,259,42,2,'scala/collection/SeqFactory$Delegate.from',40,0,0)
+f(24,259,42,2,'scala/collection/immutable/List$.from',40,0,0)
+f(25,259,42,2,'scala/collection/immutable/List$.from',40,0,0)
+f(26,259,42,2,'scala/collection/immutable/List.prependedAll',40,0,0)
+f(27,260,3,2,'scala/collection/immutable/ChampBaseIterator.hasNext',3,0,0)
+f(28,261,2,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',2,0,0)
+f(29,262,1,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',1,0,0)
+f(30,262,1,2,'scala/collection/immutable/BitmapIndexedSetNode.payloadArity',1,0,0)
+f(27,263,25,2,'scala/collection/immutable/HashSet.iterator',24,0,0)
+f(28,266,22,2,'scala/collection/immutable/SetIterator.<init>',21,0,0)
+f(29,266,22,2,'scala/collection/immutable/ChampBaseIterator.<init>',21,0,0)
+f(30,271,8,2,'scala/collection/immutable/ChampBaseIterator.pushNode',8,0,0)
+f(31,272,2,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeArity',2,0,0)
+f(31,274,5,2,'scala/collection/immutable/ChampBaseIterator.initNodes',5,0,0)
+f(30,279,9,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',8,0,0)
+f(31,282,6,2,'scala/collection/immutable/ChampBaseIterator.currentValueNode_$eq',5,0,0)
+f(32,287,1,4,'OptoRuntime::new_array_C(Klass*, int, JavaThread*)')
+f(33,287,1,4,'InstanceKlass::allocate_objArray(int, int, JavaThread*)')
+f(34,287,1,4,'MemAllocator::allocate() const')
+f(35,287,1,4,'MemAllocator::allocate_inside_tlab_slow(MemAllocator::Allocation&) const')
+f(36,287,1,3,'__memset_evex_unaligned_erms')
+f(27,288,2,2,'scala/collection/immutable/HashSet.knownSize',2,0,0)
+f(27,290,11,2,'scala/collection/immutable/SetIterator.next',10,0,0)
+f(28,292,9,2,'scala/collection/immutable/ChampBaseIterator.hasNext',8,0,0)
+f(29,292,9,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',8,0,0)
+f(30,295,1,4,'OptoRuntime::new_instance_C(Klass*, JavaThread*)')
+f(31,295,1,4,'InstanceKlass::allocate_instance(JavaThread*)')
+f(32,295,1,4,'MemAllocator::allocate() const')
+f(33,295,1,4,'AllocTracer::send_allocation_in_new_tlab(Klass*, HeapWordImpl**, unsigned long, unsigned long, JavaThread*)')
+f(34,295,1,4,'LeakProfiler::is_running()')
+f(30,296,5,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',5,0,0)
+f(31,299,2,2,'scala/collection/immutable/BitmapIndexedSetNode.payloadArity',2,0,0)
+f(32,299,2,2,'scala/collection/immutable/BitmapIndexedSetNode.dataMap',2,0,0)
+f(19,301,974,1,'scala/collection/IterableOps$WithFilter.map',43,0,0)
+f(20,301,10,2,'scala/collection/IterableOps$WithFilter.filtered',10,0,0)
+f(20,311,2,2,'scala/collection/View$Map.<init>',2,0,0)
+f(20,313,962,1,'scala/collection/immutable/HashSet$.from',31,0,0)
+f(21,314,961,1,'scala/collection/immutable/HashSet$.from',30,0,0)
+f(22,315,25,2,'scala/collection/View$Map.knownSize',25,0,0)
+f(23,337,3,2,'scala/collection/View$Filter.knownSize',3,0,0)
+f(24,338,2,2,'scala/collection/immutable/HashSet.knownSize',2,0,0)
+f(22,340,2,2,'scala/collection/immutable/HashSetBuilder.<init>',2,0,0)
+f(22,342,931,1,'scala/collection/immutable/HashSetBuilder.addAll')
+f(23,357,406,1,'scala/collection/Iterator$$anon$9.hasNext')
+f(24,366,397,2,'scala/collection/Iterator$$anon$6.hasNext',391,0,0)
+f(25,395,265,2,'scala/collection/immutable/ChampBaseIterator.hasNext',259,0,0)
+f(26,426,234,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',228,0,0)
+f(27,485,23,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',23,0,0)
+f(28,485,23,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',23,0,0)
+f(29,507,1,2,'scala/collection/immutable/BitmapIndexedSetNode.content',1,0,0)
+f(27,508,29,2,'scala/collection/immutable/BitmapIndexedSetNode.hasNodes',29,0,0)
+f(28,513,24,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',24,0,0)
+f(27,537,6,1,'scala/collection/immutable/ChampBaseIterator.pushNode')
+f(27,543,117,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',117,0,0)
+f(28,614,5,2,'scala/collection/immutable/BitmapIndexedSetNode.payloadArity',5,0,0)
+f(28,619,8,2,'scala/collection/immutable/ChampBaseIterator.currentValueLength_$eq',8,0,0)
+f(28,627,33,2,'scala/collection/immutable/ChampBaseIterator.currentValueNode_$eq',33,0,0)
+f(25,660,102,2,'scala/collection/immutable/SetIterator.next',102,0,0)
+f(26,670,5,2,'scala/collection/immutable/BitmapIndexedSetNode.getPayload',5,0,0)
+f(26,675,87,2,'scala/collection/immutable/ChampBaseIterator.hasNext',87,0,0)
+f(27,681,81,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',81,0,0)
+f(28,721,13,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',13,0,0)
+f(29,721,13,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',13,0,0)
+f(30,728,6,2,'scala/collection/immutable/BitmapIndexedSetNode.content',6,0,0)
+f(28,734,10,2,'scala/collection/immutable/BitmapIndexedSetNode.hasPayload',10,0,0)
+f(29,734,10,2,'scala/collection/immutable/BitmapIndexedSetNode.dataMap',10,0,0)
+f(28,744,18,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',18,0,0)
+f(29,744,1,2,'scala/collection/immutable/BitmapIndexedSetNode.payloadArity',1,0,0)
+f(29,745,17,2,'scala/collection/immutable/ChampBaseIterator.currentValueNode_$eq',17,0,0)
+f(25,762,1,2,'scala/runtime/BoxesRunTime.unboxToBoolean',1,0,0)
+f(23,763,60,1,'scala/collection/Iterator$$anon$9.next')
+f(24,767,56,2,'scala/collection/Iterator$$anon$6.next',56,0,0)
+f(25,767,56,2,'scala/collection/Iterator$$anon$6.hasNext',56,0,0)
+f(26,779,31,2,'scala/collection/immutable/ChampBaseIterator.hasNext',31,0,0)
+f(27,779,31,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',31,0,0)
+f(28,794,2,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',2,0,0)
+f(29,795,1,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',1,0,0)
+f(28,796,2,2,'scala/collection/immutable/BitmapIndexedSetNode.hasNodes',2,0,0)
+f(29,796,2,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',2,0,0)
+f(28,798,12,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',12,0,0)
+f(29,798,12,2,'scala/collection/immutable/ChampBaseIterator.currentValueNode_$eq',12,0,0)
+f(26,810,13,2,'scala/collection/immutable/SetIterator.next',13,0,0)
+f(27,818,5,2,'scala/collection/immutable/ChampBaseIterator.hasNext',5,0,0)
+f(28,820,3,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',3,0,0)
+f(23,823,5,2,'scala/collection/View$Map.iterator',5,0,0)
+f(24,823,1,2,'scala/collection/AbstractIterator.map',1,0,0)
+f(25,823,1,2,'scala/collection/Iterator.map$',1,0,0)
+f(26,823,1,2,'scala/collection/Iterator.map',1,0,0)
+f(24,824,4,2,'scala/collection/View$Filter.iterator',4,0,0)
+f(25,824,3,2,'scala/collection/immutable/HashSet.iterator',3,0,0)
+f(26,825,2,2,'scala/collection/immutable/SetIterator.<init>',2,0,0)
+f(27,825,2,2,'scala/collection/immutable/ChampBaseIterator.<init>',2,0,0)
+f(28,825,2,2,'scala/collection/immutable/ChampBaseIterator.pushNode',2,0,0)
+f(29,826,1,2,'scala/collection/immutable/ChampBaseIterator.initNodes',1,0,0)
+f(25,827,1,2,'scala/collection/immutable/SetIterator.filterImpl',1,0,0)
+f(26,827,1,2,'scala/collection/Iterator.filterImpl$',1,0,0)
+f(27,827,1,2,'scala/collection/Iterator.filterImpl',1,0,0)
+f(23,828,436,1,'scala/collection/immutable/HashSetBuilder.addOne',28,0,0)
+f(24,831,10,2,'scala/collection/Hashing$.improve',10,0,0)
+f(24,841,4,2,'scala/collection/immutable/HashSetBuilder.ensureUnaliased',4,0,0)
+f(25,841,2,2,'scala/collection/immutable/HashSetBuilder.aliased_$eq',2,0,0)
+f(25,843,2,2,'scala/collection/immutable/HashSetBuilder.isAliased',2,0,0)
+f(26,843,2,2,'scala/collection/immutable/HashSetBuilder.aliased',2,0,0)
+f(24,845,2,2,'scala/collection/immutable/HashSetBuilder.scala$collection$immutable$HashSetBuilder$$rootNode',2,0,0)
+f(24,847,352,1,'scala/collection/immutable/HashSetBuilder.update')
+f(25,918,1,4,'G1BarrierSet::invalidate(MemRegion)')
+f(25,919,6,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(25,925,1,2,'scala/collection/immutable/BitmapIndexedSetNode.content',1,0,0)
+f(25,926,105,2,'scala/collection/immutable/BitmapIndexedSetNode.mergeTwoKeyValPairs',104,0,0)
+f(26,964,3,3,'jint_conjoint_arraycopy_avx3')
+f(26,967,6,3,'jint_disjoint_arraycopy_avx3')
+f(26,973,57,2,'scala/collection/immutable/BitmapIndexedSetNode.<init>',57,0,0)
+f(27,1027,3,2,'scala/collection/immutable/SetNode.<init>',3,0,0)
+f(28,1028,2,2,'scala/collection/immutable/Node.<init>',2,0,0)
+f(29,1028,2,2,'java/lang/Object.<init>',2,0,0)
+f(26,1030,1,1,'scala/collection/immutable/BitmapIndexedSetNode.mergeTwoKeyValPairs')
+f(27,1030,1,2,'scala/collection/immutable/BitmapIndexedSetNode.<init>',1,0,0)
+f(25,1031,163,2,'scala/collection/immutable/BitmapIndexedSetNode.migrateFromInlineToNodeInPlace',162,0,0)
+f(26,1093,1,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(26,1094,1,3,'jint_conjoint_arraycopy_avx3')
+f(26,1095,61,3,'jint_disjoint_arraycopy_avx3')
+f(26,1156,3,2,'scala/collection/immutable/BitmapIndexedSetNode.cachedJavaKeySetHashCode',3,0,0)
+f(26,1159,2,2,'scala/collection/immutable/BitmapIndexedSetNode.cachedJavaKeySetHashCode_$eq',2,0,0)
+f(26,1161,4,2,'scala/collection/immutable/BitmapIndexedSetNode.dataIndex',4,0,0)
+f(26,1165,1,2,'scala/collection/immutable/BitmapIndexedSetNode.dataMap_$eq',1,0,0)
+f(26,1166,21,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',21,0,0)
+f(26,1187,1,1,'scala/collection/immutable/BitmapIndexedSetNode.originalHashes_$eq')
+f(27,1187,1,4,'OptoRuntime::new_array_C(Klass*, int, JavaThread*)')
+f(28,1187,1,4,'InstanceKlass::allocate_objArray(int, int, JavaThread*)')
+f(29,1187,1,4,'MemAllocator::allocate() const')
+f(30,1187,1,4,'MemAllocator::allocate_inside_tlab_slow(MemAllocator::Allocation&) const')
+f(31,1187,1,3,'__memset_evex_unaligned_erms')
+f(26,1188,2,2,'scala/collection/immutable/BitmapIndexedSetNode.size',2,0,0)
+f(26,1190,2,2,'scala/collection/immutable/BitmapIndexedSetNode.size_$eq',2,0,0)
+f(26,1192,2,2,'scala/collection/immutable/Node.removeElement',2,0,0)
+f(25,1194,5,1,'scala/collection/immutable/HashSetBuilder.update')
+f(26,1197,2,2,'scala/collection/immutable/BitmapIndexedSetNode.migrateFromInlineToNodeInPlace',2,0,0)
+f(27,1198,1,3,'jint_disjoint_arraycopy_avx3')
+f(24,1199,65,1,'scala/runtime/Statics.anyHash',9,0,0)
+f(25,1208,56,1,'com/kensai/aoc/aoc2022/Day15$RangeDay15.hashCode')
+f(26,1211,3,2,'java/lang/String.hashCode',3,0,0)
+f(26,1214,23,2,'scala/runtime/Statics.finalizeHash',23,0,0)
+f(27,1214,23,2,'scala/runtime/Statics.avalanche',23,0,0)
+f(26,1237,27,2,'scala/runtime/Statics.mix',27,0,0)
+f(27,1243,21,2,'java/lang/Integer.rotateLeft',21,0,0)
+f(23,1264,9,2,'scala/collection/immutable/HashSetBuilder.ensureUnaliased',9,0,0)
+f(24,1264,9,2,'scala/collection/immutable/HashSetBuilder.aliased_$eq',9,0,0)
+f(22,1273,2,2,'scala/collection/immutable/HashSetBuilder.result',2,0,0)
+f(23,1273,2,2,'scala/collection/immutable/HashSetBuilder.result',2,0,0)
+f(24,1274,1,2,'scala/runtime/Statics.releaseFence',1,0,0)
+f(25,1274,1,2,'java/lang/invoke/LambdaForm$MH.0x0000000800c9c000.invoke_MT',1,0,0)
+f(26,1274,1,2,'java/lang/invoke/Invokers.checkGenericType',1,0,0)
+f(27,1274,1,2,'java/lang/invoke/MethodHandle.asType',1,0,0)
+f(19,1275,2902,1,'scala/collection/immutable/HashSet.map')
+f(20,1275,2902,1,'scala/collection/StrictOptimizedIterableOps.map$')
+f(21,1275,2902,1,'scala/collection/StrictOptimizedIterableOps.map')
+f(22,1276,765,2,'com/kensai/aoc/aoc2022/Day15$$$Lambda$49.0x0000000800d14000.apply',764,0,0)
+f(23,1276,765,2,'com/kensai/aoc/aoc2022/Day15$.$anonfun$computeRanges$1',764,0,0)
+f(24,1276,765,2,'scala/runtime/BoxesRunTime.boxToInteger',764,0,0)
+f(25,2040,1,4,'OptoRuntime::new_instance_C(Klass*, JavaThread*)')
+f(26,2040,1,4,'InstanceKlass::allocate_instance(JavaThread*)')
+f(27,2040,1,4,'MemAllocator::allocate() const')
+f(28,2040,1,4,'MemAllocator::allocate_inside_tlab_slow(MemAllocator::Allocation&) const')
+f(29,2040,1,4,'G1CollectedHeap::allocate_new_tlab(unsigned long, unsigned long, unsigned long*)')
+f(30,2040,1,4,'G1CollectedHeap::attempt_allocation_slow(unsigned long)')
+f(31,2040,1,4,'G1AllocRegion::new_alloc_region_and_allocate(unsigned long, bool)')
+f(32,2040,1,4,'G1CollectedHeap::new_mutator_alloc_region(unsigned long, bool, unsigned int)')
+f(33,2040,1,4,'G1RemSetTrackingPolicy::update_at_allocate(HeapRegion*)')
+f(34,2040,1,4,'G1FromCardCache::clear(unsigned int)')
+f(22,2041,15,2,'scala/collection/immutable/ChampBaseIterator.hasNext',15,0,0)
+f(23,2049,7,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',7,0,0)
+f(22,2056,15,2,'scala/collection/immutable/HashSet$.newBuilder',15,0,0)
+f(23,2056,15,2,'scala/collection/immutable/HashSet$.newBuilder',15,0,0)
+f(24,2056,15,2,'scala/collection/immutable/HashSetBuilder.<init>',15,0,0)
+f(25,2058,13,2,'scala/collection/immutable/HashSetBuilder.newEmptyRootNode',13,0,0)
+f(22,2071,142,2,'scala/collection/immutable/HashSet.iterator',142,0,0)
+f(23,2088,125,2,'scala/collection/immutable/SetIterator.<init>',125,0,0)
+f(24,2088,125,2,'scala/collection/immutable/ChampBaseIterator.<init>',125,0,0)
+f(25,2124,22,2,'scala/collection/immutable/BitmapIndexedSetNode.hasNodes',22,0,0)
+f(26,2125,21,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',21,0,0)
+f(25,2146,6,2,'scala/collection/immutable/ChampBaseIterator.<init>',6,0,0)
+f(25,2152,56,2,'scala/collection/immutable/ChampBaseIterator.pushNode',56,0,0)
+f(26,2157,4,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeArity',4,0,0)
+f(26,2161,47,2,'scala/collection/immutable/ChampBaseIterator.initNodes',47,0,0)
+f(25,2208,5,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',5,0,0)
+f(26,2209,4,2,'scala/collection/immutable/ChampBaseIterator.currentValueNode_$eq',4,0,0)
+f(22,2213,1949,1,'scala/collection/immutable/HashSetBuilder.addOne',5,0,0)
+f(23,2213,1949,1,'scala/collection/immutable/HashSetBuilder.addOne',5,0,0)
+f(24,2218,1467,1,'scala/collection/immutable/HashSetBuilder.update')
+f(25,2412,1,4,'G1BarrierSet::invalidate(MemRegion)')
+f(25,2413,19,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(25,2432,1,2,'scala/collection/immutable/BitmapIndexedSetNode.content',1,0,0)
+f(25,2433,459,2,'scala/collection/immutable/BitmapIndexedSetNode.mergeTwoKeyValPairs',456,0,0)
+f(26,2635,12,3,'jint_conjoint_arraycopy_avx3')
+f(26,2647,40,3,'jint_disjoint_arraycopy_avx3')
+f(26,2687,202,2,'scala/collection/immutable/BitmapIndexedSetNode.<init>',202,0,0)
+f(27,2867,22,2,'scala/collection/immutable/SetNode.<init>',22,0,0)
+f(28,2869,20,2,'scala/collection/immutable/Node.<init>',20,0,0)
+f(29,2880,9,2,'java/lang/Object.<init>',9,0,0)
+f(26,2889,3,1,'scala/collection/immutable/BitmapIndexedSetNode.mergeTwoKeyValPairs')
+f(27,2889,3,2,'scala/collection/immutable/BitmapIndexedSetNode.<init>',3,0,0)
+f(25,2892,685,2,'scala/collection/immutable/BitmapIndexedSetNode.migrateFromInlineToNodeInPlace',685,0,0)
+f(26,3162,2,4,'G1BarrierSet::invalidate(MemRegion)')
+f(26,3164,8,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(26,3172,11,3,'jint_conjoint_arraycopy_avx3')
+f(26,3183,249,3,'jint_disjoint_arraycopy_avx3')
+f(26,3432,5,3,'jlong_disjoint_arraycopy_avx3')
+f(26,3437,31,2,'scala/collection/immutable/BitmapIndexedSetNode.cachedJavaKeySetHashCode',31,0,0)
+f(26,3468,2,2,'scala/collection/immutable/BitmapIndexedSetNode.cachedJavaKeySetHashCode_$eq',2,0,0)
+f(26,3470,14,2,'scala/collection/immutable/BitmapIndexedSetNode.dataIndex',14,0,0)
+f(26,3484,2,2,'scala/collection/immutable/BitmapIndexedSetNode.dataMap_$eq',2,0,0)
+f(26,3486,62,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',62,0,0)
+f(26,3548,1,2,'scala/collection/immutable/BitmapIndexedSetNode.originalHashes_$eq',1,0,0)
+f(26,3549,13,2,'scala/collection/immutable/BitmapIndexedSetNode.size',13,0,0)
+f(26,3562,1,2,'scala/collection/immutable/BitmapIndexedSetNode.size_$eq',1,0,0)
+f(26,3563,14,2,'scala/collection/immutable/Node.removeElement',14,0,0)
+f(25,3577,1,2,'scala/collection/immutable/BitmapIndexedSetNode.originalHashes',1,0,0)
+f(25,3578,107,1,'scala/collection/immutable/HashSetBuilder.update')
+f(26,3596,1,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(26,3597,29,2,'scala/collection/immutable/BitmapIndexedSetNode.mergeTwoKeyValPairs',29,0,0)
+f(27,3607,1,3,'jint_conjoint_arraycopy_avx3')
+f(27,3608,4,3,'jint_disjoint_arraycopy_avx3')
+f(27,3612,14,2,'scala/collection/immutable/BitmapIndexedSetNode.<init>',14,0,0)
+f(28,3625,1,2,'scala/collection/immutable/SetNode.<init>',1,0,0)
+f(29,3625,1,2,'scala/collection/immutable/Node.<init>',1,0,0)
+f(30,3625,1,2,'java/lang/Object.<init>',1,0,0)
+f(26,3626,58,2,'scala/collection/immutable/BitmapIndexedSetNode.migrateFromInlineToNodeInPlace',58,0,0)
+f(27,3651,3,3,'jint_conjoint_arraycopy_avx3')
+f(27,3654,16,3,'jint_disjoint_arraycopy_avx3')
+f(27,3670,1,2,'scala/collection/immutable/BitmapIndexedSetNode.dataIndex',1,0,0)
+f(27,3671,11,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',11,0,0)
+f(27,3682,1,2,'scala/collection/immutable/BitmapIndexedSetNode.size',1,0,0)
+f(27,3683,1,2,'scala/collection/immutable/Node.removeElement',1,0,0)
+f(26,3684,1,1,'scala/collection/immutable/HashSetBuilder.update')
+f(27,3684,1,2,'scala/collection/immutable/BitmapIndexedSetNode.migrateFromInlineToNodeInPlace',1,0,0)
+f(28,3684,1,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',1,0,0)
+f(24,3685,477,1,'scala/runtime/Statics.anyHash')
+f(25,3685,477,1,'scala/Tuple3.hashCode')
+f(26,3685,477,1,'scala/util/hashing/MurmurHash3$.productHash')
+f(27,3685,477,1,'scala/util/hashing/MurmurHash3.productHash')
+f(28,3685,477,1,'scala/runtime/Statics.anyHash')
+f(29,3685,477,1,'com/kensai/aoc/aoc2022/Day15$Sensor.hashCode')
+f(30,3714,448,2,'scala/runtime/ScalaRunTime$._hashCode',448,0,0)
+f(31,3714,448,2,'scala/util/hashing/MurmurHash3$.productHash',448,0,0)
+f(32,3714,448,2,'scala/util/hashing/MurmurHash3.productHash',448,0,0)
+f(33,3714,3,2,'com/kensai/aoc/aoc2022/Day15$Sensor.productElement',3,0,0)
+f(34,3714,2,2,'com/kensai/aoc/aoc2022/Day15$Sensor.beacon',2,0,0)
+f(34,3716,1,2,'com/kensai/aoc/aoc2022/Day15$Sensor.pos',1,0,0)
+f(33,3717,13,2,'java/lang/String.hashCode',13,0,0)
+f(33,3730,190,2,'scala/runtime/Statics.anyHash',190,0,0)
+f(34,3741,179,2,'com/kensai/aoc/lib/Geo$Point2D.hashCode',179,0,0)
+f(35,3741,7,2,'java/lang/String.hashCode',7,0,0)
+f(35,3748,74,2,'scala/runtime/Statics.finalizeHash',74,0,0)
+f(36,3748,74,2,'scala/runtime/Statics.avalanche',74,0,0)
+f(35,3822,98,2,'scala/runtime/Statics.mix',98,0,0)
+f(36,3847,73,2,'java/lang/Integer.rotateLeft',73,0,0)
+f(33,3920,149,2,'scala/util/hashing/MurmurHash3.mix',149,0,0)
+f(34,3953,116,2,'java/lang/Integer.rotateLeft',116,0,0)
+f(33,4069,93,2,'scala/util/hashing/MurmurHash3.scala$util$hashing$MurmurHash3$$avalanche',93,0,0)
+f(22,4162,15,2,'scala/collection/immutable/SetIterator.next',15,0,0)
+f(23,4162,15,2,'scala/collection/immutable/ChampBaseIterator.hasNext',15,0,0)
+f(24,4162,15,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',15,0,0)
+f(18,4177,345,1,'com/kensai/aoc/aoc2022/Day15$.mergeRanges',52,0,0)
+f(19,4180,311,1,'scala/collection/AbstractSeq.sortBy',18,0,0)
+f(20,4180,311,1,'scala/collection/SeqOps.sortBy$',18,0,0)
+f(21,4180,311,1,'scala/collection/SeqOps.sortBy',18,0,0)
+f(22,4180,304,1,'scala/collection/immutable/List.sorted',11,0,0)
+f(23,4180,304,1,'scala/collection/immutable/StrictOptimizedSeqOps.sorted$',11,0,0)
+f(24,4180,304,1,'scala/collection/immutable/StrictOptimizedSeqOps.sorted',11,0,0)
+f(25,4191,293,1,'scala/collection/immutable/List.scala$collection$immutable$StrictOptimizedSeqOps$$super$sorted')
+f(26,4191,293,1,'scala/collection/SeqOps.sorted$')
+f(27,4191,1,1,'java/util/TimSort.binarySort')
+f(27,4192,292,1,'scala/collection/SeqOps.sorted')
+f(28,4202,267,1,'java/util/Arrays.sort',74,0,0)
+f(29,4202,267,1,'java/util/TimSort.sort',74,0,0)
+f(30,4202,193,1,'java/util/TimSort.binarySort')
+f(31,4250,4,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(31,4254,16,3,'jint_conjoint_arraycopy_avx3')
+f(31,4270,125,2,'scala/math/Ordering$$anon$1.compare',124,0,0)
+f(32,4271,124,2,'com/kensai/aoc/aoc2022/Day15$$$Lambda$52.0x0000000800d177f8.apply',123,0,0)
+f(33,4278,117,2,'com/kensai/aoc/aoc2022/Day15$.$anonfun$mergeRanges$1$adapted',116,0,0)
+f(34,4278,1,2,'com/kensai/aoc/aoc2022/Day15$.$anonfun$mergeRanges$1',1,0,0)
+f(35,4278,1,2,'com/kensai/aoc/aoc2022/Day15$RangeDay15.minX',1,0,0)
+f(34,4279,116,2,'scala/runtime/BoxesRunTime.boxToInteger',115,0,0)
+f(35,4383,1,4,'OptoRuntime::new_instance_C(Klass*, JavaThread*)')
+f(36,4383,1,4,'InstanceKlass::allocate_instance(JavaThread*)')
+f(37,4383,1,4,'MemAllocator::allocate() const')
+f(38,4383,1,4,'MemAllocator::allocate_inside_tlab_slow(MemAllocator::Allocation&) const')
+f(39,4383,1,3,'__memset_evex_unaligned_erms')
+f(35,4384,11,2,'java/lang/Integer.valueOf',11,0,0)
+f(30,4395,74,2,'java/util/TimSort.countRunAndMakeAscending',74,0,0)
+f(31,4395,74,2,'scala/math/Ordering$$anon$1.compare',74,0,0)
+f(32,4395,74,2,'com/kensai/aoc/aoc2022/Day15$$$Lambda$52.0x0000000800d177f8.apply',74,0,0)
+f(33,4395,74,2,'com/kensai/aoc/aoc2022/Day15$.$anonfun$mergeRanges$1$adapted',74,0,0)
+f(34,4395,74,2,'scala/runtime/BoxesRunTime.boxToInteger',74,0,0)
+f(28,4469,10,2,'scala/collection/AbstractIterable.copyToArray',9,0,0)
+f(29,4470,9,2,'scala/collection/IterableOnceOps.copyToArray$',8,0,0)
+f(30,4470,9,2,'scala/collection/IterableOnceOps.copyToArray',8,0,0)
+f(31,4470,9,2,'scala/collection/AbstractIterable.copyToArray',8,0,0)
+f(32,4470,9,2,'scala/collection/IterableOnceOps.copyToArray$',8,0,0)
+f(33,4471,8,2,'scala/collection/IterableOnceOps.copyToArray',7,0,0)
+f(34,4473,1,4,'OptoRuntime::new_array_C(Klass*, int, JavaThread*)')
+f(35,4473,1,4,'InstanceKlass::allocate_objArray(int, int, JavaThread*)')
+f(36,4473,1,4,'MemAllocator::allocate() const')
+f(37,4473,1,3,'__memset_evex_unaligned_erms')
+f(34,4474,3,2,'scala/collection/StrictOptimizedLinearSeqOps$$anon$1.next',3,0,0)
+f(34,4477,2,2,'scala/runtime/ScalaRunTime$.array_update',2,0,0)
+f(28,4479,2,2,'scala/collection/AbstractIterable.newSpecificBuilder',2,0,0)
+f(29,4479,2,2,'scala/collection/IterableFactoryDefaults.newSpecificBuilder$',2,0,0)
+f(30,4479,2,2,'scala/collection/IterableFactoryDefaults.newSpecificBuilder',2,0,0)
+f(28,4481,3,2,'scala/collection/immutable/List.length',3,0,0)
+f(22,4484,7,2,'scala/math/Ordering$Int$.on',7,0,0)
+f(23,4484,7,2,'scala/math/Ordering.on$',7,0,0)
+f(24,4485,6,2,'scala/math/Ordering.on',6,0,0)
+f(19,4491,31,2,'scala/collection/immutable/List.foldLeft',31,0,0)
+f(20,4491,31,2,'scala/collection/LinearSeqOps.foldLeft$',31,0,0)
+f(21,4491,31,2,'scala/collection/LinearSeqOps.foldLeft',31,0,0)
+f(22,4496,16,2,'com/kensai/aoc/aoc2022/Day15$$$Lambda$53.0x0000000800d113b0.apply',16,0,0)
+f(23,4496,16,2,'com/kensai/aoc/aoc2022/Day15$.$anonfun$mergeRanges$2',16,0,0)
+f(24,4505,7,2,'scala/collection/immutable/List.$colon$colon',7,0,0)
+f(25,4506,6,2,'scala/collection/immutable/$colon$colon.<init>',6,0,0)
+f(22,4512,10,2,'scala/collection/AbstractIterable.coll',10,0,0)
+f(23,4517,5,2,'scala/collection/AbstractIterable.coll',5,0,0)
+f(24,4517,5,2,'scala/collection/Iterable.coll$',5,0,0)
+f(25,4517,5,2,'scala/collection/Iterable.coll',5,0,0)
+f(18,4522,1,1,'scala/collection/SeqOps.sorted')
+f(19,4522,1,1,'java/util/Arrays.sort')
+f(20,4522,1,1,'java/util/TimSort.sort')
+f(21,4522,1,1,'scala/collection/Iterator$$anon$9.next')
+f(22,4522,1,2,'scala/collection/Iterator$$anon$6.next',1,0,0)
+f(23,4522,1,2,'scala/collection/Iterator$$anon$6.hasNext',1,0,0)
+f(24,4522,1,2,'scala/collection/immutable/ChampBaseIterator.hasNext',1,0,0)
+f(25,4522,1,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',1,0,0)
+f(26,4522,1,2,'scala/collection/immutable/BitmapIndexedSetNode.hasNodes',1,0,0)
+f(27,4522,1,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',1,0,0)
+f(17,4523,1,2,'scala/collection/immutable/Range.head',1,0,0)
+f(18,4523,1,2,'scala/collection/immutable/Range.head',1,0,0)
+f(17,4524,17,2,'scala/collection/immutable/Range.tail',17,0,0)
+f(18,4524,17,2,'scala/collection/immutable/Range.tail',17,0,0)
+f(19,4527,14,2,'scala/collection/immutable/Range$Inclusive.<init>',14,0,0)
+f(20,4527,14,2,'scala/collection/immutable/Range.<init>',14,0,0)
+f(21,4529,12,2,'scala/collection/immutable/Range.longLength',12,0,0)
+f(11,4541,6451,1,'jdk/internal/reflect/NativeMethodAccessorImpl.invoke')
+f(12,4541,6451,1,'jdk/internal/reflect/NativeMethodAccessorImpl.invoke0')
+f(13,4541,6451,1,'com/kensai/aoc/jmh_generated/Lol_run_jmhTest.run_AverageTime')
+f(14,4541,6451,1,'com/kensai/aoc/jmh_generated/Lol_run_jmhTest.run_avgt_jmhStub')
+f(15,4541,6451,1,'com/kensai/aoc/Lol.run')
+f(16,4541,1,1,'com/kensai/aoc/Lol.readInputLines')
+f(17,4541,1,0,'com/kensai/aoc/Lol.using',0,0,1)
+f(16,4542,6450,1,'com/kensai/aoc/aoc2022/Day15$.tuningFrequency')
+f(17,4542,6450,1,'com/kensai/aoc/aoc2022/Day15$.searchValidPositions')
+f(18,4542,6441,1,'com/kensai/aoc/aoc2022/Day15$.findValidPosition')
+f(19,4545,5877,1,'com/kensai/aoc/aoc2022/Day15$.computeRanges')
+f(20,4547,56,2,'scala/collection/AbstractIterable.toSeq',56,0,0)
+f(21,4547,56,2,'scala/collection/IterableOnceOps.toSeq$',56,0,0)
+f(22,4547,56,2,'scala/collection/IterableOnceOps.toSeq',56,0,0)
+f(23,4547,56,2,'scala/collection/immutable/Seq$.from',56,0,0)
+f(24,4547,56,2,'scala/collection/SeqFactory$Delegate.from',56,0,0)
+f(25,4548,55,2,'scala/collection/immutable/List$.from',55,0,0)
+f(26,4548,55,2,'scala/collection/immutable/List$.from',55,0,0)
+f(27,4548,55,2,'scala/collection/immutable/List.prependedAll',55,0,0)
+f(28,4552,4,2,'scala/collection/immutable/ChampBaseIterator.hasNext',4,0,0)
+f(28,4556,26,2,'scala/collection/immutable/HashSet.iterator',26,0,0)
+f(29,4559,23,2,'scala/collection/immutable/SetIterator.<init>',23,0,0)
+f(30,4559,23,2,'scala/collection/immutable/ChampBaseIterator.<init>',23,0,0)
+f(31,4562,1,2,'scala/collection/immutable/BitmapIndexedSetNode.hasPayload',1,0,0)
+f(31,4563,1,2,'scala/collection/immutable/ChampBaseIterator.<init>',1,0,0)
+f(31,4564,10,2,'scala/collection/immutable/ChampBaseIterator.pushNode',10,0,0)
+f(32,4564,3,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeArity',3,0,0)
+f(32,4567,7,2,'scala/collection/immutable/ChampBaseIterator.initNodes',7,0,0)
+f(31,4574,8,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',8,0,0)
+f(32,4576,6,2,'scala/collection/immutable/ChampBaseIterator.currentValueNode_$eq',6,0,0)
+f(28,4582,2,2,'scala/collection/immutable/HashSet.knownSize',2,0,0)
+f(29,4583,1,2,'scala/collection/immutable/BitmapIndexedSetNode.size',1,0,0)
+f(28,4584,19,2,'scala/collection/immutable/SetIterator.next',19,0,0)
+f(29,4590,13,2,'scala/collection/immutable/ChampBaseIterator.hasNext',13,0,0)
+f(30,4590,13,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',13,0,0)
+f(31,4600,3,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',3,0,0)
+f(32,4602,1,2,'scala/collection/immutable/BitmapIndexedSetNode.payloadArity',1,0,0)
+f(20,4603,1442,1,'scala/collection/IterableOps$WithFilter.map',88,0,0)
+f(21,4605,16,2,'scala/collection/IterableOps$WithFilter.filtered',16,0,0)
+f(21,4621,7,2,'scala/collection/View$Map.<init>',7,0,0)
+f(21,4628,1417,1,'scala/collection/immutable/HashSet$.from',63,0,0)
+f(22,4629,1416,1,'scala/collection/immutable/HashSet$.from',62,0,0)
+f(23,4634,46,2,'scala/collection/View$Map.knownSize',46,0,0)
+f(24,4668,12,2,'scala/collection/View$Filter.knownSize',12,0,0)
+f(25,4677,3,2,'scala/collection/immutable/HashSet.knownSize',3,0,0)
+f(23,4680,8,2,'scala/collection/immutable/HashSetBuilder.<init>',8,0,0)
+f(24,4687,1,2,'scala/collection/immutable/HashSetBuilder.newEmptyRootNode',1,0,0)
+f(23,4688,1354,1,'scala/collection/immutable/HashSetBuilder.addAll')
+f(24,4703,527,1,'scala/collection/Iterator$$anon$9.hasNext')
+f(25,4715,515,2,'scala/collection/Iterator$$anon$6.hasNext',507,0,0)
+f(26,4748,356,2,'scala/collection/immutable/ChampBaseIterator.hasNext',348,0,0)
+f(27,4798,306,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',298,0,0)
+f(28,4874,29,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',29,0,0)
+f(29,4874,29,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',29,0,0)
+f(30,4899,4,2,'scala/collection/immutable/BitmapIndexedSetNode.content',4,0,0)
+f(28,4903,38,2,'scala/collection/immutable/BitmapIndexedSetNode.hasNodes',38,0,0)
+f(29,4919,22,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',22,0,0)
+f(28,4941,8,1,'scala/collection/immutable/ChampBaseIterator.pushNode')
+f(29,4948,1,2,'scala/collection/immutable/ChampBaseIterator.initNodes',1,0,0)
+f(28,4949,155,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',155,0,0)
+f(29,5037,6,2,'scala/collection/immutable/BitmapIndexedSetNode.payloadArity',6,0,0)
+f(30,5042,1,2,'scala/collection/immutable/BitmapIndexedSetNode.dataMap',1,0,0)
+f(29,5043,1,2,'scala/collection/immutable/ChampBaseIterator.currentValueCursor_$eq',1,0,0)
+f(29,5044,4,2,'scala/collection/immutable/ChampBaseIterator.currentValueLength_$eq',4,0,0)
+f(29,5048,56,2,'scala/collection/immutable/ChampBaseIterator.currentValueNode_$eq',56,0,0)
+f(26,5104,125,2,'scala/collection/immutable/SetIterator.next',125,0,0)
+f(27,5111,7,2,'scala/collection/immutable/BitmapIndexedSetNode.getPayload',7,0,0)
+f(27,5118,111,2,'scala/collection/immutable/ChampBaseIterator.hasNext',111,0,0)
+f(28,5131,98,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',98,0,0)
+f(29,5191,10,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',10,0,0)
+f(30,5191,10,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',10,0,0)
+f(31,5198,3,2,'scala/collection/immutable/BitmapIndexedSetNode.content',3,0,0)
+f(29,5201,4,2,'scala/collection/immutable/BitmapIndexedSetNode.hasPayload',4,0,0)
+f(30,5201,4,2,'scala/collection/immutable/BitmapIndexedSetNode.dataMap',4,0,0)
+f(29,5205,24,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',24,0,0)
+f(30,5206,1,2,'scala/collection/immutable/BitmapIndexedSetNode.payloadArity',1,0,0)
+f(30,5207,2,2,'scala/collection/immutable/ChampBaseIterator.currentValueCursor_$eq',2,0,0)
+f(30,5209,20,2,'scala/collection/immutable/ChampBaseIterator.currentValueNode_$eq',20,0,0)
+f(26,5229,1,2,'scala/runtime/BoxesRunTime.unboxToBoolean',1,0,0)
+f(24,5230,99,1,'scala/collection/Iterator$$anon$9.next')
+f(25,5246,83,2,'scala/collection/Iterator$$anon$6.next',83,0,0)
+f(26,5246,83,2,'scala/collection/Iterator$$anon$6.hasNext',83,0,0)
+f(27,5264,41,2,'scala/collection/immutable/ChampBaseIterator.hasNext',41,0,0)
+f(28,5264,41,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',41,0,0)
+f(29,5285,6,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',6,0,0)
+f(30,5290,1,2,'scala/collection/immutable/BitmapIndexedSetNode.getNode',1,0,0)
+f(29,5291,4,2,'scala/collection/immutable/BitmapIndexedSetNode.hasNodes',4,0,0)
+f(30,5291,4,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',4,0,0)
+f(29,5295,10,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',10,0,0)
+f(30,5295,2,2,'scala/collection/immutable/BitmapIndexedSetNode.payloadArity',2,0,0)
+f(30,5297,8,2,'scala/collection/immutable/ChampBaseIterator.currentValueNode_$eq',8,0,0)
+f(27,5305,24,2,'scala/collection/immutable/SetIterator.next',24,0,0)
+f(28,5319,10,2,'scala/collection/immutable/ChampBaseIterator.hasNext',10,0,0)
+f(29,5324,5,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',5,0,0)
+f(24,5329,13,2,'scala/collection/View$Map.iterator',13,0,0)
+f(25,5329,13,2,'scala/collection/View$Filter.iterator',13,0,0)
+f(26,5329,12,2,'scala/collection/immutable/HashSet.iterator',12,0,0)
+f(27,5329,2,2,'scala/collection/immutable/HashSet.isEmpty',2,0,0)
+f(28,5329,1,2,'scala/collection/immutable/BitmapIndexedSetNode.size',1,0,0)
+f(28,5330,1,2,'scala/collection/immutable/HashSet.rootNode',1,0,0)
+f(27,5331,10,2,'scala/collection/immutable/SetIterator.<init>',10,0,0)
+f(28,5331,10,2,'scala/collection/immutable/ChampBaseIterator.<init>',10,0,0)
+f(29,5331,1,2,'scala/collection/immutable/BitmapIndexedSetNode.hasPayload',1,0,0)
+f(30,5331,1,2,'scala/collection/immutable/BitmapIndexedSetNode.dataMap',1,0,0)
+f(29,5332,9,2,'scala/collection/immutable/ChampBaseIterator.pushNode',9,0,0)
+f(30,5335,6,2,'scala/collection/immutable/ChampBaseIterator.initNodes',6,0,0)
+f(26,5341,1,2,'scala/collection/immutable/SetIterator.filterImpl',1,0,0)
+f(27,5341,1,2,'scala/collection/Iterator.filterImpl$',1,0,0)
+f(28,5341,1,2,'scala/collection/Iterator.filterImpl',1,0,0)
+f(24,5342,693,1,'scala/collection/immutable/HashSetBuilder.addOne',37,0,0)
+f(25,5347,12,2,'scala/collection/Hashing$.improve',12,0,0)
+f(25,5359,3,2,'scala/collection/immutable/HashSetBuilder.ensureUnaliased',3,0,0)
+f(26,5359,3,2,'scala/collection/immutable/HashSetBuilder.isAliased',3,0,0)
+f(27,5359,3,2,'scala/collection/immutable/HashSetBuilder.aliased',3,0,0)
+f(25,5362,5,2,'scala/collection/immutable/HashSetBuilder.scala$collection$immutable$HashSetBuilder$$rootNode',5,0,0)
+f(25,5367,575,1,'scala/collection/immutable/HashSetBuilder.update')
+f(26,5448,23,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(26,5471,162,2,'scala/collection/immutable/BitmapIndexedSetNode.mergeTwoKeyValPairs',159,0,0)
+f(27,5553,2,3,'jint_conjoint_arraycopy_avx3')
+f(27,5555,13,3,'jint_disjoint_arraycopy_avx3')
+f(27,5568,62,2,'scala/collection/immutable/BitmapIndexedSetNode.<init>',62,0,0)
+f(28,5626,4,2,'scala/collection/immutable/SetNode.<init>',4,0,0)
+f(29,5627,3,2,'scala/collection/immutable/Node.<init>',3,0,0)
+f(30,5627,3,2,'java/lang/Object.<init>',3,0,0)
+f(27,5630,3,1,'scala/collection/immutable/BitmapIndexedSetNode.mergeTwoKeyValPairs')
+f(26,5633,300,2,'scala/collection/immutable/BitmapIndexedSetNode.migrateFromInlineToNodeInPlace',296,0,0)
+f(27,5743,4,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(27,5747,5,3,'jint_conjoint_arraycopy_avx3')
+f(27,5752,114,3,'jint_disjoint_arraycopy_avx3')
+f(27,5866,2,3,'jlong_disjoint_arraycopy_avx3')
+f(27,5868,5,2,'scala/collection/immutable/BitmapIndexedSetNode.cachedJavaKeySetHashCode',5,0,0)
+f(27,5873,1,2,'scala/collection/immutable/BitmapIndexedSetNode.cachedJavaKeySetHashCode_$eq',1,0,0)
+f(27,5874,6,2,'scala/collection/immutable/BitmapIndexedSetNode.dataIndex',6,0,0)
+f(27,5880,2,2,'scala/collection/immutable/BitmapIndexedSetNode.dataMap_$eq',2,0,0)
+f(27,5882,37,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',37,0,0)
+f(27,5919,4,1,'scala/collection/immutable/BitmapIndexedSetNode.originalHashes_$eq')
+f(28,5919,4,4,'OptoRuntime::new_array_nozero_C(Klass*, int, JavaThread*)')
+f(29,5919,4,4,'TypeArrayKlass::allocate_common(int, bool, JavaThread*)')
+f(30,5919,4,4,'MemAllocator::allocate() const')
+f(31,5919,1,4,'AllocTracer::send_allocation_in_new_tlab(Klass*, HeapWordImpl**, unsigned long, unsigned long, JavaThread*)')
+f(32,5919,1,4,'ObjectSampler::is_created()')
+f(31,5920,3,4,'MemAllocator::allocate_inside_tlab_slow(MemAllocator::Allocation&) const')
+f(32,5920,1,4,'G1CollectedHeap::allocate_new_tlab(unsigned long, unsigned long, unsigned long*)')
+f(33,5920,1,4,'G1CollectedHeap::attempt_allocation_slow(unsigned long)')
+f(34,5920,1,4,'G1Policy::preventive_collection_required(unsigned int)')
+f(32,5921,2,3,'__memset_evex_unaligned_erms')
+f(27,5923,6,2,'scala/collection/immutable/BitmapIndexedSetNode.size',6,0,0)
+f(27,5929,2,2,'scala/collection/immutable/BitmapIndexedSetNode.size_$eq',2,0,0)
+f(27,5931,2,2,'scala/collection/immutable/Node.removeElement',2,0,0)
+f(26,5933,9,1,'scala/collection/immutable/HashSetBuilder.update')
+f(27,5934,4,2,'scala/collection/immutable/BitmapIndexedSetNode.mergeTwoKeyValPairs',4,0,0)
+f(28,5937,1,2,'scala/collection/immutable/BitmapIndexedSetNode.<init>',1,0,0)
+f(27,5938,4,2,'scala/collection/immutable/BitmapIndexedSetNode.migrateFromInlineToNodeInPlace',4,0,0)
+f(28,5941,1,2,'scala/collection/immutable/BitmapIndexedSetNode.dataIndex',1,0,0)
+f(25,5942,93,1,'scala/runtime/Statics.anyHash',12,0,0)
+f(26,5954,81,1,'com/kensai/aoc/aoc2022/Day15$RangeDay15.hashCode')
+f(27,5965,3,2,'java/lang/String.hashCode',3,0,0)
+f(27,5968,32,2,'scala/runtime/Statics.finalizeHash',32,0,0)
+f(28,5968,32,2,'scala/runtime/Statics.avalanche',32,0,0)
+f(27,6000,35,2,'scala/runtime/Statics.mix',35,0,0)
+f(28,6007,28,2,'java/lang/Integer.rotateLeft',28,0,0)
+f(24,6035,7,2,'scala/collection/immutable/HashSetBuilder.ensureUnaliased',7,0,0)
+f(25,6035,7,2,'scala/collection/immutable/HashSetBuilder.aliased_$eq',7,0,0)
+f(23,6042,3,2,'scala/collection/immutable/HashSetBuilder.result',3,0,0)
+f(24,6042,3,2,'scala/collection/immutable/HashSetBuilder.result',3,0,0)
+f(25,6042,1,2,'scala/collection/immutable/HashSet.<init>',1,0,0)
+f(26,6042,1,2,'scala/runtime/Statics.releaseFence',1,0,0)
+f(27,6042,1,2,'java/lang/invoke/LambdaForm$MH.0x0000000800c9c000.invoke_MT',1,0,0)
+f(28,6042,1,2,'java/lang/invoke/LambdaForm$DMH.0x0000000800c9d400.invokeStatic',1,0,0)
+f(25,6043,2,2,'scala/collection/immutable/HashSetBuilder.aliased_$eq',2,0,0)
+f(20,6045,4377,1,'scala/collection/immutable/HashSet.map')
+f(21,6045,4377,1,'scala/collection/StrictOptimizedIterableOps.map$')
+f(22,6045,4377,1,'scala/collection/StrictOptimizedIterableOps.map')
+f(23,6050,1116,2,'com/kensai/aoc/aoc2022/Day15$$$Lambda$49.0x0000000800d14000.apply',1115,0,0)
+f(24,6050,1116,2,'com/kensai/aoc/aoc2022/Day15$.$anonfun$computeRanges$1',1115,0,0)
+f(25,6050,1116,2,'scala/runtime/BoxesRunTime.boxToInteger',1115,0,0)
+f(26,7165,1,4,'OptoRuntime::new_instance_C(Klass*, JavaThread*)')
+f(27,7165,1,4,'InstanceKlass::allocate_instance(JavaThread*)')
+f(28,7165,1,4,'MemAllocator::allocate() const')
+f(29,7165,1,4,'MemAllocator::allocate_inside_tlab_slow(MemAllocator::Allocation&) const')
+f(30,7165,1,4,'G1Allocator::unsafe_max_tlab_alloc()')
+f(23,7166,22,2,'scala/collection/immutable/ChampBaseIterator.hasNext',22,0,0)
+f(24,7179,9,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',9,0,0)
+f(23,7188,27,2,'scala/collection/immutable/HashSet$.newBuilder',27,0,0)
+f(24,7188,27,2,'scala/collection/immutable/HashSet$.newBuilder',27,0,0)
+f(25,7189,26,2,'scala/collection/immutable/HashSetBuilder.<init>',26,0,0)
+f(26,7192,23,2,'scala/collection/immutable/HashSetBuilder.newEmptyRootNode',23,0,0)
+f(23,7215,203,2,'scala/collection/immutable/HashSet.iterator',203,0,0)
+f(24,7239,179,2,'scala/collection/immutable/SetIterator.<init>',179,0,0)
+f(25,7239,179,2,'scala/collection/immutable/ChampBaseIterator.<init>',179,0,0)
+f(26,7297,22,2,'scala/collection/immutable/BitmapIndexedSetNode.hasNodes',22,0,0)
+f(27,7297,22,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',22,0,0)
+f(26,7319,5,2,'scala/collection/immutable/ChampBaseIterator.<init>',5,0,0)
+f(26,7324,83,2,'scala/collection/immutable/ChampBaseIterator.pushNode',83,0,0)
+f(27,7340,4,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeArity',4,0,0)
+f(27,7344,63,2,'scala/collection/immutable/ChampBaseIterator.initNodes',63,0,0)
+f(26,7407,11,2,'scala/collection/immutable/ChampBaseIterator.setupPayloadNode',11,0,0)
+f(27,7407,11,2,'scala/collection/immutable/ChampBaseIterator.currentValueNode_$eq',11,0,0)
+f(23,7418,2981,1,'scala/collection/immutable/HashSetBuilder.addOne',8,0,0)
+f(24,7418,2981,1,'scala/collection/immutable/HashSetBuilder.addOne',8,0,0)
+f(25,7425,2235,1,'scala/collection/immutable/HashSetBuilder.update')
+f(26,7709,5,4,'G1BarrierSet::invalidate(MemRegion)')
+f(26,7714,72,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(26,7786,12,2,'scala/collection/immutable/BitmapIndexedSetNode.content',12,0,0)
+f(26,7798,665,2,'scala/collection/immutable/BitmapIndexedSetNode.mergeTwoKeyValPairs',661,0,0)
+f(27,8102,11,3,'jint_conjoint_arraycopy_avx3')
+f(27,8113,67,3,'jint_disjoint_arraycopy_avx3')
+f(27,8180,280,2,'scala/collection/immutable/BitmapIndexedSetNode.<init>',279,0,0)
+f(28,8425,35,2,'scala/collection/immutable/SetNode.<init>',34,0,0)
+f(29,8431,29,2,'scala/collection/immutable/Node.<init>',28,0,0)
+f(30,8446,14,2,'java/lang/Object.<init>',13,0,0)
+f(31,8459,1,4,'OptoRuntime::new_array_C(Klass*, int, JavaThread*)')
+f(32,8459,1,4,'InstanceKlass::allocate_objArray(int, int, JavaThread*)')
+f(33,8459,1,4,'MemAllocator::allocate() const')
+f(34,8459,1,4,'MemAllocator::allocate_inside_tlab_slow(MemAllocator::Allocation&) const')
+f(35,8459,1,3,'__memset_evex_unaligned_erms')
+f(27,8460,3,1,'scala/collection/immutable/BitmapIndexedSetNode.mergeTwoKeyValPairs')
+f(28,8461,2,2,'scala/collection/immutable/BitmapIndexedSetNode.<init>',2,0,0)
+f(26,8463,1043,2,'scala/collection/immutable/BitmapIndexedSetNode.migrateFromInlineToNodeInPlace',1040,0,0)
+f(27,8847,1,4,'G1BarrierSet::invalidate(MemRegion)')
+f(27,8848,40,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(27,8888,1,4,'OptoRuntime::new_array_nozero_C(Klass*, int, JavaThread*)')
+f(28,8888,1,4,'OptoRuntime::is_deoptimized_caller_frame(JavaThread*)')
+f(29,8888,1,4,'JavaThread::pd_last_frame()')
+f(30,8888,1,4,'CodeCache::find_blob(void*)')
+f(27,8889,13,3,'jint_conjoint_arraycopy_avx3')
+f(27,8902,403,3,'jint_disjoint_arraycopy_avx3')
+f(27,9305,5,3,'jlong_disjoint_arraycopy_avx3')
+f(27,9310,39,2,'scala/collection/immutable/BitmapIndexedSetNode.cachedJavaKeySetHashCode',39,0,0)
+f(27,9349,1,2,'scala/collection/immutable/BitmapIndexedSetNode.cachedJavaKeySetHashCode_$eq',1,0,0)
+f(27,9350,10,2,'scala/collection/immutable/BitmapIndexedSetNode.dataIndex',10,0,0)
+f(27,9360,3,2,'scala/collection/immutable/BitmapIndexedSetNode.dataMap_$eq',3,0,0)
+f(27,9363,101,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',101,0,0)
+f(27,9464,3,2,'scala/collection/immutable/BitmapIndexedSetNode.originalHashes_$eq',1,0,0)
+f(28,9465,1,4,'OptoRuntime::new_array_nozero_C(Klass*, int, JavaThread*)')
+f(29,9465,1,4,'TypeArrayKlass::allocate_common(int, bool, JavaThread*)')
+f(30,9465,1,4,'MemAllocator::allocate() const')
+f(28,9466,1,3,'__pthread_mutex_trylock@GLIBC_2.2.5')
+f(27,9467,15,2,'scala/collection/immutable/BitmapIndexedSetNode.size',15,0,0)
+f(27,9482,3,2,'scala/collection/immutable/BitmapIndexedSetNode.size_$eq',3,0,0)
+f(27,9485,21,2,'scala/collection/immutable/Node.removeElement',21,0,0)
+f(26,9506,1,2,'scala/collection/immutable/BitmapIndexedSetNode.originalHashes',1,0,0)
+f(26,9507,153,1,'scala/collection/immutable/HashSetBuilder.update')
+f(27,9534,1,4,'G1BarrierSet::invalidate(MemRegion)')
+f(27,9535,2,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(27,9537,36,2,'scala/collection/immutable/BitmapIndexedSetNode.mergeTwoKeyValPairs',36,0,0)
+f(28,9548,2,3,'jint_conjoint_arraycopy_avx3')
+f(28,9550,6,3,'jint_disjoint_arraycopy_avx3')
+f(28,9556,17,2,'scala/collection/immutable/BitmapIndexedSetNode.<init>',17,0,0)
+f(29,9572,1,2,'scala/collection/immutable/SetNode.<init>',1,0,0)
+f(27,9573,87,2,'scala/collection/immutable/BitmapIndexedSetNode.migrateFromInlineToNodeInPlace',87,0,0)
+f(28,9606,1,3,'jint_conjoint_arraycopy_avx3')
+f(28,9607,28,3,'jint_disjoint_arraycopy_avx3')
+f(28,9635,1,2,'scala/collection/immutable/BitmapIndexedSetNode.cachedJavaKeySetHashCode',1,0,0)
+f(28,9636,4,2,'scala/collection/immutable/BitmapIndexedSetNode.dataIndex',4,0,0)
+f(28,9640,20,2,'scala/collection/immutable/BitmapIndexedSetNode.nodeMap',20,0,0)
+f(25,9660,739,1,'scala/runtime/Statics.anyHash',1,0,0)
+f(26,9660,739,1,'scala/Tuple3.hashCode',1,0,0)
+f(27,9660,739,1,'scala/util/hashing/MurmurHash3$.productHash',1,0,0)
+f(28,9660,739,1,'scala/util/hashing/MurmurHash3.productHash',1,0,0)
+f(29,9660,739,1,'scala/runtime/Statics.anyHash',1,0,0)
+f(30,9661,738,1,'com/kensai/aoc/aoc2022/Day15$Sensor.hashCode')
+f(31,9695,704,2,'scala/runtime/ScalaRunTime$._hashCode',704,0,0)
+f(32,9695,704,2,'scala/util/hashing/MurmurHash3$.productHash',704,0,0)
+f(33,9695,704,2,'scala/util/hashing/MurmurHash3.productHash',704,0,0)
+f(34,9695,9,2,'com/kensai/aoc/aoc2022/Day15$Sensor.productElement',9,0,0)
+f(35,9695,9,2,'com/kensai/aoc/aoc2022/Day15$Sensor.beacon',9,0,0)
+f(34,9704,19,2,'java/lang/String.hashCode',19,0,0)
+f(34,9723,313,2,'scala/runtime/Statics.anyHash',313,0,0)
+f(35,9741,295,2,'com/kensai/aoc/lib/Geo$Point2D.hashCode',295,0,0)
+f(36,9741,17,2,'java/lang/String.hashCode',17,0,0)
+f(36,9758,115,2,'scala/runtime/Statics.finalizeHash',115,0,0)
+f(37,9758,115,2,'scala/runtime/Statics.avalanche',115,0,0)
+f(36,9873,163,2,'scala/runtime/Statics.mix',163,0,0)
+f(37,9906,130,2,'java/lang/Integer.rotateLeft',130,0,0)
+f(34,10036,215,2,'scala/util/hashing/MurmurHash3.mix',215,0,0)
+f(35,10090,161,2,'java/lang/Integer.rotateLeft',161,0,0)
+f(34,10251,148,2,'scala/util/hashing/MurmurHash3.scala$util$hashing$MurmurHash3$$avalanche',148,0,0)
+f(23,10399,23,2,'scala/collection/immutable/SetIterator.next',23,0,0)
+f(24,10399,23,2,'scala/collection/immutable/ChampBaseIterator.hasNext',23,0,0)
+f(25,10399,23,2,'scala/collection/immutable/ChampBaseIterator.searchNextValueNode',23,0,0)
+f(19,10422,561,1,'com/kensai/aoc/aoc2022/Day15$.mergeRanges',80,0,0)
+f(20,10427,2,2,'java/lang/invoke/Invokers$Holder.linkToTargetMethod',2,0,0)
+f(20,10429,510,1,'scala/collection/AbstractSeq.sortBy',29,0,0)
+f(21,10429,510,1,'scala/collection/SeqOps.sortBy$',29,0,0)
+f(22,10429,510,1,'scala/collection/SeqOps.sortBy',29,0,0)
+f(23,10430,495,1,'scala/collection/immutable/List.sorted',14,0,0)
+f(24,10430,495,1,'scala/collection/immutable/StrictOptimizedSeqOps.sorted$',14,0,0)
+f(25,10430,495,1,'scala/collection/immutable/StrictOptimizedSeqOps.sorted',14,0,0)
+f(26,10444,481,1,'scala/collection/immutable/List.scala$collection$immutable$StrictOptimizedSeqOps$$super$sorted')
+f(27,10444,481,1,'scala/collection/SeqOps.sorted$')
+f(28,10444,4,1,'java/util/TimSort.binarySort')
+f(28,10448,477,1,'scala/collection/SeqOps.sorted')
+f(29,10463,428,1,'java/util/Arrays.sort',88,0,0)
+f(30,10463,428,1,'java/util/TimSort.sort',88,0,0)
+f(31,10463,340,1,'java/util/TimSort.binarySort')
+f(32,10545,2,4,'G1BarrierSet::invalidate(MemRegion)')
+f(32,10547,6,4,'G1BarrierSetRuntime::write_ref_array_post_entry(HeapWordImpl**, unsigned long)')
+f(32,10553,40,3,'jint_conjoint_arraycopy_avx3')
+f(32,10593,210,2,'scala/math/Ordering$$anon$1.compare',210,0,0)
+f(33,10593,210,2,'com/kensai/aoc/aoc2022/Day15$$$Lambda$52.0x0000000800d177f8.apply',210,0,0)
+f(34,10606,197,2,'com/kensai/aoc/aoc2022/Day15$.$anonfun$mergeRanges$1$adapted',197,0,0)
+f(35,10606,7,2,'com/kensai/aoc/aoc2022/Day15$.$anonfun$mergeRanges$1',7,0,0)
+f(36,10606,7,2,'com/kensai/aoc/aoc2022/Day15$RangeDay15.minX',7,0,0)
+f(35,10613,190,2,'scala/runtime/BoxesRunTime.boxToInteger',190,0,0)
+f(36,10787,16,2,'java/lang/Integer.valueOf',16,0,0)
+f(31,10803,88,2,'java/util/TimSort.countRunAndMakeAscending',88,0,0)
+f(32,10803,88,2,'scala/math/Ordering$$anon$1.compare',88,0,0)
+f(33,10804,87,2,'com/kensai/aoc/aoc2022/Day15$$$Lambda$52.0x0000000800d177f8.apply',87,0,0)
+f(34,10804,87,2,'com/kensai/aoc/aoc2022/Day15$.$anonfun$mergeRanges$1$adapted',87,0,0)
+f(35,10804,87,2,'scala/runtime/BoxesRunTime.boxToInteger',87,0,0)
+f(29,10891,21,2,'scala/collection/AbstractIterable.copyToArray',21,0,0)
+f(30,10891,21,2,'scala/collection/IterableOnceOps.copyToArray$',21,0,0)
+f(31,10892,20,2,'scala/collection/IterableOnceOps.copyToArray',20,0,0)
+f(32,10893,19,2,'scala/collection/AbstractIterable.copyToArray',19,0,0)
+f(33,10893,19,2,'scala/collection/IterableOnceOps.copyToArray$',19,0,0)
+f(34,10896,16,2,'scala/collection/IterableOnceOps.copyToArray',16,0,0)
+f(35,10898,5,2,'scala/collection/StrictOptimizedLinearSeqOps$$anon$1.next',5,0,0)
+f(35,10903,6,2,'scala/collection/immutable/List.iterator',6,0,0)
+f(36,10905,4,2,'scala/collection/StrictOptimizedLinearSeqOps.iterator$',4,0,0)
+f(37,10906,3,2,'scala/collection/StrictOptimizedLinearSeqOps.iterator',3,0,0)
+f(38,10906,3,2,'scala/collection/StrictOptimizedLinearSeqOps$$anon$1.<init>',3,0,0)
+f(39,10907,2,2,'scala/collection/AbstractIterator.<init>',2,0,0)
+f(40,10907,2,2,'java/lang/Object.<init>',2,0,0)
+f(35,10909,3,2,'scala/runtime/ScalaRunTime$.array_update',3,0,0)
+f(29,10912,10,2,'scala/collection/AbstractIterable.newSpecificBuilder',10,0,0)
+f(30,10912,10,2,'scala/collection/IterableFactoryDefaults.newSpecificBuilder$',10,0,0)
+f(31,10912,10,2,'scala/collection/IterableFactoryDefaults.newSpecificBuilder',10,0,0)
+f(29,10922,3,2,'scala/collection/immutable/List.length',3,0,0)
+f(23,10925,14,2,'scala/math/Ordering$Int$.on',14,0,0)
+f(24,10925,14,2,'scala/math/Ordering.on$',14,0,0)
+f(25,10925,14,2,'scala/math/Ordering.on',14,0,0)
+f(20,10939,44,2,'scala/collection/immutable/List.foldLeft',44,0,0)
+f(21,10939,44,2,'scala/collection/LinearSeqOps.foldLeft$',44,0,0)
+f(22,10939,44,2,'scala/collection/LinearSeqOps.foldLeft',44,0,0)
+f(23,10949,7,2,'com/kensai/aoc/aoc2022/Day15$$$Lambda$53.0x0000000800d113b0.apply',7,0,0)
+f(24,10949,7,2,'com/kensai/aoc/aoc2022/Day15$.$anonfun$mergeRanges$2',7,0,0)
+f(25,10953,2,2,'com/kensai/aoc/aoc2022/Day15$RangeDay15.maxX',2,0,0)
+f(25,10955,1,2,'scala/collection/immutable/List.$colon$colon',1,0,0)
+f(23,10956,27,2,'scala/collection/AbstractIterable.coll',27,0,0)
+f(24,10961,22,2,'scala/collection/AbstractIterable.coll',22,0,0)
+f(25,10961,22,2,'scala/collection/Iterable.coll$',22,0,0)
+f(26,10965,18,2,'scala/collection/Iterable.coll',18,0,0)
+f(18,10983,9,2,'scala/collection/immutable/Range.tail',9,0,0)
+f(19,10983,9,2,'scala/collection/immutable/Range.tail',9,0,0)
+f(20,10984,8,2,'scala/collection/immutable/Range$Inclusive.<init>',8,0,0)
+f(21,10984,8,2,'scala/collection/immutable/Range.<init>',8,0,0)
+f(22,10985,7,2,'scala/collection/immutable/Range.longLength',7,0,0)
+f(1,10992,1,1,'org/openjdk/jmh/runner/ForkedMain.main')
+f(2,10992,1,1,'org/openjdk/jmh/runner/ForkedRunner.run')
+f(3,10992,1,1,'org/openjdk/jmh/runner/BaseRunner.runBenchmarksForked')
+f(4,10992,1,1,'org/openjdk/jmh/runner/BaseRunner.doSingle')
+f(5,10992,1,1,'org/openjdk/jmh/runner/BaseRunner.runBenchmark')
+f(6,10992,1,1,'org/openjdk/jmh/runner/BaseRunner.runBenchmark')
+f(7,10992,1,1,'org/openjdk/jmh/runner/BenchmarkHandler.runIteration')
+f(8,10992,1,1,'org/openjdk/jmh/runner/InfraControl.awaitWarmdownReady')
+f(9,10992,1,1,'org/openjdk/jmh/runner/InfraControlL2.awaitWarmdownReady')
+f(10,10992,1,1,'java/util/concurrent/CountDownLatch.await')
+f(11,10992,1,1,'java/util/concurrent/locks/AbstractQueuedSynchronizer.acquireSharedInterruptibly')
+f(12,10992,1,0,'java/util/concurrent/locks/AbstractQueuedSynchronizer.acquire',0,0,1)
+f(13,10992,1,4,'InterpreterRuntime::_new(JavaThread*, ConstantPool*, int)')
+f(14,10992,1,4,'InstanceKlass::allocate_instance(JavaThread*)')
+f(15,10992,1,4,'MemAllocator::allocate() const')
+f(16,10992,1,4,'MemAllocator::allocate_inside_tlab_slow(MemAllocator::Allocation&) const')
+f(17,10992,1,3,'__memset_evex_unaligned_erms')
+f(1,10993,136,3,'start_thread')
+f(2,10993,136,3,'thread_native_entry(Thread*)')
+f(3,10993,136,4,'Thread::call_run()')
+f(4,10993,2,4,'ConcurrentGCThread::run()')
+f(5,10993,2,4,'G1ServiceThread::run_service()')
+f(6,10993,1,4,'G1ServiceThread::run_task(G1ServiceTask*)')
+f(7,10993,1,4,'G1RemSetSamplingTask::execute()')
+f(8,10993,1,4,'G1CollectionSet::iterate(HeapRegionClosure*) const')
+f(9,10993,1,4,'OtherRegionsTable::occupied() const')
+f(6,10994,1,4,'G1ServiceThread::sleep_before_next_cycle() [clone .part.0]')
+f(7,10994,1,4,'Monitor::wait_without_safepoint_check(long)')
+f(8,10994,1,3,'pthread_cond_timedwait@@GLIBC_2.3.2')
+f(4,10995,119,4,'GangWorker::run()')
+f(5,10995,1,4,'G1BatchedGangTask::work(unsigned int)')
+f(5,10996,118,4,'GangWorker::loop()')
+f(6,10996,37,4,'G1BatchedGangTask::work(unsigned int)')
+f(7,10996,1,4,'G1GCParPhaseTimesTracker::G1GCParPhaseTimesTracker(G1GCPhaseTimes*, G1GCPhaseTimes::GCParPhases, unsigned int, bool)')
+f(8,10996,1,4,'CompositeElapsedCounterSource::now()')
+f(9,10996,1,4,'os::elapsed_counter()')
+f(10,10996,1,3,'__GI___clock_gettime')
+f(11,10996,1,3,'[vdso]')
+f(7,10997,1,4,'G1GCParPhaseTimesTracker::~G1GCParPhaseTimesTracker()')
+f(8,10997,1,4,'Rdtsc::elapsed_counter()')
+f(7,10998,33,4,'G1PostEvacuateCollectionSetCleanupTask2::FreeCollectionSetTask::do_work(unsigned int)')
+f(8,10998,33,4,'G1CollectionSet::par_iterate(HeapRegionClosure*, HeapRegionClaimer*, unsigned int, unsigned int) const')
+f(9,10998,6,4,'G1CollectionSet::iterate_part_from(HeapRegionClosure*, HeapRegionClaimer*, unsigned long, unsigned long, unsigned int, unsigned int) const [clone .part.0]')
+f(10,10999,2,4,'FreeCSetClosure::do_heap_region(HeapRegion*)')
+f(11,10999,2,4,'G1CollectedHeap::free_region(HeapRegion*, FreeRegionList*)')
+f(12,10999,1,4,'G1BlockOffsetTablePart::zero_bottom_entry_raw()')
+f(12,11000,1,4,'HeapRegion::hr_clear(bool)')
+f(10,11001,1,4,'OtherRegionsTable::occupied() const')
+f(10,11002,2,4,'TruncatedSeq::add(double)')
+f(9,11004,27,4,'HeapRegionClaimer::claim_region(unsigned int)')
+f(7,11031,2,4,'G1RemSetScanState::G1ClearCardTableTask::do_work(unsigned int)')
+f(8,11031,2,3,'__memset_evex_unaligned_erms')
+f(6,11033,37,4,'G1EvacuateRegionsBaseTask::work(unsigned int)')
+f(7,11034,18,4,'G1EvacuateRegionsTask::evacuate_live_objects(G1ParScanThreadState*, unsigned int)')
+f(8,11034,1,4,'CompositeElapsedCounterSource::now()')
+f(9,11034,1,4,'os::elapsed_counter()')
+f(10,11034,1,3,'__GI___clock_gettime')
+f(11,11034,1,3,'[vdso]')
+f(8,11035,16,4,'G1ParEvacuateFollowersClosure::do_void()')
+f(9,11035,13,4,'G1ParScanThreadState::steal_and_trim_queue(GenericTaskQueueSet<OverflowTaskQueue<ScannerTask, (MEMFLAGS)5, 131072u>, (MEMFLAGS)5>*)')
+f(10,11040,1,4,'G1PLABAllocator::allocate_direct_or_new_plab(G1HeapRegionAttr, unsigned long, bool*, unsigned int)')
+f(10,11041,1,4,'G1ParScanThreadState::allocate_copy_slow(G1HeapRegionAttr*, oopDesc*, unsigned long, unsigned int, unsigned int)')
+f(11,11041,1,4,'G1PLABAllocator::allocate_direct_or_new_plab(G1HeapRegionAttr, unsigned long, bool*, unsigned int)')
+f(12,11041,1,4,'G1Allocator::survivor_attempt_allocation(unsigned long, unsigned long, unsigned long*, unsigned int)')
+f(10,11042,6,4,'G1ParScanThreadState::trim_queue_to_threshold(unsigned int)')
+f(9,11048,2,4,'TaskTerminator::offer_termination(TerminatorTerminator*)')
+f(9,11050,1,3,'__pthread_mutex_unlock@GLIBC_2.2.5')
+f(8,11051,1,4,'GCId::current()')
+f(7,11052,9,4,'G1EvacuateRegionsTask::scan_roots(G1ParScanThreadState*, unsigned int)')
+f(8,11052,2,4,'G1RemSet::scan_heap_roots(G1ParScanThreadState*, unsigned int, G1GCPhaseTimes::GCParPhases, G1GCPhaseTimes::GCParPhases, bool)')
+f(9,11052,1,4,'G1EvacPhaseWithTrimTimeTracker::~G1EvacPhaseWithTrimTimeTracker()')
+f(10,11052,1,4,'CompositeElapsedCounterSource::now()')
+f(11,11052,1,4,'os::elapsed_counter()')
+f(12,11052,1,3,'__GI___clock_gettime')
+f(13,11052,1,3,'[vdso]')
+f(9,11053,1,4,'G1GCPhaseTimes::record_or_add_time_secs(G1GCPhaseTimes::GCParPhases, unsigned int, double)')
+f(8,11054,7,4,'G1RootProcessor::evacuate_roots(G1ParScanThreadState*, unsigned int)')
+f(9,11054,1,4,'G1Policy::phase_times() const')
+f(9,11055,6,4,'G1RootProcessor::process_java_roots(G1RootClosures*, G1GCPhaseTimes*, unsigned int)')
+f(10,11055,1,4,'G1GCParPhaseTimesTracker::G1GCParPhaseTimesTracker(G1GCPhaseTimes*, G1GCPhaseTimes::GCParPhases, unsigned int, bool)')
+f(11,11055,1,4,'CompositeElapsedCounterSource::now()')
+f(12,11055,1,4,'os::elapsed_counter()')
+f(13,11055,1,3,'[vdso]')
+f(10,11056,1,4,'G1GCParPhaseTimesTracker::~G1GCParPhaseTimesTracker()')
+f(10,11057,4,4,'Threads::possibly_parallel_oops_do(bool, OopClosure*, CodeBlobClosure*)')
+f(11,11058,3,4,'JavaThread::oops_do_frames(OopClosure*, CodeBlobClosure*) [clone .part.0]')
+f(12,11058,2,4,'G1CodeBlobClosure::do_code_blob(CodeBlob*)')
+f(13,11058,2,4,'nmethod::oops_do_process_weak(nmethod::OopsDoProcessor*)')
+f(14,11058,2,4,'nmethod::fix_oop_relocations(unsigned char*, unsigned char*, bool)')
+f(15,11059,1,4,'metadata_Relocation::fix_metadata_relocation()')
+f(12,11060,1,4,'frame::sender(RegisterMap*) const')
+f(13,11060,1,4,'frame::sender_for_interpreter_frame(RegisterMap*) const')
+f(7,11061,2,4,'G1ParScanThreadStateSet::state_for_worker(unsigned int)')
+f(8,11061,1,4,'G1ParScanThreadState::G1ParScanThreadState(G1CollectedHeap*, G1RedirtyCardsQueueSet*, unsigned int, unsigned int, unsigned long, unsigned long)')
+f(9,11061,1,4,'AllocateHeap(unsigned long, MEMFLAGS, AllocFailStrategy::AllocFailEnum)')
+f(8,11062,1,4,'StringDedup::Requests::Requests()')
+f(7,11063,7,4,'G1RemSet::scan_collection_set_regions(G1ParScanThreadState*, unsigned int, G1GCPhaseTimes::GCParPhases, G1GCPhaseTimes::GCParPhases, G1GCPhaseTimes::GCParPhases)')
+f(8,11063,7,4,'G1CollectionSet::iterate_incremental_part_from(HeapRegionClosure*, HeapRegionClaimer*, unsigned int, unsigned int) const')
+f(9,11063,7,4,'G1CollectionSet::iterate_part_from(HeapRegionClosure*, HeapRegionClaimer*, unsigned long, unsigned long, unsigned int, unsigned int) const [clone .part.0]')
+f(10,11063,7,4,'G1ScanCollectionSetRegionClosure::do_heap_region(HeapRegion*)')
+f(6,11070,17,4,'G1MergeHeapRootsTask::work(unsigned int)')
+f(7,11070,15,4,'G1CollectionSet::iterate_incremental_part_from(HeapRegionClosure*, HeapRegionClaimer*, unsigned int, unsigned int) const')
+f(8,11070,1,4,'G1CollectionSet::iterate_part_from(HeapRegionClosure*, HeapRegionClaimer*, unsigned long, unsigned long, unsigned int, unsigned int) const [clone .part.0]')
+f(8,11071,14,4,'HeapRegionClaimer::claim_region(unsigned int)')
+f(7,11085,2,4,'G1GCParPhaseTimesTracker::~G1GCParPhaseTimesTracker()')
+f(8,11085,2,4,'CompositeElapsedCounterSource::now()')
+f(9,11085,2,4,'os::elapsed_counter()')
+f(10,11085,1,3,'[vdso]')
+f(10,11086,1,3,'__GI___clock_gettime')
+f(11,11086,1,3,'[vdso]')
+f(6,11087,1,4,'G1Policy::phase_times() const')
+f(6,11088,19,4,'G1PrepareEvacuationTask::work(unsigned int)')
+f(7,11088,19,4,'HeapRegionManager::par_iterate(HeapRegionClosure*, HeapRegionClaimer*, unsigned int) const')
+f(8,11106,1,4,'G1PrepareEvacuationTask::G1PrepareRegionsClosure::do_heap_region(HeapRegion*)')
+f(6,11107,1,4,'G1RebuildFreeListTask::work(unsigned int)')
+f(6,11108,1,3,'__tls_get_addr')
+f(6,11109,5,4,'void WeakProcessor::Task::work<G1STWIsAliveClosure, G1KeepAliveClosure>(unsigned int, G1STWIsAliveClosure*, G1KeepAliveClosure*)')
+f(7,11113,1,4,'WeakProcessorParTimeTracker::~WeakProcessorParTimeTracker()')
+f(8,11113,1,4,'CompositeElapsedCounterSource::now()')
+f(9,11113,1,4,'os::elapsed_counter()')
+f(10,11113,1,3,'__GI___clock_gettime')
+f(4,11114,11,4,'JavaThread::thread_main_inner()')
+f(5,11114,11,4,'CompileBroker::compiler_thread_loop()')
+f(6,11114,11,4,'CompileBroker::invoke_compiler_on_method(CompileTask*)')
+f(7,11114,9,4,'C2Compiler::compile_method(ciEnv*, ciMethod*, int, bool, DirectiveSet*)')
+f(8,11114,9,4,'Compile::Compile(ciEnv*, ciMethod*, int, bool, bool, bool, bool, bool, DirectiveSet*)')
+f(9,11114,4,4,'Compile::Code_Gen()')
+f(10,11114,1,4,'Matcher::match()')
+f(11,11114,1,4,'ConNode::Opcode() const')
+f(10,11115,1,4,'PhaseCFG::do_global_code_motion()')
+f(11,11115,1,4,'PhaseCFG::global_code_motion()')
+f(12,11115,1,4,'PhaseCFG::schedule_early(VectorSet&, Node_Stack&)')
+f(10,11116,2,4,'PhaseChaitin::Register_Allocate()')
+f(11,11116,1,4,'PhaseChaitin::build_ifg_physical(ResourceArea*)')
+f(12,11116,1,4,'PhaseChaitin::add_input_to_liveout(Block*, Node*, IndexSet*, double, PhaseChaitin::Pressure&, PhaseChaitin::Pressure&)')
+f(13,11116,1,4,'PhaseChaitin::raise_pressure(Block*, LRG&, PhaseChaitin::Pressure&, PhaseChaitin::Pressure&) [clone .part.0]')
+f(11,11117,1,4,'PhaseIFG::init(unsigned int)')
+f(12,11117,1,4,'IndexSet::initialize(unsigned int)')
+f(9,11118,4,4,'Compile::Optimize()')
+f(10,11118,3,4,'PhaseIdealLoop::optimize(PhaseIterGVN&, LoopOptsMode)')
+f(11,11118,2,4,'PhaseIdealLoop::build_and_optimize()')
+f(12,11118,1,4,'PhaseIdealLoop::build_loop_tree()')
+f(12,11119,1,4,'SuperWord::transform_loop(IdealLoopTree*, bool)')
+f(13,11119,1,4,'SuperWord::SLP_extract()')
+f(14,11119,1,4,'SuperWord::find_adjacent_refs()')
+f(15,11119,1,4,'SuperWord::find_align_to_ref(Node_List&, int&)')
+f(16,11119,1,4,'SWPointer::SWPointer(MemNode*, SuperWord*, Node_Stack*, bool) [clone .constprop.0]')
+f(17,11119,1,4,'SWPointer::scaled_iv_plus_offset(Node*)')
+f(11,11120,1,4,'PhaseIterGVN::optimize()')
+f(12,11120,1,4,'PhaseIterGVN::transform_old(Node*)')
+f(13,11120,1,4,'Type::hashcons()')
+f(14,11120,1,4,'Type::cmp(Type const*, Type const*)')
+f(10,11121,1,4,'PhaseIterGVN::optimize()')
+f(11,11121,1,4,'PhaseIterGVN::transform_old(Node*)')
+f(12,11121,1,4,'PhaseIterGVN::subsume_node(Node*, Node*)')
+f(13,11121,1,4,'PhaseIterGVN::remove_globally_dead_node(Node*)')
+f(9,11122,1,4,'ParseGenerator::generate(JVMState*)')
+f(10,11122,1,4,'Parse::Parse(JVMState*, ciMethod*, float)')
+f(11,11122,1,4,'Parse::do_all_blocks()')
+f(12,11122,1,4,'Parse::do_one_block()')
+f(13,11122,1,4,'Parse::do_call()')
+f(14,11122,1,4,'PredictedCallGenerator::generate(JVMState*)')
+f(15,11122,1,4,'PredictedCallGenerator::generate(JVMState*)')
+f(16,11122,1,4,'ParseGenerator::generate(JVMState*)')
+f(17,11122,1,4,'Parse::Parse(JVMState*, ciMethod*, float)')
+f(18,11122,1,4,'Parse::do_all_blocks()')
+f(19,11122,1,4,'Parse::do_one_block()')
+f(20,11122,1,4,'Parse::do_call()')
+f(21,11122,1,4,'Compile::call_generator(ciMethod*, int, bool, JVMState*, bool, float, ciKlass*, bool)')
+f(22,11122,1,4,'InlineTree::ok_to_inline(ciMethod*, JVMState*, ciCallProfile&, bool&)')
+f(23,11122,1,4,'ciMethod::get_flow_analysis()')
+f(24,11122,1,4,'ciTypeFlow::do_flow()')
+f(25,11122,1,4,'ciTypeFlow::flow_types()')
+f(26,11122,1,4,'ciTypeFlow::df_flow_types(ciTypeFlow::Block*, bool, ciTypeFlow::StateVector*, ciTypeFlow::JsrSet*)')
+f(27,11122,1,4,'ciTypeFlow::flow_block(ciTypeFlow::Block*, ciTypeFlow::StateVector*, ciTypeFlow::JsrSet*)')
+f(28,11122,1,4,'ciTypeFlow::StateVector::apply_one_bytecode(ciBytecodeStream*)')
+f(29,11122,1,4,'ciTypeFlow::StateVector::do_getstatic(ciBytecodeStream*)')
+f(30,11122,1,4,'ciBytecodeStream::get_field(bool&)')
+f(31,11122,1,4,'ciEnv::get_field_by_index(ciInstanceKlass*, int)')
+f(32,11122,1,4,'ciConstantPoolCache::get(int)')
+f(7,11123,1,4,'Compiler::compile_method(ciEnv*, ciMethod*, int, bool, DirectiveSet*)')
+f(8,11123,1,4,'Compilation::Compilation(AbstractCompiler*, ciEnv*, ciMethod*, int, BufferBlob*, bool, DirectiveSet*)')
+f(9,11123,1,4,'Compilation::compile_method()')
+f(10,11123,1,4,'Compilation::install_code(int)')
+f(11,11123,1,4,'ciEnv::register_method(ciMethod*, int, CodeOffsets*, int, CodeBuffer*, int, OopMapSet*, ExceptionHandlerTable*, ImplicitExceptionTable*, AbstractCompiler*, bool, bool, RTMState, GrowableArrayView<RuntimeStub*> const&)')
+f(12,11123,1,4,'nmethod::new_nmethod(methodHandle const&, int, int, CodeOffsets*, int, DebugInformationRecorder*, Dependencies*, CodeBuffer*, int, OopMapSet*, ExceptionHandlerTable*, ImplicitExceptionTable*, AbstractCompiler*, int, GrowableArrayView<RuntimeStub*> const&, char*, int, int, char const*, FailedSpeculation**)')
+f(13,11123,1,4,'CodeBlob::allocation_size(CodeBuffer*, int)')
+f(14,11123,1,4,'CodeBuffer::total_relocation_size() const')
+f(7,11124,1,4,'ciEnv::~ciEnv()')
+f(8,11124,1,4,'ciObjectFactory::remove_symbols()')
+f(4,11125,4,4,'VMThread::run()')
+f(5,11125,4,4,'VMThread::inner_execute(VM_Operation*)')
+f(6,11125,4,4,'VMThread::evaluate_operation(VM_Operation*)')
+f(7,11125,4,4,'VM_Operation::evaluate()')
+f(8,11125,4,4,'VM_G1CollectForAllocation::doit()')
+f(9,11125,3,4,'G1CollectedHeap::do_collection_pause_at_safepoint(double)')
+f(10,11125,3,4,'G1CollectedHeap::do_collection_pause_at_safepoint_helper(double)')
+f(11,11125,1,4,'CollectedHeap::print_heap_before_gc()')
+f(11,11126,1,4,'G1MonitoringScope::G1MonitoringScope(G1MonitoringSupport*, bool, bool)')
+f(12,11126,1,4,'TraceMemoryManagerStats::TraceMemoryManagerStats(GCMemoryManager*, GCCause::Cause, bool, bool, bool, bool, bool, bool, bool, bool)')
+f(13,11126,1,4,'CompressedKlassSpacePool::get_memory_usage()')
+f(11,11127,1,4,'GCHeapLog::log_heap(CollectedHeap*, bool) [clone .part.0]')
+f(12,11127,1,4,'outputStream::print_cr(char const*, ...)')
+f(13,11127,1,4,'outputStream::do_vsnprintf_and_write_with_automatic_buffer(char const*, __va_list_tag*, bool)')
+f(14,11127,1,4,'stringStream::write(char const*, unsigned long)')
+f(9,11128,1,4,'G1CollectedHeap::satisfy_failed_allocation(unsigned long, bool*)')
+f(10,11128,1,4,'G1AllocRegion::new_alloc_region_and_allocate(unsigned long, bool)')
+f(11,11128,1,4,'HeapRegion::set_eden()')
+
+search();
+</script></body></html>

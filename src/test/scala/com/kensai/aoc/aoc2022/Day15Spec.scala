@@ -48,7 +48,7 @@ class Day15Spec extends AnyFlatSpec with GivenWhenThen with Inside {
   "countInvalidPositions(10)" should "return 13 for Sensor((8, 7), (2, 10))" in {
     // GIVEN: input
     Given("Sensor((8, 7), (2, 10))")
-    val input = Set(Sensor(Point2D(8, 7), Point2D(2, 10)))
+    val input = Seq(Sensor(Point2D(8, 7), Point2D(2, 10)))
 
     When("countInvalidPositions(10)")
     val result = countInvalidPositions(input, 10)
