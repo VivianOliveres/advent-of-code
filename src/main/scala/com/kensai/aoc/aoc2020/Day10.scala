@@ -6,8 +6,9 @@ object Day10 {
 
   private def parse(inputs: List[String]): Set[Long] =
     inputs
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .map(_.toLong)
       .toSet
 

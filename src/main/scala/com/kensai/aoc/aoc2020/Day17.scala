@@ -10,8 +10,9 @@ object Day17 {
   def parse3(inputs: String): Set[Coord3] =
     inputs
       .split("\n")
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .zipWithIndex
       .flatMap { case (row, y) =>
         row

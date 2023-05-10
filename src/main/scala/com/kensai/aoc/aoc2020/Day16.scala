@@ -50,21 +50,24 @@ object Day16 {
     val splited = inputs.split("\n\n").toList
     val rules = splited.head
       .split("\n")
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .map(doParseRule)
       .toList
     val yourTicketPart = splited(1)
       .split("\n")
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .tail
       .map(Ticket(_))
       .head
     val nearbyTicketPart = splited(2)
       .split("\n")
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .tail
       .map(Ticket(_))
       .toList

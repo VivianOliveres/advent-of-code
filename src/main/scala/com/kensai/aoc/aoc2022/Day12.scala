@@ -22,8 +22,9 @@ object Day12 {
 
   def parse(lines: Seq[String]): Map[Point2D, Cell] =
     lines
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .zipWithIndex
       .flatMap { case (line, y) =>
         line.zipWithIndex.map { case (c, x) =>

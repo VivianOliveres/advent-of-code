@@ -15,7 +15,9 @@ object Day10 {
   )
 
   private def parseLines(lines: Seq[String]): Seq[Seq[Char]] =
-    lines.map(_.trim).filterNot(_.isEmpty).map(_.toCharArray.toSeq)
+    lines.collect {
+      case str if str.nonEmpty => str.trim
+    }.map(_.toCharArray.toSeq)
 
   def computeCorruptedSyntaxScore(lines: Seq[String]): Int = {
     val inputs = parseLines(lines)

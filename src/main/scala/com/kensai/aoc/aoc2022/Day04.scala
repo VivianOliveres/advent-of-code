@@ -13,7 +13,9 @@ object Day04 {
 
   private val rowRegex = """(\d+)-(\d+),(\d+)-(\d+)""".r
   def parse(lines: Seq[String]): Seq[RangeDay4] =
-    lines.map(_.trim).filterNot(_.isEmpty).map {
+    lines.collect {
+      case str if str.nonEmpty => str.trim
+    }.map {
       case rowRegex(leftMinStr, leftMaxStr, rightMinStr, rightMaxStr) =>
         RangeDay4(leftMinStr.toInt, leftMaxStr.toInt, rightMinStr.toInt, rightMaxStr.toInt)
       case str => throw new IllegalArgumentException(s"Invalid line [$str]")

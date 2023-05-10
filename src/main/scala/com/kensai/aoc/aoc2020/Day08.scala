@@ -13,8 +13,9 @@ object Day08 {
 
   def parseRows(input: List[String]): List[Instruction] =
     input
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .zipWithIndex
       .map(t => parseRow(t._1, t._2))
 

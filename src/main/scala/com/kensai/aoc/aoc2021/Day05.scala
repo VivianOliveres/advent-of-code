@@ -23,7 +23,9 @@ object Day05 {
 
   private val lineRegex = """(\d+),(\d+) -> (\d+),(\d+)""".r
   private def parse(inputs: Seq[String]): Seq[VentLine] =
-    inputs.filterNot(_.isEmpty).map(_.trim).flatMap { input =>
+    inputs.collect {
+      case str if str.nonEmpty => str.trim
+    }.flatMap { input =>
       input match {
         case lineRegex(x1, y1, x2, y2) =>
           Some(VentLine(x1.toInt, y1.toInt, x2.toInt, y2.toInt))

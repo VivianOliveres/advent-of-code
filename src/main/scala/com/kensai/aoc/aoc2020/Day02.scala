@@ -12,8 +12,9 @@ object Day02 {
 
   def parse(inputs: List[String]): List[PasswordRow] =
     inputs
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .flatMap(parse)
 
   /** Parse the {@code input} string into a {@code PasswordRow}.<br> Return {@code None} if the string has an invalid format.

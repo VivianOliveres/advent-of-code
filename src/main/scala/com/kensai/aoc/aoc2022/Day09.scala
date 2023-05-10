@@ -35,7 +35,9 @@ object Day09 {
   private val leftRegex  = """L (\d+)""".r
   private val rightRegex = """R (\d+)""".r
   def parse(lines: Seq[String]): InputDay9 = {
-    val instructions = lines.map(_.trim).filterNot(_.isEmpty).map {
+    val instructions = lines.collect {
+      case str if str.nonEmpty => str.trim
+    }.map {
       case upRegex(countStr)    => MoveInstruction(Up, countStr.toInt)
       case downRegex(countStr)  => MoveInstruction(Down, countStr.toInt)
       case leftRegex(countStr)  => MoveInstruction(Left, countStr.toInt)

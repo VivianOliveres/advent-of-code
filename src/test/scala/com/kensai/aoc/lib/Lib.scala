@@ -23,6 +23,8 @@ object Lib {
 
   def readLongInputLines(path: String): List[Long] =
     using(Source.fromFile(path))(
-      _.getLines().map(_.trim).filterNot(_.isEmpty).map(_.toLong).toList
+      _.getLines().collect {
+        case str if str.nonEmpty => str.trim
+      }.map(_.toLong).toList
     )
 }

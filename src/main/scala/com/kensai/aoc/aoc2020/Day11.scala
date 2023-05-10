@@ -60,8 +60,9 @@ object Day11 {
   def parse(inputs: String): Board = {
     val rawRows = inputs
       .split("\n")
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
     val grid = rawRows.zipWithIndex
       .map(x =>
         x._2 -> x._1.zipWithIndex

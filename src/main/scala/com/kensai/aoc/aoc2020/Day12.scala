@@ -67,8 +67,9 @@ object Day12 {
 
   def parse(inputs: List[String]): List[Command] =
     inputs
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .map {
         case rowRegex(name, value) => (name, value.toInt)
         case something =>

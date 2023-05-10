@@ -31,13 +31,17 @@ object Day13 {
   private val xFoldRegex = """fold along x=(\d+)""".r
   def parse(fileInput: String): Inputs = {
     val splitted = fileInput.split("\n\n")
-    val dots = splitted.head.split("\n").filterNot(_.isEmpty).map(_.trim).map {
+    val dots = splitted.head.split("\n").collect {
+      case str if str.nonEmpty => str.trim
+    }.map {
       case dotRegex(x, y) => PaperDot(x.toInt, y.toInt)
       case _ =>
         throw new IllegalArgumentException(s"Invalid dot in \n${splitted.head}")
     }
 
-    val folds = splitted(1).split("\n").filterNot(_.isEmpty).map(_.trim).map {
+    val folds = splitted(1).split("\n").collect {
+      case str if str.nonEmpty => str.trim
+    }.map {
       case yFoldRegex(y) => YFold(y.toInt)
       case xFoldRegex(x) => XFold(x.toInt)
       case _ =>

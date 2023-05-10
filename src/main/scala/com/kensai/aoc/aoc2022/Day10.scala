@@ -9,7 +9,9 @@ object Day10 {
   private val addXRegex = """addx (-?\d+)""".r
   private val noopRegex = """noop""".r
   def parse(lines: Seq[String]): Seq[Instruction] =
-    lines.map(_.trim).filterNot(_.isEmpty).map {
+    lines.collect {
+      case str if str.nonEmpty => str.trim
+    }.map {
       case noopRegex()    => Noop
       case addXRegex(str) => AddX(str.toInt)
       case str            => throw new IllegalArgumentException(s"Can not parse instruction [$str]")

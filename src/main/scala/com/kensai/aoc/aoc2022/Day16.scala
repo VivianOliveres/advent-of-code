@@ -31,8 +31,9 @@ object Day16 {
   private val lineRegex = """Valve ([A-Z]{2}) has flow rate=(\d+); tunnels? leads? to valves? (.+)""".r
   def parse(lines: Seq[String]): Map[String, Valve] =
     lines
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .map {
         case lineRegex(valveName, flowRateStr, leadsToStr) =>
           val leadsTo = leadsToStr.split(", ").toSeq
@@ -87,14 +88,14 @@ object Day16 {
   }
 
   def findBestReleasePressure(valves: Map[String, Valve]): Int = {
-    val allPathSizes = computeDirectPaths(valves)
+    val allPathSizes      = computeDirectPaths(valves)
     val filteredPathSizes = allPathSizes.view.filterKeys(_._1 != "AA").toMap
 
     val allRemainings = filteredPathSizes.keySet.flatMap(pair => Set(pair._1, pair._2))
     val initSteps     = doStep(valves, allPathSizes, Step(0, 0, 0, Seq("AA"), allRemainings))
 
-    val results      = doSteps(valves, filteredPathSizes, initSteps, Set())
-    val result       = results.maxBy(_.totalFlowSum)
+    val results = doSteps(valves, filteredPathSizes, initSteps, Set())
+    val result  = results.maxBy(_.totalFlowSum)
     result.totalFlowSum
   }
 

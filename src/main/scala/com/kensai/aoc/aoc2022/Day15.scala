@@ -11,8 +11,9 @@ object Day15 {
   private val rowRegex = """Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)""".r
   def parse(lines: Seq[String]): Set[Sensor] =
     lines
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .map {
         case rowRegex(posX, posY, beaconX, beaconY) => Sensor(Point2D(posX.toInt, posY.toInt), Point2D(beaconX.toInt, beaconY.toInt))
         case str                                    => throw new IllegalAccessException(s"Invalid line [$str]")

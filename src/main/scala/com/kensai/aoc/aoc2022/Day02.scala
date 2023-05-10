@@ -35,8 +35,9 @@ object Day02 {
   private val lineRegex = "(\\w) (\\w)".r
   def parse1(lines: Seq[String]): Seq[Round] =
     lines
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .map {
         case lineRegex(opponentStr, playerStr) => Round(fromOpponent(opponentStr), fromPlayer(playerStr))
         case str                               => throw new IllegalArgumentException(s"Invalid line [$str]")
@@ -44,8 +45,9 @@ object Day02 {
 
   def parse2(lines: Seq[String]): Seq[Round] =
     lines
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .map {
         case lineRegex(opponentStr, playerStr) =>
           val opponent = fromOpponent(opponentStr)

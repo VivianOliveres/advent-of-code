@@ -5,8 +5,9 @@ object Day06 {
   def computeFishesCount(line: String, nbDays: Int): Long = {
     val timers = line
       .split("\n")
-      .filterNot(_.isEmpty)
-      .map(_.trim)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .head
       .split(",")
       .map(_.toInt)

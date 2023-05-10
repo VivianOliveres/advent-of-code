@@ -61,8 +61,9 @@ object Day14 {
     inputs
       .split("mask = ")
       .toList
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .map { other =>
         val rows = other.split("\n")
         val mask = Mask(rows.head)

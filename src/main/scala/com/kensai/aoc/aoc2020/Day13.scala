@@ -3,7 +3,9 @@ package com.kensai.aoc.aoc2020
 object Day13 {
 
   def parse(inputs: List[String]): (Long, Set[Long]) = {
-    val rows             = inputs.map(_.trim).filterNot(_.isEmpty)
+    val rows             = inputs.collect {
+      case str if str.nonEmpty => str.trim
+    }
     val currentTimestamp = rows.head.toLong
     val bus = rows.tail.head
       .split(",")
@@ -32,8 +34,9 @@ object Day13 {
 
   def parseRow2(inputs: List[String]): Map[Long, Long] =
     inputs
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .tail
       .head
       .split(",")

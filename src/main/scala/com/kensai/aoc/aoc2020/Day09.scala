@@ -3,7 +3,9 @@ package com.kensai.aoc.aoc2020
 object Day09 {
 
   private def parse(inputs: List[String]) =
-    inputs.map(_.trim).filterNot(_.isEmpty).map(_.toLong)
+    inputs.collect {
+      case str if str.nonEmpty => str.trim
+    }.map(_.toLong)
 
   /** Return true if there is no combinations of 2 elements in `subValues` that is equal to `expectedNumber`.
     */

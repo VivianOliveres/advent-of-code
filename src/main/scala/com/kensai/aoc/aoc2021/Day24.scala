@@ -48,7 +48,9 @@ object Day24 {
   }
 
   def parse(lines: Seq[String]): Seq[Step] =
-    doParse(lines.map(_.trim).filterNot(_.isEmpty))
+    doParse(lines.collect {
+      case str if str.nonEmpty => str.trim
+    })
 
   def doParse(lines: Seq[String]): Seq[Step] = lines.grouped(18).map(Step(_)).toSeq
 }

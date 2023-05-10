@@ -10,8 +10,9 @@ object Day03 {
 
   def sumPrioritiesByElf(elves: Seq[String]): Int =
     elves
-      .map(_.trim)
-      .filterNot(_.isEmpty)
+      .collect {
+        case str if str.nonEmpty => str.trim
+      }
       .map(findSharedItem)
       .map(toPriority)
       .sum
