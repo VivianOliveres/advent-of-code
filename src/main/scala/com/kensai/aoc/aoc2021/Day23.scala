@@ -26,7 +26,13 @@ object Day23 {
   }
 
   type Positions = Map[Point2D, Amphipod]
-  case class Board(positions: Positions, totalEnergySpent: Int, roomSize: Int, possiblePoints: Seq[Point2D]) {
+  case class Board(
+      positions: Positions,
+      totalEnergySpent: Int,
+      roomSize: Int,
+      possiblePoints: Seq[Point2D],
+      roomPositions: Map[Int, Seq[Point2D]],
+      nextPositionsFromRoom: Map[Point2D, Seq[Point2D]]) {
     def isEmpty(position: Point2D): Boolean =
       !positions.contains(position)
   }
@@ -57,7 +63,19 @@ object Day23 {
       Point2D(6, 2),
       Point2D(8, 2)
     )
-    Board(positions.toMap, 0, 2, points)
+    val roomPositions = Amphipod.values
+      .map(_.roomIndex)
+      .map { roomIndex =>
+        roomIndex -> Seq(1, 2).map(Point2D(roomIndex, _))
+      }
+      .toMap
+    val nextPositionsFromRoom = points
+      .filterNot(_.x == 0)
+      .map { currentPosition =>
+        currentPosition -> (currentPosition.y + 1 to 2).map(Point2D(currentPosition.x, _))
+      }
+      .toMap
+    Board(positions.toMap, 0, 2, points, roomPositions, nextPositionsFromRoom)
   }
 
   def parsePart2(rows: Seq[String]): Board = {
@@ -104,7 +122,19 @@ object Day23 {
       Point2D(6, 4),
       Point2D(8, 4)
     )
-    Board(newPositions, 0, 4, points)
+    val roomPositions = Amphipod.values
+      .map(_.roomIndex)
+      .map { roomIndex =>
+        roomIndex -> Seq(1, 2, 3, 4).map(Point2D(roomIndex, _))
+      }
+      .toMap
+    val nextPositionsFromRoom = points
+      .filterNot(_.x == 0)
+      .map { currentPosition =>
+        currentPosition -> (currentPosition.y + 1 to 4).map(Point2D(currentPosition.x, _))
+      }
+      .toMap
+    Board(newPositions, 0, 4, points, roomPositions, nextPositionsFromRoom)
   }
 
   def computeBestSolution(board: Board): Int = {
@@ -154,7 +184,7 @@ object Day23 {
     } yield {
       val newPositions = board.positions - currentPosition + (nextPosition -> amphipod)
       val newEnergy    = board.totalEnergySpent + energyToSpend
-      Board(newPositions, newEnergy, board.roomSize, board.possiblePoints)
+      Board(newPositions, newEnergy, board.roomSize, board.possiblePoints, board.roomPositions, board.nextPositionsFromRoom)
     }
     results
   }
@@ -163,20 +193,17 @@ object Day23 {
     .filterNot(x => x == 2 || x == 4 || x == 6 || x == 8) // Entry of the room
     .map(x => Point2D(x, 0))
 
-  private def roomPositions(roomIndex: Int, roomSize: Int): Seq[Point2D] =
-    (1 to roomSize).map(Point2D(roomIndex, _))
-
   private def nextPossiblePositions(board: Board, currentPosition: Point2D, amphipod: Amphipod): Seq[Point2D] = {
     val result = if (currentPosition.x == amphipod.roomIndex) {
-      val allOks = (currentPosition.y + 1 to board.roomSize)
-        .map(Point2D(currentPosition.x, _))
+      val allOks = board
+        .nextPositionsFromRoom(currentPosition)
         .forall(p => !board.isEmpty(p) && board.positions(p) == amphipod)
       if (allOks) // At a good position => do not move
         Seq()
       else // There is a bad amphipod higher in the room
         hallPositions
     } else if (currentPosition.y == 0) { // from hall to room
-      val rooms = roomPositions(amphipod.roomIndex, board.roomSize)
+      val rooms = board.roomPositions(amphipod.roomIndex)
       if (rooms.exists(p => !board.isEmpty(p) && board.positions(p) != amphipod)) // not empty and invalid amphipod
         Seq()
       else { // empty or good amphipod
