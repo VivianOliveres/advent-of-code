@@ -1,6 +1,7 @@
 package com.kensai.aoc.aoc2021
 
 import com.kensai.aoc.lib.Geo.Point2D
+import com.kensai.aoc.lib.Pairs
 import enumeratum._
 
 import scala.annotation.tailrec
@@ -25,7 +26,7 @@ object Day23 {
   }
 
   type Positions = Map[Point2D, Amphipod]
-  case class Board(positions: Positions, totalEnergySpent: Int, roomSize: Int) {
+  case class Board(positions: Positions, totalEnergySpent: Int, roomSize: Int, possiblePoints: Seq[Point2D]) {
     def isEmpty(position: Point2D): Boolean =
       !positions.contains(position)
   }
@@ -39,7 +40,24 @@ object Day23 {
       (amphipod, x) <- parseRow(rows(y)).zipWithIndex
     } yield (Point2D(2 + x * 2, y - 1), amphipod)
 
-    Board(positions.toMap, 0, 2)
+    val points = Seq(
+      Point2D(0, 0),
+      Point2D(1, 0),
+      Point2D(3, 0),
+      Point2D(5, 0),
+      Point2D(7, 0),
+      Point2D(9, 0),
+      Point2D(10, 0),
+      Point2D(2, 1),
+      Point2D(4, 1),
+      Point2D(6, 1),
+      Point2D(8, 1),
+      Point2D(2, 2),
+      Point2D(4, 2),
+      Point2D(6, 2),
+      Point2D(8, 2)
+    )
+    Board(positions.toMap, 0, 2, points)
   }
 
   def parsePart2(rows: Seq[String]): Board = {
@@ -61,18 +79,46 @@ object Day23 {
       Point2D(8, 2) -> Amber,
       Point2D(8, 3) -> Copper
     )
-    Board(newPositions, 0, 4)
+    val points = Seq(
+      Point2D(0, 0),
+      Point2D(1, 0),
+      Point2D(3, 0),
+      Point2D(5, 0),
+      Point2D(7, 0),
+      Point2D(9, 0),
+      Point2D(10, 0),
+      Point2D(2, 1),
+      Point2D(4, 1),
+      Point2D(6, 1),
+      Point2D(8, 1),
+      Point2D(2, 2),
+      Point2D(4, 2),
+      Point2D(6, 2),
+      Point2D(8, 2),
+      Point2D(2, 3),
+      Point2D(4, 3),
+      Point2D(6, 3),
+      Point2D(8, 3),
+      Point2D(2, 4),
+      Point2D(4, 4),
+      Point2D(6, 4),
+      Point2D(8, 4)
+    )
+    Board(newPositions, 0, 4, points)
   }
 
   def computeBestSolution(board: Board): Int = {
+    // Cache for the path between two points to avoid to recompute them (and generate lots of temporary objects)
+    val paths            = computePaths(board.possiblePoints)
     val bestPositions    = mutable.Map(board.positions -> 0)
     val nextPositions    = mutable.PriorityQueue(board)(Ordering.by(b => -b.totalEnergySpent))
-    val totalEnergySpent = doComputeBestSolution(bestPositions, nextPositions)
+    val totalEnergySpent = doComputeBestSolution(paths, bestPositions, nextPositions)
     totalEnergySpent
   }
 
   @tailrec
   private def doComputeBestSolution(
+      paths: Map[(Point2D, Point2D), Seq[Point2D]],
       bestPositions: mutable.Map[Positions, Int],
       nextPositions: mutable.PriorityQueue[Board]
     ): Int = {
@@ -80,9 +126,9 @@ object Day23 {
     if (isFinal(currentBoard))
       currentBoard.totalEnergySpent
     else if (bestPositions(currentBoard.positions) < currentBoard.totalEnergySpent)
-      doComputeBestSolution(bestPositions, nextPositions)
+      doComputeBestSolution(paths, bestPositions, nextPositions)
     else {
-      val newBoards = computeNextBoards(currentBoard)
+      val newBoards = computeNextBoards(currentBoard, paths)
       newBoards
         .filter(b => !bestPositions.contains(b.positions) || bestPositions(b.positions) > b.totalEnergySpent)
         .foreach { b =>
@@ -90,25 +136,25 @@ object Day23 {
           nextPositions.enqueue(b)
           ()
         }
-      doComputeBestSolution(bestPositions, nextPositions)
+      doComputeBestSolution(paths, bestPositions, nextPositions)
     }
   }
 
   private def isFinal(board: Board): Boolean =
     board.positions.forall { case (point, amphipod) => point.x == amphipod.roomIndex }
 
-  private def computeNextBoards(board: Board): Iterable[Board] = {
+  private def computeNextBoards(board: Board, paths: Map[(Point2D, Point2D), Seq[Point2D]]): Iterable[Board] = {
     val results = for {
       (currentPosition, amphipod) <- board.positions
       nextPosition                <- nextPossiblePositions(board, currentPosition, amphipod)
       if board.isEmpty(nextPosition)
-      path = getPath(currentPosition, nextPosition)
+      path = paths((currentPosition, nextPosition))
       if path.forall(board.isEmpty) // Path is free
       energyToSpend = path.size * amphipod.energy
     } yield {
       val newPositions = board.positions - currentPosition + (nextPosition -> amphipod)
       val newEnergy    = board.totalEnergySpent + energyToSpend
-      Board(newPositions, newEnergy, board.roomSize)
+      Board(newPositions, newEnergy, board.roomSize, board.possiblePoints)
     }
     results
   }
@@ -141,6 +187,9 @@ object Day23 {
 
     result
   }
+
+  private def computePaths(points: Seq[Point2D]): Map[(Point2D, Point2D), Seq[Point2D]] =
+    Pairs.generateAllPairs(points).map { case (from, to) => (from, to) -> getPath(from, to) }.toMap
 
   private def getPath(from: Point2D, to: Point2D): Seq[Point2D] = {
     val hall =

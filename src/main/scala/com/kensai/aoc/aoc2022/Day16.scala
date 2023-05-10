@@ -1,5 +1,7 @@
 package com.kensai.aoc.aoc2022
 
+import com.kensai.aoc.lib.Pairs
+
 import scala.annotation.tailrec
 import scala.collection.mutable
 
@@ -49,24 +51,13 @@ object Day16 {
       }
       .toSeq
       .sorted
-    val allCouples = generateAllPairs(interestingValves, Seq())
+    val allCouples = Pairs.generateOrderedPairs(interestingValves)
     allCouples.map { case (from, to) =>
       val bestPositions = mutable.Map(from -> 0)
       val nextPositions = mutable.PriorityQueue((from, 0))(Ordering.by(b => -b._2))
       val result        = doComputeBestPath(to, valves, bestPositions, nextPositions)
       (from, to) -> result
     }.toMap
-  }
-
-  @tailrec
-  private def generateAllPairs(valveNames: Seq[String], acc: Seq[(String, String)]): Seq[(String, String)] = valveNames match {
-    case Nil      => acc
-    case _ :: Nil => acc
-    case head :: tail =>
-      val ro  = tail.map((head, _))
-      val roo = acc ++ ro
-      generateAllPairs(valveNames.tail, roo)
-    case other => throw new IllegalArgumentException(s"Should not happen: $other")
   }
 
   // TODO: extract Dijkstra
