@@ -11,6 +11,20 @@
 ```
 
 
+## [AOC 2024](https://adventofcode.com/2024)
+
+| Day | Description                              | code                                                            | Spec                                                                | PropertySpec                                                            | Input                                                           |
+|-----|------------------------------------------|-----------------------------------------------------------------|---------------------------------------------------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------|
+| 1   | [](https://adventofcode.com/2024/day/1) | [](../master/src/main/scala/com/kensai/aoc/aoc2024/Day01.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day01Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day01PropSpec.scala) | [](../master/src/test/resources/aoc2024/Day01.input) | 
+
+
+## [AOC 2023](https://adventofcode.com/2023)
+
+| Day | Description                                             | code                                                            | Spec                                                                | PropertySpec                                                            | Input                                                           |
+|-----|---------------------------------------------------------|-----------------------------------------------------------------|---------------------------------------------------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------|
+| 1   | [](https://adventofcode.com/2023/day/1) | [](../master/src/main/scala/com/kensai/aoc/aoc2023/Day01.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2023/Day01Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2023/Day01PropSpec.scala) | [](../master/src/test/resources/aoc2023/Day01.input) | 
+
+
 ## [AOC 2022](https://adventofcode.com/2022)
 
 | Day | Description                                                     | code                                                                 | Spec                                                                         | PropertySpec                                                                         | Input                                                           |
