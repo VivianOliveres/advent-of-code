@@ -6,7 +6,7 @@ object Day12 {
 
   sealed trait Direction extends EnumEntry
   object Direction extends Enum[Direction] {
-    val values = findValues
+    val values: IndexedSeq[Direction] = findValues
     case object N extends Direction
     case object E extends Direction
     case object S extends Direction
@@ -56,11 +56,11 @@ object Day12 {
   }
   case class Right(value: Int) extends Command {
     override def move(pos: Pos): Pos =
-      rotate(pos, value)
+      this.rotate(pos, value)
   }
   case class Left(value: Int) extends Command {
     override def move(pos: Pos): Pos =
-      rotate(pos, -value)
+      this.rotate(pos, -value)
   }
 
   private val rowRegex = """([A-Z])(\d+)""".r
@@ -87,7 +87,7 @@ object Day12 {
           throw new RuntimeException(s"Unknown direction [$something]")
       }
 
-  def move(pos: Pos, inputs: List[Command]) =
+  def move(pos: Pos, inputs: List[Command]): Pos =
     inputs.foldLeft(pos) { case (previous, command) => command.move(previous) }
 
   def computeManhattanDistance(pos: Pos, inputs: List[String]): Long = {
@@ -122,7 +122,7 @@ object Day12 {
       case o              => (pos, o.move(waypoint))
     }
 
-  def move2(pos: Pos, waypoint: Pos, commands: List[Command]): (Pos, Pos) =
+  private def move2(pos: Pos, waypoint: Pos, commands: List[Command]): (Pos, Pos) =
     commands.foldLeft((pos, waypoint)) { case (tuple, command) =>
       doMove2(tuple._1, tuple._2, command)
     }
