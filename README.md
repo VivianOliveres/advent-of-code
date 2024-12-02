@@ -13,9 +13,10 @@
 
 ## [AOC 2024](https://adventofcode.com/2024)
 
-| Day | Description                              | code                                                            | Spec                                                                         | PropertySpec                                                            | Input                                                           |
-|-----|------------------------------------------|-----------------------------------------------------------------|------------------------------------------------------------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------|
+| Day | Description                                               | code                                                                 | Spec                                                                         | PropertySpec                                                            | Input                                                           |
+|-----|-----------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------|
 | 1   | [Historian Hysteria](https://adventofcode.com/2024/day/1) | [Day01](../master/src/main/scala/com/kensai/aoc/aoc2024/Day01.scala) | [Day01Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day01Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day01PropSpec.scala) | [Day01.input](../master/src/test/resources/aoc2024/Day01.input) | 
+| 2   | [Red-Nosed Reports](https://adventofcode.com/2024/day/2)  | [Day02](../master/src/main/scala/com/kensai/aoc/aoc2024/Day02.scala) | [Day02Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day02Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day02PropSpec.scala) | [Day02.input](../master/src/test/resources/aoc2024/Day02.input) | 
 
 
 ## [AOC 2023](https://adventofcode.com/2023)
