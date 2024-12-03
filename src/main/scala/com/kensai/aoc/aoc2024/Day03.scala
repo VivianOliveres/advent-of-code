@@ -32,14 +32,17 @@ object Day03 {
   def doParse(input: String, acc: Seq[Command]): Seq[Command] = {
     if (input.isEmpty)
       acc
+    else if(input.head != 'd' && input.head != 'm') // Fast Skip
+      doParse(input.substring(1), acc)
     else if (input.length >= 4 && input.startsWith("do()"))
       doParse(input.substring(4), acc :+ Do)
     else if (input.length >= 7 && input.startsWith("don't()"))
       doParse(input.substring(7), acc :+ Dont)
     else if (input.length >= 4 && input.startsWith("mul(")) {
+      // 12 is mul(x,y) where x and y can be 3 digits
       val row = input.substring(0, math.min(12, input.length))
       val closeIndex = row.indexOf(")")
-      if (closeIndex < 0)
+      if (closeIndex < 0) // No close parenthesis => skip
         doParse(input.substring(4), acc)
       else {
         val maybeMul = row.substring(0, closeIndex + 1) match {
