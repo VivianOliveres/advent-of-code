@@ -33,7 +33,7 @@ object Day03 {
     if (input.isEmpty)
       acc
     else if(input.head != 'd' && input.head != 'm') // Fast Skip
-      doParse(input.substring(1), acc)
+      doParse(input.tail, acc)
     else if (input.length >= 4 && input.startsWith("do()"))
       doParse(input.substring(4), acc :+ Do)
     else if (input.length >= 7 && input.startsWith("don't()"))
@@ -52,7 +52,7 @@ object Day03 {
         doParse(input.substring(4), acc ++ maybeMul.toSeq)
       }
     } else
-      doParse(input.substring(1), acc)
+      doParse(input.tail, acc)
   }
 
   def executeAllCommands(commands: Seq[Command]): Int =
