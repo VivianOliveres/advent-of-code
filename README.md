@@ -18,6 +18,7 @@
 | 1   | [Historian Hysteria](https://adventofcode.com/2024/day/1) | [Day01](../master/src/main/scala/com/kensai/aoc/aoc2024/Day01.scala) | [Day01Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day01Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day01PropSpec.scala) | [Day01.input](../master/src/test/resources/aoc2024/Day01.input) | 
 | 2   | [Red-Nosed Reports](https://adventofcode.com/2024/day/2)  | [Day02](../master/src/main/scala/com/kensai/aoc/aoc2024/Day02.scala) | [Day02Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day02Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day02PropSpec.scala) | [Day02.input](../master/src/test/resources/aoc2024/Day02.input) | 
 | 3   | [Mull It Over](https://adventofcode.com/2024/day/3)       | [Day03](../master/src/main/scala/com/kensai/aoc/aoc2024/Day03.scala) | [Day03Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day03Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day03PropSpec.scala) | [Day03.input](../master/src/test/resources/aoc2024/Day03.input) | 
+| 4   | [Ceres Search](https://adventofcode.com/2024/day/4)       | [Day0](../master/src/main/scala/com/kensai/aoc/aoc2024/Day04.scala)  | [Day04Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day04Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day04PropSpec.scala) | [Day04.input](../master/src/test/resources/aoc2024/Day04.input) | 
 
 
 ## [AOC 2023](https://adventofcode.com/2023)
