@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
   "org.scalatestplus" %% "scalacheck-1-16" % "3.2.14.0" % Test,
   "org.typelevel" %% "cats-core" % "2.9.0",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0",
+  "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
   "com.beachape" %% "enumeratum" % "1.7.2"
 )
 
