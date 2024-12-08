@@ -37,25 +37,25 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
 
   "computeAntinodes(1 antenas)" should "return nothing" in {
     When("computeAntiNodes")
-    val result = computeAntiNodes(maxX = 11, maxY = 11, antennas = Set(Point2D(5, 5)))
+    val result = computeAntiNodes(maxX = 11, maxY = 11, antennas = Set(Point2D(5, 5)), generator = AntiNodesGeneratorPart1)
 
     Then("Result is empty")
     result shouldBe empty
   }
 
-  "computeAntinodes(2 antennas)" should "return 3 anti-nodes" in {
+  "computeAntinodes(2 antennas)" should "return 2 anti-nodes" in {
     When("computeAntiNodes")
-    val result = computeAntiNodes(maxX = 11, maxY = 11, antennas = Set(Point2D(4, 3), Point2D(5, 5)))
+    val result = computeAntiNodes(maxX = 11, maxY = 11, antennas = Set(Point2D(4, 3), Point2D(5, 5)), generator = AntiNodesGeneratorPart1)
 
     Then("Result is 2 nodes")
     result shouldBe Set(Point2D(3, 1), Point2D(6, 7))
   }
 
-  "computeAntiNodes(3 antennas)" should "return 4 anti-nodes" in {
+  "computeAntiNodes(3 antennas)" should "return 5 anti-nodes" in {
     When("computeAntiNodes")
-    val result = computeAntiNodes(maxX = 11, maxY = 11, antennas = Set(Point2D(4, 3), Point2D(5, 5), Point2D(8, 4)))
+    val result = computeAntiNodes(maxX = 11, maxY = 11, antennas = Set(Point2D(4, 3), Point2D(5, 5), Point2D(8, 4)), generator = AntiNodesGeneratorPart1)
 
-    Then("Result is 4 nodes")
+    Then("Result is 5 nodes")
     result shouldBe Set(Point2D(3, 1), Point2D(6, 7), Point2D(0, 2), Point2D(2, 6), Point2D(11, 3))
   }
 
@@ -64,7 +64,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
     val input = parse(puzzleSpecInput)
 
     When("computeAntiNodes")
-    val result = computeAntiNodes(maxX = input.maxX, maxY = input.maxY, antennas = input.antennas('A'))
+    val result = computeAntiNodes(maxX = input.maxX, maxY = input.maxY, antennas = input.antennas('A'), generator = AntiNodesGeneratorPart1)
 
     Then("Result is 5 nodes")
     result shouldBe Set(Point2D(7, 7), Point2D(10, 10), Point2D(10, 11), Point2D(4, 2), Point2D(3, 1))
@@ -75,7 +75,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
     val input = parse(puzzleSpecInput)
 
     When("computeAntiNodes")
-    val result = computeAntiNodes(maxX = input.maxX, maxY = input.maxY, antennas = input.antennas('0'))
+    val result = computeAntiNodes(maxX = input.maxX, maxY = input.maxY, antennas = input.antennas('0'), generator = AntiNodesGeneratorPart1)
 
     Then("Result is 10 nodes")
     result should have size 10
@@ -86,7 +86,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
     val input = parse(puzzleSpecInput)
 
     When("countAntiNodes(input)")
-    val result = countAntiNodes(input)
+    val result = countAntiNodes(input, generator = AntiNodesGeneratorPart1)
 
     Then("Result is 14")
     result shouldBe 14
@@ -97,7 +97,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
     val input = parse(puzzleInput)
 
     When("countAntiNodes(input)")
-    val result = countAntiNodes(input)
+    val result = countAntiNodes(input, generator = AntiNodesGeneratorPart1)
 
     Then("Result is expected")
     result shouldBe 285
@@ -108,7 +108,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
     val antennas = Set(Point2D(0, 0), Point2D(3, 1), Point2D(1, 2))
 
     When("computeAntiNodes")
-    val result = computeResonantAntiNodes(maxX = 9, maxY = 9, antennas = antennas)
+    val result = computeAntiNodes(maxX = 9, maxY = 9, antennas = antennas, generator = AntiNodesGeneratorPart2(9))
 
     Then("Result is 9 nodes")
     result should have size 9
@@ -125,7 +125,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
     val input = parse(puzzleSpecInput)
 
     When("countResonantAntiNodes(input)")
-    val result = countResonantAntiNodes(input)
+    val result = countAntiNodes(input, generator = AntiNodesGeneratorPart2(math.max(input.maxX, input.maxY)))
 
     Then("Result is 34")
     result shouldBe 34
@@ -136,7 +136,7 @@ class Day08Spec extends AnyFlatSpec with GivenWhenThen {
     val input = parse(puzzleInput)
 
     When("countResonantAntiNodes(input)")
-    val result = countResonantAntiNodes(input)
+    val result = countAntiNodes(input, generator = AntiNodesGeneratorPart2(math.max(input.maxX, input.maxY)))
 
     Then("Result is expected")
     result shouldBe 944
