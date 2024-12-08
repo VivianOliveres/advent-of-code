@@ -19,6 +19,13 @@ object Geo {
     def plusY(value: Int): Point2D =
       Point2D(x, y + value)
 
+    def +(other: Point2D): Point2D =
+      Point2D(this.x + other.x, this.y + other.y)
+    def -(other: Point2D): Point2D =
+      Point2D(this.x - other.x, this.y - other.y)
+    def *(scalar: Int): Point2D =
+      Point2D(this.x * scalar, this.y * scalar)
+
     def prettyPrint: String = s"($x, $y)"
   }
   case class Distance2D(x: Int, y: Int)
