@@ -24,6 +24,7 @@
 | 8   | [Resonant Collinearity](https://adventofcode.com/2024/day/8) | [Day08](../master/src/main/scala/com/kensai/aoc/aoc2024/Day08.scala) | [Day08Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day08Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day08PropSpec.scala) | [Day08.input](../master/src/test/resources/2024/Day08.input)    | 
 | 9   | [Disk Fragmenter](https://adventofcode.com/2024/day/9)       | [Day09](../master/src/main/scala/com/kensai/aoc/aoc2024/Day09.scala) | [Day09Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day09Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day09PropSpec.scala) | [Day09.input](../master/src/test/resources/2024/Day09.input)    | 
 | 10  | [Hoof It](https://adventofcode.com/2024/day/10)              | [Day10](../master/src/main/scala/com/kensai/aoc/aoc2024/Day10.scala) | [Day10Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day10Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day10PropSpec.scala) | [Day10.input](../master/src/test/resources/2024/Day10.input)    | 
+| 11  | [Plutonian Pebbles](https://adventofcode.com/2024/day/11)    | [Day11](../master/src/main/scala/com/kensai/aoc/aoc2024/Day11.scala) | [Day11Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day11Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day11PropSpec.scala) | [Day11.input](../master/src/test/resources/2024/Day11.input)    | 
 
 
 ## [AOC 2023](https://adventofcode.com/2023)
