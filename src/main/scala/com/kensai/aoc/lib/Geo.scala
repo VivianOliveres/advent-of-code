@@ -26,6 +26,16 @@ object Geo {
     def *(scalar: Int): Point2D =
       Point2D(this.x * scalar, this.y * scalar)
 
+    def nextPoints(): Seq[Point2D] = Seq(
+      Point2D(x + 1, y),
+      Point2D(x - 1, y),
+      Point2D(x, y + 1),
+      Point2D(x, y - 1)
+    )
+
+    def in(maxX: Int, maxY: Int): Boolean =
+      x >= 0 && y >= 0 && x <= maxX && y <= maxY
+
     def prettyPrint: String = s"($x, $y)"
   }
   case class Distance2D(x: Int, y: Int)
