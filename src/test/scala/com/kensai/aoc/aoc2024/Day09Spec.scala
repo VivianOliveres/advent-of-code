@@ -84,20 +84,18 @@ class Day09Spec extends AnyFlatSpec with GivenWhenThen {
     val result = rearrange3(input)
 
     Then("Result is 00992111777.44.333....5555.6666.....8888..")
-    result shouldBe Seq(
-      (FullId(0), 2), (FullId(9), 2),(FullId(2), 1), (FullId(1), 3), (FullId(7), 3),
+    result shouldBe Vector((FullId(0), 2), (FullId(9), 2), (FullId(2), 1), (FullId(1), 3), (FullId(7), 3),
       (EmptyId, 1),
       (FullId(4), 2),
       (EmptyId, 1),
       (FullId(3), 3),
-      (EmptyId, 4),
+      (EmptyId, 1), (EmptyId, 2), (EmptyId, 1),
       (FullId(5), 4),
       (EmptyId, 1),
       (FullId(6), 4),
-      (EmptyId, 5),
+      (EmptyId, 1), (EmptyId, 3), (EmptyId, 1),
       (FullId(8), 4),
-      (EmptyId, 2)
-    )
+      (EmptyId, 0), (EmptyId, 2))
   }
 
   "checkSum2" should "find result from Spec input" in {
