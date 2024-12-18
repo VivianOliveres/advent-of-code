@@ -21,17 +21,18 @@ object Day18 {
     val grid = input.bytesToFall.take(rounds).toSet
     val start = Point2D(0, 0)
     val end = Point2D(input.max, input.max)
-    computeMinSteps(input.max, grid, end, Map(), Seq((start, 0)))
+    val result = computeMinSteps(input.max, grid, end, Map(), Seq((start, 0, Set())))
+    result.map(_._1)
   }
 
   @tailrec
-  def computeMinSteps(max: Int, grid: Set[Point2D], end: Point2D, seen: Map[Point2D, Int], todo: Seq[(Point2D, Int)]): Option[Int] = {
+  def computeMinSteps(max: Int, grid: Set[Point2D], end: Point2D, seen: Map[Point2D, Int], todo: Seq[(Point2D, Int, Set[Point2D])]): Option[(Int, Set[Point2D])] = {
     if (todo.isEmpty){
       None
     } else {
-      val (current, count) = todo.head
+      val (current, count, path) = todo.head
       if (current == end)
-        Some(count)
+        Some((count, path))
       else if (seen.contains(current) && seen(current) <= count) // already seen a better path
         computeMinSteps(max, grid, end, seen, todo.tail)
       else {
@@ -40,7 +41,7 @@ object Day18 {
           .filterNot(grid.contains)
           .filter(p => p.x >= 0 && p.x <= max)
           .filter(p => p.y >= 0 && p.y <= max)
-          .map(p => (p, count + 1))
+          .map(p => (p, count + 1, path + current))
         val nextTodo = (todo.tail ++ nextPoints ).sortBy(_._2) // Keep smallest first to find solution first
         val nextSeen = if (seen.contains(current)) seen.updated(current, count) else seen + (current -> count)
         computeMinSteps(max, grid, end, nextSeen, nextTodo)
@@ -51,11 +52,28 @@ object Day18 {
   def minStepsAfterRemoval(input: Day18Input, minRounds: Int): Point2D = {
     val start = Point2D(0, 0)
     val end = Point2D(input.max, input.max)
-    val lastByte = (minRounds until input.bytesToFall.size).find {i =>
-      val grid = input.bytesToFall.take(i).toSet
-      computeMinSteps(input.max, grid, end, Map(), Seq((start, 0))).isEmpty
+    val initialGrid = input.bytesToFall.take(minRounds).toSet
+    val initialStep = computeMinSteps(input.max, initialGrid, end, Map(), Seq((start, 0, Set(start))))
+    doMinStepsAfterRemoval(input, end, minRounds + 1, initialStep.get._2)
+  }
+
+  @tailrec
+  private def doMinStepsAfterRemoval(input: Day18Input, end: Point2D, round: Int, currentBestPath: Set[Point2D]): Point2D = {
+    val newByte = input.bytesToFall(round - 1)
+    if (currentBestPath.contains(newByte)) {
+      // New byte is on the best path
+      // Recompute best path
+      val start = Point2D(0, 0)
+      val grid = input.bytesToFall.take(round).toSet
+      val result = computeMinSteps(input.max, grid, end, Map(), Seq((start, 0, Set(start))))
+      if (result.isDefined) // If there is a new best path => continue
+        doMinStepsAfterRemoval(input, end, round + 1, result.get._2)
+      else // If there is no best path, the new byte is the blocking one
+        newByte
+    } else {
+      // New byte is not on the best path => No need to recompute
+      doMinStepsAfterRemoval(input, end, round + 1, currentBestPath)
     }
-    input.bytesToFall(lastByte.get - 1)
   }
 
 }
