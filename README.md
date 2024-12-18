@@ -31,6 +31,7 @@
 | 15  | [Warehouse Woes](https://adventofcode.com/2024/day/15)         | [Day15](../master/src/main/scala/com/kensai/aoc/aoc2024/Day15.scala) | [Day15Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day15Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day15PropSpec.scala) | [Day15.input](../master/src/test/resources/2024/Day15.input)    | 
 | 16  | [Reindeer Maze](https://adventofcode.com/2024/day/16)          | [Day16](../master/src/main/scala/com/kensai/aoc/aoc2024/Day16.scala) | [Day16Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day16Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day16PropSpec.scala) | [Day16.input](../master/src/test/resources/2024/Day16.input)    | 
 | 17  | [Chronospatial Computer](https://adventofcode.com/2024/day/17) | [Day17](../master/src/main/scala/com/kensai/aoc/aoc2024/Day17.scala) | [Day17Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day17Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day17PropSpec.scala) | [Day17.input](../master/src/test/resources/2024/Day17.input)    | 
+| 18  | [RAM Run](https://adventofcode.com/2024/day/18)                | [Day18](../master/src/main/scala/com/kensai/aoc/aoc2024/Day18.scala) | [Day18Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day18Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day18PropSpec.scala) | [Day18.input](../master/src/test/resources/2024/Day18.input)    | 
 
 
 ## [AOC 2023](https://adventofcode.com/2023)
