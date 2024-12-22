@@ -147,7 +147,7 @@ class Day19Spec extends AnyFlatSpec with GivenWhenThen {
     val result = sumPossible(input)
 
     Then("Output is expected")
-    result shouldBe -1L
+    result shouldBe 758890600222015L
   }
 
 
