@@ -36,6 +36,9 @@ object Geo {
     def in(maxX: Int, maxY: Int): Boolean =
       x >= 0 && y >= 0 && x <= maxX && y <= maxY
 
+    def manhattanDistance(other: Point2D): Int =
+      math.abs(other.x - x) + math.abs(other.y - y)
+
     def prettyPrint: String = s"($x, $y)"
   }
   case class Distance2D(x: Int, y: Int)
