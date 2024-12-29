@@ -35,6 +35,7 @@
 | 19  | [Linen Layout](https://adventofcode.com/2024/day/19)           | [Day19](../master/src/main/scala/com/kensai/aoc/aoc2024/Day19.scala) | [Day19Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day19Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day19PropSpec.scala) | [Day19.input](../master/src/test/resources/2024/Day19.input)    | 
 | 20  | [Race Condition](https://adventofcode.com/2024/day/20)         | [Day20](../master/src/main/scala/com/kensai/aoc/aoc2024/Day20.scala) | [Day20Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day20Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day20PropSpec.scala) | [Day20.input](../master/src/test/resources/2024/Day20.input)    | 
 | 21  | [Keypad Conundrum](https://adventofcode.com/2024/day/21)       | [Day21](../master/src/main/scala/com/kensai/aoc/aoc2024/Day21.scala) | [Day21Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day21Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day21PropSpec.scala) | [Day21.input](../master/src/test/resources/2024/Day21.input)    | 
+| 22  | [Monkey Market](https://adventofcode.com/2024/day/22)          | [Day22](../master/src/main/scala/com/kensai/aoc/aoc2024/Day22.scala) | [Day22Spec](../master/src/test/scala/com/kensai/aoc/aoc2024/Day22Spec.scala) | [](../master/src/test/scala/com/kensai/aoc/aoc2024/Day22PropSpec.scala) | [Day22.input](../master/src/test/resources/2024/Day22.input)    | 
 
 
 ## [AOC 2023](https://adventofcode.com/2023)
