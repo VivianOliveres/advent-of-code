@@ -4,7 +4,6 @@ import scala.annotation.tailrec
 
 object Day17 {
 
-
   case class Day17Input(a: Long, b: Long, c: Long, program: Seq[Long], output: Seq[Long], operationPointer: Int) {
 
     def comboOperand(operand: Long): Long = operand match {
@@ -60,7 +59,7 @@ object Day17 {
       case 3 =>
         if (input.a == 0) {
           (input.a, input.b, input.c, input.output, input.operationPointer + 2)
-        }else {
+        } else {
           (input.a, input.b, input.c, input.output, operand.toInt)
         }
       case 4 =>
@@ -83,32 +82,35 @@ object Day17 {
     }
   }
 
-  // TODO: part2
+  def solvePart2(input: Day17Input): Long = {
+    doSolve(input, Seq(3L))
+  }
 
-//  def outputItself(input: Day17Input): Long = {
-//    findMatchingOutput(input, input.program)
-//  }
-//
-//  def findMatchingOutput(input: Day17Input, target: Seq[Long]): Long = {
-//    var aStart = if (target.size == 1)
-//      0L
-//    else
-//      findMatchingOutput(input, target.tail) >> 3
-//
-//    println(s"$aStart target[$target]")
-//    var newInput = input.copy(a = aStart)
-//    var result = executeInput(newInput)
-//    while (result.output != target) {
-//      newInput = input.copy(a = aStart)
-//      result = executeInput(newInput)
-//      aStart = aStart + 1
-////      println(s"$aStart result[${result.output}]")
-//      if (result.output.size > target.size)
-//        throw new IllegalArgumentException(s"Invalid sizes: output[${result.output}] target[${target}]")
-//    }
-//
-//    println(s"$target => $aStart")
-//    aStart
-//  }
+  @tailrec
+  private def doSolve(baseInput: Day17Input, todo: Seq[Long]): Long = {
+    val a = todo.head
 
+    // Generate next As by multiplying by 8 (ie 3 bytes moves)
+    // then generates all possible bytes for strong byte (ie (0 to 7).map(n => ... | n)
+    val newAs = (0 to 7).map(n => (a << 3) | n)
+
+    // Select all A that produces the correct output (so far)
+    val allWorkingAs = newAs
+      .map(newA => (newA, baseInput.copy(a = newA)))
+      .map{case (newA, newInput) => (newA, executeInput(newInput))}
+      .filter{case (_, newInput) => newInput.output == baseInput.program.takeRight(newInput.output.size)}
+
+    if (allWorkingAs.isEmpty)
+      doSolve(baseInput, todo.tail)
+    else {
+      // Return first/smaller solution
+      val maybeSolution = allWorkingAs.find(i => i._2.output == baseInput.program)
+      if (maybeSolution.isDefined)
+        maybeSolution.get._1
+      else {
+        val nextTod = allWorkingAs.map(_._1)
+        doSolve(baseInput, todo.tail ++ nextTod)
+      }
+    }
+  }
 }

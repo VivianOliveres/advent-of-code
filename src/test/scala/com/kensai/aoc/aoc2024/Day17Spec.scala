@@ -113,29 +113,15 @@ class Day17Spec extends AnyFlatSpec with GivenWhenThen {
     result.output shouldBe Seq(1L,5L,0L,3L,7L,3L,0L,3L,1L)
   }
 
-  // TODO: part2
+  "solvePart2(input)" should "find result from puzzle input" in {
+    Given("Puzzle input")
+    val input = parse(puzzleInput)
 
-//  "outputItself(input)" should "find result from puzzle spec input" in {
-//    Given("Puzzle spec input")
-//    val input = Day17Input(2024L, 0L, 0L, Seq(0L,3L,5L,4L,3L,0L), Seq(), 0)
-//
-//    When("outputItself(input)")
-//    val result = outputItself(input)
-//
-//    Then("Result is 117440")
-//    result shouldBe 117440L
-//  }
-//
-//  "outputItself(input)" should "find result from puzzle input" in {
-//    Given("Puzzle input")
-//    val input = parse(puzzleInput)
-//
-//    When("outputItself(input)")
-//    val result = outputItself(input)
-//
-//    Then("Result is expected")
-//    result shouldBe 1L
-//  }
+    When("solvePart2(input)")
+    val result = solvePart2(input)
 
+    Then("Result is expected")
+    result shouldBe 105981155568026L
+  }
 
 }
